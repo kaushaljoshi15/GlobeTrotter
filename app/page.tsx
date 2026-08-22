@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Compass, 
   MapPin, 
@@ -23,22 +24,37 @@ import {
   ChevronRight, 
   ArrowUpRight, 
   Plane,
-  ArrowDown
+  Wallet,
+  Calculator,
+  Hotel,
+  Utensils,
+  Ticket
 } from 'lucide-react';
 import BackgroundCarousel, { SCENIC_SLIDES } from '@/components/BackgroundCarousel';
+import Footer from '@/components/Footer';
 
 export default function Home() {
+  const router = useRouter();
   const [activeSlideIdx, setActiveSlideIdx] = useState(0);
   const currentSlide = SCENIC_SLIDES[activeSlideIdx];
+
+  // Quick Home AI Prompt State
+  const [homePrompt, setHomePrompt] = useState('I have ₹30,000 and 5 days. Suggest mountains.');
 
   const handleSelectDestination = (index: number) => {
     setActiveSlideIdx(index);
   };
 
+  const handleAISubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!homePrompt.trim()) return;
+    router.push(`/ai-planner?prompt=${encodeURIComponent(homePrompt.trim())}`);
+  };
+
   return (
     <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] selection:bg-[#c99a6b] selection:text-white font-sans relative overflow-x-hidden">
       
-      {/* Full-Bleed Cinematic Background Carousel (Unobstructed) */}
+      {/* Full-Bleed Cinematic Background Carousel */}
       <BackgroundCarousel 
         currentIndex={activeSlideIdx} 
         onSlideChange={(newIdx) => setActiveSlideIdx(newIdx)} 
@@ -73,16 +89,23 @@ export default function Home() {
           {/* Right: Navigation Links & CTA */}
           <div className="flex items-center gap-4">
             <Link 
+              href="/ai-planner" 
+              className="text-xs tracking-wider uppercase text-[#e4c29e] hover:text-white font-bold transition-colors hidden md:flex items-center gap-1"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#c99a6b]" />
+              <span>AI Planner</span>
+            </Link>
+            <Link 
+              href="/budget" 
+              className="text-xs tracking-wider uppercase text-stone-300 hover:text-white font-medium transition-colors hidden md:block"
+            >
+              Smart Budget
+            </Link>
+            <Link 
               href="/explore" 
               className="text-xs tracking-wider uppercase text-stone-300 hover:text-white font-medium transition-colors hidden md:block"
             >
               Destinations
-            </Link>
-            <Link 
-              href="/admin" 
-              className="text-xs tracking-wider uppercase text-stone-300 hover:text-white font-medium transition-colors hidden md:block"
-            >
-              Analytics
             </Link>
             <Link 
               href="/login" 
@@ -101,7 +124,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Hero Section (Directly on Full-Bleed Background without any white box) */}
+      {/* Main Hero Section */}
       <main className="relative z-20 pt-36 sm:pt-44 pb-20 px-4 sm:px-8 max-w-6xl mx-auto flex flex-col items-center text-center">
         
         {/* Subtle Live Destination Tag */}
@@ -116,31 +139,61 @@ export default function Home() {
           Travel, <span className="font-bold italic text-transparent bg-clip-text bg-gradient-to-r from-[#e4c29e] via-[#f7e3ce] to-[#c99a6b]">composed.</span>
         </h1>
 
-        <p className="font-serif text-lg sm:text-2xl text-stone-200 leading-relaxed max-w-2xl font-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)] mb-10">
-          We curate intelligent <span className="font-semibold italic text-white">multi-city journeys</span> across the world’s most evocative mountain hills, serene archipelagos &amp; timeless cultural capitals.
+        <p className="font-serif text-lg sm:text-2xl text-stone-200 leading-relaxed max-w-2xl font-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)] mb-8">
+          We curate intelligent <span className="font-semibold italic text-white">multi-city journeys</span> across evocative mountain hills, serene archipelagos &amp; timeless cultural capitals.
         </p>
 
-        {/* Luxury CTA Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-14">
-          <Link
-            href="/register"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] font-sans font-bold text-xs tracking-wider uppercase shadow-[0_10px_35px_rgba(201,154,107,0.4)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+        {/* AI Itinerary Prompt Bar in Hero */}
+        <div className="w-full max-w-2xl mb-8">
+          <form 
+            onSubmit={handleAISubmit}
+            className="relative bg-[#14151a]/90 backdrop-blur-2xl border border-white/20 p-1.5 rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.8)] flex items-center gap-2"
           >
-            <span>Plan a Journey Free</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            <Sparkles className="w-5 h-5 text-[#c99a6b] ml-4 shrink-0" />
+            <input
+              type="text"
+              value={homePrompt}
+              onChange={(e) => setHomePrompt(e.target.value)}
+              placeholder='e.g. "I have ₹30,000 and 5 days. Suggest mountains."'
+              className="w-full bg-transparent text-xs sm:text-sm text-white placeholder-stone-400 focus:outline-none px-2 font-sans"
+            />
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] font-sans font-bold text-xs uppercase tracking-wider shadow-lg shrink-0 cursor-pointer"
+            >
+              Ask AI &rarr;
+            </button>
+          </form>
 
-          <Link
-            href="/explore"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#14151a]/80 hover:bg-[#1f2128] border border-white/20 text-stone-200 hover:text-white font-sans font-semibold text-xs tracking-wider uppercase backdrop-blur-xl shadow-xl transition-all flex items-center justify-center gap-2"
-          >
-            <Compass className="w-4 h-4 text-[#e4c29e]" />
-            <span>Explore Destinations Catalog</span>
-          </Link>
+          {/* Quick Preset Tags */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+            {[
+              '⛰️ ₹30k / 5 Days Mountains',
+              '🏖️ $1,400 / 6 Days Bali & Coves',
+              '⛩️ $1,800 / 7 Days Kyoto & Tokyo',
+              '🏔️ €1,800 / 5 Days Swiss Alps'
+            ].map((tag, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  const promptMap: { [key: number]: string } = {
+                    0: 'I have ₹30,000 and 5 days. Suggest mountains.',
+                    1: '6 days in Tropical Archipelagos & Beach Coves on $1,400',
+                    2: '7 days Zen temples, tea ceremonies & food tour in Kyoto on $1,800',
+                    3: '5 days Swiss Alpine Glacier Passes & mountain railways on €1,800'
+                  };
+                  router.push(`/ai-planner?prompt=${encodeURIComponent(promptMap[idx])}`);
+                }}
+                className="px-3 py-1 rounded-full bg-[#14151a]/80 hover:bg-white/15 text-[11px] text-stone-300 hover:text-white border border-white/10 backdrop-blur-md transition-all cursor-pointer"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Interactive Translucent Destination Switcher Bar */}
-        <div className="w-full max-w-3xl bg-[#14151a]/80 backdrop-blur-2xl border border-white/10 p-3 rounded-full shadow-2xl flex items-center justify-between gap-2 overflow-x-auto">
+        <div className="w-full max-w-3xl bg-[#14151a]/80 backdrop-blur-2xl border border-white/10 p-3 rounded-full shadow-2xl flex items-center justify-between gap-2 overflow-x-auto mb-16">
           <span className="text-[11px] font-sans font-bold uppercase tracking-wider text-[#c99a6b] pl-3 shrink-0 hidden sm:inline">
             Curated Views:
           </span>
@@ -165,8 +218,61 @@ export default function Home() {
           </div>
         </div>
 
+        {/* 2 Core Feature Highlights: AI Architect + Smart Budget */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-16 font-sans">
+          
+          {/* Feature 1: AI Itinerary Architect */}
+          <div className="p-8 rounded-[32px] bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 hover:border-[#c99a6b]/50 shadow-2xl transition-all flex flex-col justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#e4c29e] text-[10px] font-bold uppercase tracking-widest mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-[#c99a6b]" />
+                <span>Flagship WOW Engine</span>
+              </div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-medium text-white mb-2">
+                AI Itinerary Architect
+              </h3>
+              <p className="text-xs text-stone-300 leading-relaxed mb-6 font-serif">
+                Simply type: <em>"I have ₹30,000 and 5 days. Suggest mountains."</em> — our AI engine immediately generates a complete, multi-city day-by-day expedition with activity costs and hotel suggestions.
+              </p>
+            </div>
+
+            <Link
+              href="/ai-planner"
+              className="inline-flex items-center justify-between p-4 rounded-2xl bg-[#0c0d10] border border-white/10 hover:border-[#c99a6b] text-xs font-bold text-white transition-all group"
+            >
+              <span>Try AI Planner with Your Budget</span>
+              <ArrowRight className="w-4 h-4 text-[#e4c29e] group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          {/* Feature 2: Smart Budget Atelier */}
+          <div className="p-8 rounded-[32px] bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 hover:border-[#c99a6b]/50 shadow-2xl transition-all flex flex-col justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#e4c29e] text-[10px] font-bold uppercase tracking-widest mb-3">
+                <Wallet className="w-3.5 h-3.5 text-[#c99a6b]" />
+                <span>Zero-Math Finance</span>
+              </div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-medium text-white mb-2">
+                Smart Travel Budget Atelier
+              </h3>
+              <p className="text-xs text-stone-300 leading-relaxed mb-6 font-serif">
+                Auto-split your total budget across accommodations (35%), transit (22%), food (23%), and experiences (15%). View safe daily spending caps and split bills with travel companions.
+              </p>
+            </div>
+
+            <Link
+              href="/budget"
+              className="inline-flex items-center justify-between p-4 rounded-2xl bg-[#0c0d10] border border-white/10 hover:border-[#c99a6b] text-xs font-bold text-white transition-all group"
+            >
+              <span>Open Smart Budget Calculator</span>
+              <ArrowRight className="w-4 h-4 text-[#e4c29e] group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+        </div>
+
         {/* Curated Signature Itineraries Grid */}
-        <div className="w-full mt-24 mb-16 text-left">
+        <div className="w-full mb-16 text-left">
           
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
             <div>
@@ -187,7 +293,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-sans">
             
             {/* Expedition 1 */}
             <div className="rounded-[28px] bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 p-6 flex flex-col justify-between hover:border-[#c99a6b]/50 transition-all duration-300 group shadow-2xl">
@@ -198,30 +304,25 @@ export default function Home() {
                     alt="Swiss Alps"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-sans font-bold uppercase tracking-wider text-white">
-                    8 Days &bull; Alpine Trail
-                  </span>
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-amber-300 border border-white/10">
+                    High Alps &bull; 7 Days
+                  </div>
                 </div>
 
-                <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#c99a6b]">
-                  Switzerland &bull; Valais
-                </span>
-                <h3 className="font-serif text-xl font-bold text-white mt-1 group-hover:text-[#e4c29e] transition-colors">
-                  The Alpine Glacier Odyssey
-                </h3>
-                <p className="font-sans text-xs text-stone-400 mt-1.5 leading-relaxed">
+                <h3 className="font-serif text-xl font-bold text-white mb-2">The Alpine Glacier Odyssey</h3>
+                <p className="font-serif text-xs text-stone-400 line-clamp-2 mb-4">
                   Zermatt, Matterhorn Glacier Paradise &amp; panoramic Glacier Express railway stops.
                 </p>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[10px] text-stone-500 uppercase font-semibold">Budget Target</span>
-                  <p className="font-sans font-bold text-white text-sm">$1,850 USD</p>
+                  <span className="text-[10px] text-stone-400 block uppercase font-bold">Budget Target</span>
+                  <span className="font-serif font-bold text-white text-sm">$1,850 USD</span>
                 </div>
                 <Link
                   href="/trips/new"
-                  className="px-4 py-2 rounded-full bg-white/10 hover:bg-[#c99a6b] hover:text-[#0c0d10] text-xs font-sans font-bold text-white transition-all"
+                  className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-stone-200 hover:text-white text-xs font-semibold transition-all"
                 >
                   Plan Route &rarr;
                 </Link>
@@ -233,34 +334,29 @@ export default function Home() {
               <div>
                 <div className="h-48 rounded-2xl overflow-hidden mb-4 relative">
                   <img 
-                    src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=800&q=80" 
+                    src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" 
                     alt="Santorini"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-sans font-bold uppercase tracking-wider text-white">
-                    10 Days &bull; Cyclades
-                  </span>
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-amber-300 border border-white/10">
+                    Aegean &bull; 9 Days
+                  </div>
                 </div>
 
-                <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#c99a6b]">
-                  Greece &bull; Aegean
-                </span>
-                <h3 className="font-serif text-xl font-bold text-white mt-1 group-hover:text-[#e4c29e] transition-colors">
-                  The Cycladic Solitude
-                </h3>
-                <p className="font-sans text-xs text-stone-400 mt-1.5 leading-relaxed">
+                <h3 className="font-serif text-xl font-bold text-white mb-2">The Cycladic Solitude</h3>
+                <p className="font-serif text-xs text-stone-400 line-clamp-2 mb-4">
                   Santorini caldera sunsets, Milos moonscape beaches &amp; secluded Aegean coves.
                 </p>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[10px] text-stone-500 uppercase font-semibold">Budget Target</span>
-                  <p className="font-sans font-bold text-white text-sm">$2,200 USD</p>
+                  <span className="text-[10px] text-stone-400 block uppercase font-bold">Budget Target</span>
+                  <span className="font-serif font-bold text-white text-sm">$2,200 USD</span>
                 </div>
                 <Link
                   href="/trips/new"
-                  className="px-4 py-2 rounded-full bg-white/10 hover:bg-[#c99a6b] hover:text-[#0c0d10] text-xs font-sans font-bold text-white transition-all"
+                  className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-stone-200 hover:text-white text-xs font-semibold transition-all"
                 >
                   Plan Route &rarr;
                 </Link>
@@ -276,30 +372,25 @@ export default function Home() {
                     alt="Kyoto"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-sans font-bold uppercase tracking-wider text-white">
-                    12 Days &bull; Heritage &amp; Hills
-                  </span>
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-amber-300 border border-white/10">
+                    Japan &bull; 10 Days
+                  </div>
                 </div>
 
-                <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#c99a6b]">
-                  Japan &bull; Kansai
-                </span>
-                <h3 className="font-serif text-xl font-bold text-white mt-1 group-hover:text-[#e4c29e] transition-colors">
-                  Kyoto Mist &amp; Tokyo Neon
-                </h3>
-                <p className="font-sans text-xs text-stone-400 mt-1.5 leading-relaxed">
+                <h3 className="font-serif text-xl font-bold text-white mb-2">Kyoto Mist &amp; Tokyo Neon</h3>
+                <p className="font-serif text-xs text-stone-400 line-clamp-2 mb-4">
                   Arashiyama bamboo hillside walks, Gion tea ceremonies &amp; Shinjuku nightscapes.
                 </p>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[10px] text-stone-500 uppercase font-semibold">Budget Target</span>
-                  <p className="font-sans font-bold text-white text-sm">$2,450 USD</p>
+                  <span className="text-[10px] text-stone-400 block uppercase font-bold">Budget Target</span>
+                  <span className="font-serif font-bold text-white text-sm">$2,450 USD</span>
                 </div>
                 <Link
                   href="/trips/new"
-                  className="px-4 py-2 rounded-full bg-white/10 hover:bg-[#c99a6b] hover:text-[#0c0d10] text-xs font-sans font-bold text-white transition-all"
+                  className="px-4 py-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-stone-200 hover:text-white text-xs font-semibold transition-all"
                 >
                   Plan Route &rarr;
                 </Link>
@@ -307,78 +398,53 @@ export default function Home() {
             </div>
 
           </div>
+
         </div>
 
-        {/* The Three Pillars of Travel Composition */}
-        <div className="w-full mt-4 mb-16 rounded-[32px] bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 p-8 sm:p-12 text-left shadow-2xl">
-          
-          <div className="max-w-xl mb-10">
-            <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#c99a6b]">
+        {/* Bespoke Architecture Pillars */}
+        <div className="w-full rounded-[32px] bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 p-8 sm:p-12 text-left shadow-2xl mb-12 font-sans">
+          <div className="max-w-xl mb-8">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c99a6b]">
               Why Discerning Travelers Choose GlobeTrotter
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-medium text-white tracking-tight mt-1">
-              Engineered with <span className="italic font-normal text-[#e4c29e]">architectural precision.</span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-tight mt-1">
+              Engineered with <span className="font-bold italic text-[#e4c29e]">architectural precision.</span>
             </h2>
-            <p className="font-sans text-xs text-stone-400 mt-2">
+            <p className="text-xs text-stone-400 mt-2 font-serif">
               Everything needed to compose complex, unforgettable journeys without spreadsheets or guesswork.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="space-y-2">
               <span className="font-serif text-3xl font-bold text-[#c99a6b]">01</span>
-              <h3 className="font-serif text-lg font-bold text-white">Smart Timeline Stop Builder</h3>
-              <p className="font-sans text-xs text-stone-400 leading-relaxed">
+              <h4 className="font-bold text-white text-sm">Smart Timeline Stop Builder</h4>
+              <p className="text-xs text-stone-400 leading-relaxed">
                 Seamlessly model multi-city sequences, arrival dates, and transport links with interactive route mapping.
               </p>
             </div>
 
-            <div className="space-y-3">
-              <span className="font-serif text-3xl font-bold text-[#c99a6b]">02</span>
-              <h3 className="font-serif text-lg font-bold text-white">Intelligent Daily Spend Balancing</h3>
-              <p className="font-sans text-xs text-stone-400 leading-relaxed">
+            <div className="space-y-2">
+              <span className="font-serif text-3xl font-bold text-[#e4c29e]">02</span>
+              <h4 className="font-bold text-white text-sm">Intelligent Daily Spend Balancing</h4>
+              <p className="text-xs text-stone-400 leading-relaxed">
                 Auto-calculate daily allowances, categorize lodging &amp; activity expenses, and monitor budget health live.
               </p>
             </div>
 
-            <div className="space-y-3">
-              <span className="font-serif text-3xl font-bold text-[#c99a6b]">03</span>
-              <h3 className="font-serif text-lg font-bold text-white">Public Sharable Expeditions</h3>
-              <p className="font-sans text-xs text-stone-400 leading-relaxed">
+            <div className="space-y-2">
+              <span className="font-serif text-3xl font-bold text-stone-200">03</span>
+              <h4 className="font-bold text-white text-sm">Public Sharable Expeditions</h4>
+              <p className="text-xs text-stone-400 leading-relaxed">
                 Distribute elegant read-only itinerary codes that fellow travelers can clone into their own atelier in seconds.
               </p>
             </div>
-
           </div>
         </div>
 
       </main>
 
-      {/* Editorial Boutique Footer */}
-      <footer className="w-full border-t border-white/10 bg-[#0c0d10] py-12 px-6 text-center text-xs text-stone-500 font-sans relative z-20">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-full bg-[#c99a6b] flex items-center justify-center font-serif font-bold text-xs text-[#0c0d10]">
-              GT
-            </div>
-            <span className="font-serif font-bold text-stone-200 tracking-wider">
-              the GLOBETROTTER ATELIER
-            </span>
-          </div>
-
-          <div className="flex items-center gap-6 text-[11px] font-sans font-medium uppercase tracking-wider text-stone-400">
-            <Link href="/explore" className="hover:text-white transition-colors">Catalog</Link>
-            <Link href="/login" className="hover:text-white transition-colors">Member Sign In</Link>
-            <Link href="/register" className="hover:text-white transition-colors">Create Account</Link>
-          </div>
-
-          <p className="text-stone-500 text-[11px]">
-            &copy; {new Date().getFullYear()} GlobeTrotter &bull; Luxury Travel Operating System
-          </p>
-        </div>
-      </footer>
-
+      <Footer />
     </div>
   );
 }

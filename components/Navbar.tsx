@@ -13,7 +13,9 @@ import {
   Shield, 
   Users, 
   User,
-  Crown
+  Crown,
+  Calculator,
+  Wallet
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -51,7 +53,7 @@ export default function Navbar() {
 
   const currentRole = user?.role || 'traveler';
 
-  // Role Badge Styling (Strictly based on login authentication)
+  // Role Badge Styling
   const roleBadges: { [key: string]: { label: string; icon: any; color: string } } = {
     admin: { label: 'Admin', icon: Crown, color: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
     organizer: { label: 'Organizer', icon: Users, color: 'bg-stone-500/10 text-[#c99a6b] border-[#c99a6b]/30' },
@@ -68,6 +70,8 @@ export default function Navbar() {
         { name: 'Admin Hub', href: '/admin', icon: Shield },
         { name: 'Destinations', href: '/explore', icon: Sparkles },
         { name: 'Trips Monitor', href: '/trips', icon: MapPin },
+        { name: 'AI Planner', href: '/ai-planner', icon: Sparkles, highlight: true },
+        { name: 'Smart Budget', href: '/budget', icon: Wallet },
       ];
     }
     if (currentRole === 'organizer') {
@@ -75,12 +79,16 @@ export default function Navbar() {
         { name: 'Organizer Hub', href: '/dashboard/organizer', icon: Users },
         { name: 'Expeditions', href: '/trips', icon: MapPin },
         { name: 'Explore', href: '/explore', icon: Sparkles },
+        { name: 'AI Planner', href: '/ai-planner', icon: Sparkles, highlight: true },
+        { name: 'Smart Budget', href: '/budget', icon: Wallet },
       ];
     }
     return [
       { name: 'Dashboard', href: '/dashboard', icon: Compass },
       { name: 'My Trips', href: '/trips', icon: MapPin },
-      { name: 'Explore', href: '/explore', icon: Sparkles },
+      { name: 'AI Planner', href: '/ai-planner', icon: Sparkles, highlight: true },
+      { name: 'Smart Budget', href: '/budget', icon: Wallet },
+      { name: 'Explore', href: '/explore', icon: Compass },
     ];
   };
 
@@ -115,7 +123,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#14151a]/90 p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        <nav className="hidden lg:flex items-center gap-1 bg-[#14151a]/90 p-1.5 rounded-full border border-white/10 backdrop-blur-md">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname?.startsWith(link.href));
@@ -123,13 +131,15 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all ${
                   isActive
                     ? 'bg-[#FAF8F5] text-[#161513] font-bold shadow-md'
+                    : link.highlight
+                    ? 'text-[#e4c29e] hover:text-white hover:bg-white/10 font-bold'
                     : 'text-stone-300 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className={`w-3.5 h-3.5 ${link.highlight && !isActive ? 'text-[#c99a6b]' : ''}`} />
                 {link.name}
               </Link>
             );
@@ -140,7 +150,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           
           {/* Static Authenticated Role Badge */}
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${currentRoleInfo.color}`}>
+          <div className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${currentRoleInfo.color}`}>
             <RoleIcon className="w-3.5 h-3.5" />
             <span className="capitalize">{currentRoleInfo.label}</span>
           </div>
@@ -156,11 +166,11 @@ export default function Navbar() {
             </Link>
           ) : (
             <Link
-              href="/trips/new"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FAF8F5] hover:bg-[#e4c29e] text-[#161513] text-xs font-bold shadow-lg hover:-translate-y-0.5 transition-all"
+              href="/ai-planner"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#c99a6b]/20 hover:-translate-y-0.5 transition-all"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>{currentRole === 'organizer' ? 'New Expedition' : 'Plan a Journey'}</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Planner</span>
             </Link>
           )}
 
