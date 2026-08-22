@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { 
   Compass, 
   MapPin, 
@@ -17,13 +19,9 @@ import {
   Star, 
   Clock, 
   TrendingUp, 
-  Mountain, 
-  Palmtree, 
-  Building2, 
-  ChevronRight, 
-  ArrowUpRight, 
-  Plane,
-  ArrowDown
+  Receipt,
+  Flame,
+  Repeat
 } from 'lucide-react';
 import BackgroundCarousel, { SCENIC_SLIDES } from '@/components/BackgroundCarousel';
 
@@ -31,75 +29,21 @@ export default function Home() {
   const [activeSlideIdx, setActiveSlideIdx] = useState(0);
   const currentSlide = SCENIC_SLIDES[activeSlideIdx];
 
-  const handleSelectDestination = (index: number) => {
-    setActiveSlideIdx(index);
+  const switchToSlide = (idx: number) => {
+    setSlideIndex(idx);
   };
 
   return (
     <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] selection:bg-[#c99a6b] selection:text-white font-sans relative overflow-x-hidden">
       
-      {/* Full-Bleed Cinematic Background Carousel (Unobstructed) */}
+      {/* Dynamic Background Photo Carousel */}
       <BackgroundCarousel 
         currentIndex={activeSlideIdx} 
         onSlideChange={(newIdx) => setActiveSlideIdx(newIdx)} 
       />
 
-      {/* Floating Editorial Luxury Header */}
-      <header className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto flex items-center justify-between h-14 px-6 rounded-full bg-[#14151a]/85 backdrop-blur-2xl border border-white/10 shadow-[0_10px_35px_rgba(0,0,0,0.6)]">
-          
-          {/* Left: Minimal Monogram Brand */}
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/" 
-              className="flex items-center gap-2 group cursor-pointer"
-            >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] flex items-center justify-center text-[#1a1816] font-serif font-bold text-xs shadow-md">
-                GT
-              </div>
-              <span className="font-serif tracking-widest text-xs uppercase font-medium text-stone-300 group-hover:text-white transition-colors hidden sm:inline">
-                GlobeTrotter &bull; Atelier
-              </span>
-            </Link>
-          </div>
-
-          {/* Center: Playfair Display Luxury Brand Name */}
-          <div className="text-center">
-            <Link href="/" className="font-serif text-lg sm:text-xl tracking-tight text-white font-medium hover:text-[#e4c29e] transition-colors">
-              the <span className="font-bold italic">GLOBETROTTER</span>
-            </Link>
-          </div>
-
-          {/* Right: Navigation Links & CTA */}
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/explore" 
-              className="text-xs tracking-wider uppercase text-stone-300 hover:text-white font-medium transition-colors hidden md:block"
-            >
-              Destinations
-            </Link>
-            <Link 
-              href="/admin" 
-              className="text-xs tracking-wider uppercase text-stone-300 hover:text-white font-medium transition-colors hidden md:block"
-            >
-              Analytics
-            </Link>
-            <Link 
-              href="/login" 
-              className="text-xs tracking-wider uppercase text-stone-300 hover:text-white font-medium transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/register" 
-              className="text-xs font-semibold bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] hover:brightness-110 px-5 py-1.5 rounded-full shadow-lg transition-all active:scale-95 duration-200"
-            >
-              Plan a Journey &rarr;
-            </Link>
-          </div>
-
-        </div>
-      </header>
+      {/* Global Dynamic Navbar */}
+      <Navbar />
 
       {/* Main Hero Section (Directly on Full-Bleed Background without any white box) */}
       <main className="relative z-20 pt-36 sm:pt-44 pb-20 px-4 sm:px-8 max-w-6xl mx-auto flex flex-col items-center text-center">
@@ -110,10 +54,13 @@ export default function Home() {
           <span className="text-stone-400 uppercase tracking-widest text-[10px] font-bold">Now Exploring:</span>
           <span className="text-white font-serif italic font-semibold">{currentSlide.title} ({currentSlide.country})</span>
         </div>
-
-        {/* Playfair Display Statement Headline */}
-        <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.06] max-w-4xl text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] mb-6">
-          Travel, <span className="font-bold italic text-transparent bg-clip-text bg-gradient-to-r from-[#e4c29e] via-[#f7e3ce] to-[#c99a6b]">composed.</span>
+        
+        {/* High-Impact Hero Title */}
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter mb-6 leading-[1.08] max-w-4xl text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
+          Discover the world. <br className="hidden md:block" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-200 to-indigo-300">
+            Design seamless journeys.
+          </span>
         </h1>
 
         <p className="font-serif text-lg sm:text-2xl text-stone-200 leading-relaxed max-w-2xl font-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)] mb-10">
@@ -139,11 +86,17 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Interactive Translucent Destination Switcher Bar */}
-        <div className="w-full max-w-3xl bg-[#14151a]/80 backdrop-blur-2xl border border-white/10 p-3 rounded-full shadow-2xl flex items-center justify-between gap-2 overflow-x-auto">
-          <span className="text-[11px] font-sans font-bold uppercase tracking-wider text-[#c99a6b] pl-3 shrink-0 hidden sm:inline">
-            Curated Views:
-          </span>
+        {/* Featured Scenic Destination Cards Strip */}
+        <div className="w-full max-w-5xl mt-2 mb-8">
+          <div className="flex items-center justify-between mb-3 px-2">
+            <span className="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <Flame className="w-4 h-4 text-amber-400 fill-amber-400" />
+              Featured Expeditions &amp; Scenic Hill Routes
+            </span>
+            <span className="text-[11px] text-slate-400 font-semibold hidden sm:inline">
+              Click any destination to preview in background
+            </span>
+          </div>
 
           <div className="flex items-center gap-1.5 mx-auto">
             {SCENIC_SLIDES.map((slide, idx) => {
@@ -165,8 +118,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Curated Signature Itineraries Grid */}
-        <div className="w-full mt-24 mb-16 text-left">
+      </main>
+
+      {/* High-Fidelity App UI Mockup Preview */}
+      <section id="preview" className="w-full max-w-5xl px-4 sm:px-6 relative z-20 pb-28">
+        <div className="rounded-3xl border border-slate-800/90 bg-slate-900/95 backdrop-blur-2xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.9)] overflow-hidden relative flex flex-col">
           
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
             <div>
@@ -308,13 +264,81 @@ export default function Home() {
 
           </div>
         </div>
+      </section>
+
+      {/* Core Features & Highlights Section */}
+      <section id="features" className="w-full max-w-6xl px-4 sm:px-6 py-16 border-t border-slate-800/80 relative z-20">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-3">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Built for High-Precision Travel</span>
+          </div>
+          <h2 className="text-3xl font-black text-white tracking-tight">
+            Everything You Need to Plan and Manage Trips
+          </h2>
+          <p className="text-slate-400 text-sm mt-2">
+            Powerful multi-city orchestration backed by PostgreSQL relational modeling and automated budget ledgers.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/30 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4">
+              <Layers className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1.5">Multi-City Stop Sequencing</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Order your itinerary across multiple destinations with chronological dates, estimated accommodations, and transport expenses.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/30 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1.5">Live Budget &amp; Daily Burn Rate</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Automatic category breakdown with Recharts visual charts, receipt logger, and instant overbudget threshold alerts.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/30 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+              <Repeat className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1.5">1-Click Itinerary Cloner</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Share your custom route publicly. Friends or travelers can copy the full multi-day plan directly into their own account.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Role-Based Workflows Feature Grid */}
+      <section id="roles" className="w-full max-w-6xl px-4 sm:px-6 py-16 border-t border-slate-800/80 relative z-20">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold mb-3">
+            <Users className="w-3.5 h-3.5" />
+            <span>Dedicated User Roles</span>
+          </div>
+          <h2 className="text-3xl font-black text-white tracking-tight">
+            Engineered for Every Type of Traveler
+          </h2>
+          <p className="text-slate-400 text-sm mt-2">
+            Tailored capabilities for personal explorers, group tour organizers, and platform administrators.
+          </p>
+        </div>
 
         {/* The Three Pillars of Travel Composition */}
         <div className="w-full mt-4 mb-16 rounded-[32px] bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 p-8 sm:p-12 text-left shadow-2xl">
           
-          <div className="max-w-xl mb-10">
-            <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#c99a6b]">
-              Why Discerning Travelers Choose GlobeTrotter
+          {/* Card 1: Traveler */}
+          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 shadow-xl transition-all group">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Compass className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md">
+              For Solo &amp; Family
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl font-medium text-white tracking-tight mt-1">
               Engineered with <span className="italic font-normal text-[#e4c29e]">architectural precision.</span>
@@ -333,6 +357,14 @@ export default function Home() {
                 Seamlessly model multi-city sequences, arrival dates, and transport links with interactive route mapping.
               </p>
             </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md">
+              For Tour Guides
+            </span>
+            <h3 className="text-lg font-bold text-white mt-2 mb-2">Group Expeditions &amp; Rosters</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Manage participant rosters, publish broadcast advisories, and track public clone metrics for curated group expeditions.
+            </p>
+          </div>
 
             <div className="space-y-3">
               <span className="font-serif text-3xl font-bold text-[#c99a6b]">02</span>
@@ -341,6 +373,14 @@ export default function Home() {
                 Auto-calculate daily allowances, categorize lodging &amp; activity expenses, and monitor budget health live.
               </p>
             </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
+              For Administrators
+            </span>
+            <h3 className="text-lg font-bold text-white mt-2 mb-2">Platform Telemetry &amp; Access</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Monitor global adoption trends, top visited destinations, and activity distributions with real-time Recharts analytics and catalog tools.
+            </p>
+          </div>
 
             <div className="space-y-3">
               <span className="font-serif text-3xl font-bold text-[#c99a6b]">03</span>
@@ -353,32 +393,8 @@ export default function Home() {
           </div>
         </div>
 
-      </main>
-
-      {/* Editorial Boutique Footer */}
-      <footer className="w-full border-t border-white/10 bg-[#0c0d10] py-12 px-6 text-center text-xs text-stone-500 font-sans relative z-20">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-full bg-[#c99a6b] flex items-center justify-center font-serif font-bold text-xs text-[#0c0d10]">
-              GT
-            </div>
-            <span className="font-serif font-bold text-stone-200 tracking-wider">
-              the GLOBETROTTER ATELIER
-            </span>
-          </div>
-
-          <div className="flex items-center gap-6 text-[11px] font-sans font-medium uppercase tracking-wider text-stone-400">
-            <Link href="/explore" className="hover:text-white transition-colors">Catalog</Link>
-            <Link href="/login" className="hover:text-white transition-colors">Member Sign In</Link>
-            <Link href="/register" className="hover:text-white transition-colors">Create Account</Link>
-          </div>
-
-          <p className="text-stone-500 text-[11px]">
-            &copy; {new Date().getFullYear()} GlobeTrotter &bull; Luxury Travel Operating System
-          </p>
-        </div>
-      </footer>
-
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
