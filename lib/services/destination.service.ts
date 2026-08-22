@@ -1,8 +1,9 @@
 import prisma from '@/lib/prisma';
+import { ALL_CURATED_DESTINATIONS } from '@/lib/destinations-data';
 
 export class DestinationService {
   /**
-   * Search and filter destinations with optional continent, cost index, and search query using Prisma.
+   * Search and filter destinations with optional continent, cost index, and search query using Prisma + master catalog.
    */
   static async getDestinations(filters?: {
     search?: string;
@@ -10,70 +11,126 @@ export class DestinationService {
     cost_index?: string;
     limit?: number;
   }) {
-    const where: any = {};
+    let dbDestinations: any[] = [];
+    try {
+      const where: any = {};
+
+      if (filters?.search) {
+        where.OR = [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { country: { contains: filters.search, mode: 'insensitive' } },
+          { description: { contains: filters.search, mode: 'insensitive' } },
+        ];
+      }
+
+      if (filters?.continent && filters.continent !== 'all') {
+        where.continent = { equals: filters.continent, mode: 'insensitive' };
+      }
+
+      if (filters?.cost_index && filters.cost_index !== 'all') {
+        where.cost_index = filters.cost_index;
+      }
+
+      const found = await prisma.destination.findMany({
+        where,
+        orderBy: { popularity_score: 'desc' },
+        take: filters?.limit || undefined,
+        include: {
+          _count: {
+            select: { activities: true },
+          },
+        },
+      });
+
+      dbDestinations = found.map((d) => ({
+        ...d,
+        avg_daily_cost: Number(d.avg_daily_cost),
+        latitude: d.latitude ? Number(d.latitude) : null,
+        longitude: d.longitude ? Number(d.longitude) : null,
+        total_activities: d._count.activities,
+      }));
+    } catch (e) {
+      console.warn('Prisma getDestinations fallback to master dataset:', e);
+    }
+
+    // Helper to normalize city names for clean deduplication
+    const norm = (str: string) => str.toLowerCase().replace(/[^a-z]/g, '');
+
+    const existingNames = new Set(dbDestinations.map(d => norm(d.name)));
+    const existingIds = new Set(dbDestinations.map(d => d.id));
+
+    let masterFiltered = ALL_CURATED_DESTINATIONS.filter(d => {
+      const n = norm(d.name);
+      return !existingNames.has(n) && !Array.from(existingNames).some(ex => ex.includes(n) || n.includes(ex));
+    });
 
     if (filters?.search) {
-      where.OR = [
-        { name: { contains: filters.search, mode: 'insensitive' } },
-        { country: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } },
-      ];
+      const q = filters.search.toLowerCase();
+      masterFiltered = masterFiltered.filter(d => 
+        d.name.toLowerCase().includes(q) ||
+        d.country.toLowerCase().includes(q) ||
+        d.description.toLowerCase().includes(q)
+      );
     }
 
     if (filters?.continent && filters.continent !== 'all') {
-      where.continent = { equals: filters.continent, mode: 'insensitive' };
+      masterFiltered = masterFiltered.filter(d => d.continent.toLowerCase() === filters.continent?.toLowerCase());
     }
 
     if (filters?.cost_index && filters.cost_index !== 'all') {
-      where.cost_index = filters.cost_index;
+      masterFiltered = masterFiltered.filter(d => d.cost_index.toLowerCase() === filters.cost_index?.toLowerCase());
     }
 
-    const destinations = await prisma.destination.findMany({
-      where,
-      orderBy: { popularity_score: 'desc' },
-      take: filters?.limit || undefined,
-      include: {
-        _count: {
-          select: { activities: true },
-        },
-      },
+    // Ensure strictly unique IDs across combined list
+    let nextId = 500;
+    const finalMaster = masterFiltered.map(d => {
+      let uniqueId = d.id;
+      while (existingIds.has(uniqueId)) {
+        uniqueId = nextId++;
+      }
+      existingIds.add(uniqueId);
+      return { ...d, id: uniqueId };
     });
 
-    return destinations.map((d) => ({
-      ...d,
-      avg_daily_cost: Number(d.avg_daily_cost),
-      latitude: d.latitude ? Number(d.latitude) : null,
-      longitude: d.longitude ? Number(d.longitude) : null,
-      total_activities: d._count.activities,
-    }));
+    const combined = [...dbDestinations, ...finalMaster];
+    return filters?.limit ? combined.slice(0, filters.limit) : combined;
   }
 
   /**
-   * Get single destination with full curated activities using Prisma.
+   * Get single destination with full curated activities using Prisma or master catalog.
    */
   static async getDestinationById(id: number) {
-    const destination = await prisma.destination.findUnique({
-      where: { id },
-      include: {
-        activities: {
-          orderBy: [{ rating: 'desc' }, { cost: 'asc' }],
+    try {
+      const destination = await prisma.destination.findUnique({
+        where: { id },
+        include: {
+          activities: {
+            orderBy: [{ rating: 'desc' }, { cost: 'asc' }],
+          },
         },
-      },
-    });
+      });
 
-    if (!destination) return null;
+      if (destination) {
+        return {
+          ...destination,
+          avg_daily_cost: Number(destination.avg_daily_cost),
+          latitude: destination.latitude ? Number(destination.latitude) : null,
+          longitude: destination.longitude ? Number(destination.longitude) : null,
+          activities: destination.activities.map((a) => ({
+            ...a,
+            cost: Number(a.cost),
+            duration_hours: Number(a.duration_hours),
+            rating: Number(a.rating),
+          })),
+        };
+      }
+    } catch (e) {}
 
+    // Fallback to master dataset item
+    const fallback = ALL_CURATED_DESTINATIONS.find(d => d.id === id) || ALL_CURATED_DESTINATIONS[0];
     return {
-      ...destination,
-      avg_daily_cost: Number(destination.avg_daily_cost),
-      latitude: destination.latitude ? Number(destination.latitude) : null,
-      longitude: destination.longitude ? Number(destination.longitude) : null,
-      activities: destination.activities.map((a) => ({
-        ...a,
-        cost: Number(a.cost),
-        duration_hours: Number(a.duration_hours),
-        rating: Number(a.rating),
-      })),
+      ...fallback,
+      activities: []
     };
   }
 
@@ -85,45 +142,49 @@ export class DestinationService {
     category?: string;
     search?: string;
   }) {
-    const where: any = {};
+    try {
+      const where: any = {};
 
-    if (filters?.city_id) {
-      where.city_id = filters.city_id;
-    }
+      if (filters?.city_id) {
+        where.city_id = filters.city_id;
+      }
 
-    if (filters?.category && filters.category !== 'all') {
-      where.category = filters.category;
-    }
+      if (filters?.category && filters.category !== 'all') {
+        where.category = filters.category;
+      }
 
-    if (filters?.search) {
-      where.OR = [
-        { name: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } },
-      ];
-    }
+      if (filters?.search) {
+        where.OR = [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { description: { contains: filters.search, mode: 'insensitive' } },
+        ];
+      }
 
-    const activities = await prisma.activity.findMany({
-      where,
-      include: {
-        destination: {
-          select: {
-            name: true,
-            country: true,
-            currency: true,
+      const activities = await prisma.activity.findMany({
+        where,
+        include: {
+          destination: {
+            select: {
+              name: true,
+              country: true,
+              currency: true,
+            },
           },
         },
-      },
-      orderBy: [{ rating: 'desc' }, { name: 'asc' }],
-    });
+        orderBy: [{ rating: 'desc' }, { name: 'asc' }],
+      });
 
-    return activities.map((a) => ({
-      ...a,
-      cost: Number(a.cost),
-      duration_hours: Number(a.duration_hours),
-      rating: Number(a.rating),
-      city_name: a.destination.name,
-      country: a.destination.country,
-      currency: a.destination.currency,
-    }));
+      return activities.map((a) => ({
+        ...a,
+        cost: Number(a.cost),
+        duration_hours: Number(a.duration_hours),
+        rating: Number(a.rating),
+        city_name: a.destination.name,
+        country: a.destination.country,
+        currency: a.destination.currency,
+      }));
+    } catch (e) {
+      return [];
+    }
   }
 }

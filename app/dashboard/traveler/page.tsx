@@ -1,283 +1,379 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { 
-  Compass, 
-  MapPin, 
-  Calendar, 
-  DollarSign, 
-  Plus, 
-  ArrowRight, 
-  Sparkles, 
-  Clock, 
-  CheckCircle2, 
-  ChevronRight, 
-  Bookmark, 
-  Luggage, 
-  CheckSquare, 
-  Square,
+import confetti from 'canvas-confetti';
+import {
+  Compass,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Plus,
+  ArrowRight,
+  Sparkles,
   Users,
   MessageSquare,
-  Globe2,
-  Share2,
-  Flame,
   Shield,
-  Star,
+  Clock,
+  Luggage,
+  CalendarDays,
   Send,
-  HelpCircle,
-  TrendingUp,
-  Receipt,
+  Star,
+  CheckCircle2,
+  Share2,
+  CheckSquare,
+  Square,
   Calculator,
-  CloudSun,
-  AlertCircle,
-  Award,
+  Train,
   Check,
-  Search
+  Hotel,
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 
-// Industry-Grade Curated Expeditions Dataset
+// Curated Group Expeditions Database
 const CURATED_EXPEDITIONS = [
   {
     id: 'exp-1',
-    title: 'Alpine Glacier Express & Grand Swiss Peaks',
-    subtitle: 'Zurich &bull; Lucerne &bull; Interlaken &bull; Zermatt',
-    duration: '10 Days / 9 Nights',
-    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80',
-    organizer: {
-      name: 'Marcus Vance',
-      avatar: 'M',
-      badge: 'Certified Alpine Master',
-      rating: 4.9,
-      tripsLed: 42
-    },
-    capacity: '9 / 12 Booked',
-    price: 2850,
-    currency: 'USD',
-    stops: ['Zurich', 'Lucerne', 'Interlaken', 'Zermatt (Matterhorn)'],
-    highlights: ['First-class Glacier Express scenic train', 'Jungfraujoch Top of Europe ascent', 'Zermatt Fondue masterclass'],
-    category: 'Alpine Adventure'
-  },
-  {
-    id: 'exp-2',
-    title: 'Kyoto Tea Sanctuary & Tokyo Neon Odyssey',
-    subtitle: 'Tokyo &bull; Hakone &bull; Kyoto &bull; Nara',
+    title: 'Japan Golden Route & Alpine Ryokans',
+    subtitle: 'Tokyo &bull; Hakone &bull; Kyoto &bull; Nara &bull; Osaka',
     duration: '12 Days / 11 Nights',
     image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80',
     organizer: {
-      name: 'Kenjiro Sato',
+      name: 'Kenji Takahashi',
       avatar: 'K',
-      badge: 'Historic Kyoto Curator',
-      rating: 5.0,
-      tripsLed: 58
+      badge: 'Certified Master Guide &bull; 14 Yrs Exp',
+      rating: 4.98,
+      tripsLed: 42
     },
-    capacity: '10 / 14 Booked',
-    price: 3400,
+    capacity: '8 / 10 Booked',
+    price: 3450,
     currency: 'USD',
-    stops: ['Tokyo (Shinjuku)', 'Hakone (Mt Fuji View)', 'Kyoto (Gion)', 'Nara Deer Park'],
-    highlights: ['Private tea ceremony in 400-year-old temple', 'Shinkansen bullet train speed pass', 'Michelin-starred Kaiseki dining'],
-    category: 'Culture & Gastronomy'
-  },
-  {
-    id: 'exp-3',
-    title: 'Amalfi Cliffside & Tuscan Vineyard Safari',
-    subtitle: 'Rome &bull; Florence &bull; Siena &bull; Positano',
-    duration: '9 Days / 8 Nights',
-    image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80',
-    organizer: {
-      name: 'Sofia Rossi',
-      avatar: 'S',
-      badge: 'Italian Heritage Specialist',
-      rating: 4.95,
-      tripsLed: 37
-    },
-    capacity: '7 / 10 Booked',
-    price: 2600,
-    currency: 'USD',
-    stops: ['Rome', 'Florence', 'Siena', 'Positano (Amalfi)'],
-    highlights: ['Chianti private estate wine tasting', 'Sunset yacht cruise past Capri Faraglioni', 'Skip-the-line Uffizi Gallery tour'],
-    category: 'Coastal Luxury'
-  },
-  {
-    id: 'exp-4',
-    title: 'Icelandic Ring Road & Aurora Borealis Hunt',
-    subtitle: 'Reykjavik &bull; Vik &bull; Akureyri &bull; Blue Lagoon',
-    duration: '8 Days / 7 Nights',
-    image: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=800&q=80',
-    organizer: {
-      name: 'Astrid Lind',
-      avatar: 'A',
-      badge: 'Arctic Expedition Lead',
-      rating: 4.88,
-      tripsLed: 29
-    },
-    capacity: '11 / 12 Booked',
-    price: 3150,
-    currency: 'USD',
-    stops: ['Reykjavik', 'Vik Black Sand Beach', 'Jokulsarlon Glacier', 'Akureyri'],
-    highlights: ['Superjeep glacier ice cave exploration', 'Nightly Northern Lights tracking', 'Geo-thermal mineral soak at Blue Lagoon'],
-    category: 'Arctic & Aurora'
-  }
-];
-
-// Initial Community Discussions
-const INITIAL_COMMUNITY_POSTS = [
-  {
-    id: 'post-1',
-    author: 'Elena Rostova',
-    role: 'Traveler',
-    avatar: 'E',
-    time: '2 hours ago',
-    title: 'Best rail pass strategy for Zurich to Zermatt multi-city leg?',
-    content: 'We are planning a 7-day multi-city trip across Switzerland. Does the Swiss Travel Pass cover the cable cars up to the Matterhorn Glacier Paradise or just up to Zermatt village?',
-    tags: ['Switzerland', 'Trains', 'Budget'],
-    upvotes: 14,
-    repliesCount: 3,
-    replies: [
+    stops: ['Tokyo', 'Hakone Onsen', 'Kyoto Gion', 'Nara Deer Park', 'Osaka Dotonbori'],
+    highlights: ['First-class JR Shinkansen bullet train passes included', 'Private traditional Kaiseki banquet in Gion', 'Forest thermal onsen stay with Mt. Fuji morning view'],
+    category: 'Cultural Immersion',
+    inclusions: [
+      '7-Day JR Green Car (First Class) Shinkansen Pass',
+      '11 Nights Luxury Boutique Lodging (including 2 Nights in Hakone Onsen Ryokan)',
+      'Daily Artisan Breakfasts & 4 Michelin-recommended Gourmet Banquets',
+      'All temple entry passes, private tea ceremony, and bullet train luggage forwarding',
+      'English-speaking certified expedition leader & dedicated concierge'
+    ],
+    dailyPlan: [
       {
-        author: 'Marcus Vance',
-        isOrganizer: true,
-        badge: 'Expedition Organizer',
-        text: 'The Swiss Travel Pass covers 100% of the train from Zurich to Zermatt, and gives you a 50% discount on the Matterhorn Glacier Paradise cable car! Feel free to clone our Alpine route.'
+        day: 1,
+        title: 'Arrival in Tokyo & Shinjuku Neon Night Walk',
+        city: 'Tokyo',
+        lodging: 'Cerulean Tower Tokyu Hotel (Shibuya)',
+        activities: [
+          { time: '14:00', title: 'Narita / Haneda VIP Express Transfer to Hotel', cost: 0, category: 'Transit' },
+          { time: '18:30', title: 'Shinjuku Omoide Yokocho & Golden Gai Izakaya Food Crawl', cost: 65, category: 'Food & Dining' },
+          { time: '21:00', title: 'Tokyo Metropolitan Government Building Night Skyline View', cost: 0, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 2,
+        title: 'Futuristic Tokyo & Digital Art Immersion',
+        city: 'Tokyo',
+        lodging: 'Cerulean Tower Tokyu Hotel (Shibuya)',
+        activities: [
+          { time: '09:00', title: 'Meiji Jingu Shinto Shrine & Harajuku Takeshita Street', cost: 0, category: 'Culture' },
+          { time: '13:30', title: 'TeamLab Planets Immersive Digital Crystal Art Exhibit', cost: 36, category: 'Culture' },
+          { time: '18:00', title: 'Shibuya Sky 360° Glass Rooftop Sunset Observatory', cost: 28, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 3,
+        title: 'Ancient Asakusa & Tsukiji Gastronomy',
+        city: 'Tokyo',
+        lodging: 'Cerulean Tower Tokyu Hotel (Shibuya)',
+        activities: [
+          { time: '08:30', title: 'Tsukiji Outer Fish Market Otoro Sashimi & Wagyu Safari', cost: 50, category: 'Food & Dining' },
+          { time: '11:00', title: 'Senso-ji Temple & Nakamise Dori Traditional Artisan Stalls', cost: 0, category: 'Culture' },
+          { time: '15:00', title: 'Sumida River Waterbus Cruise to Ginza Luxury District', cost: 22, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 4,
+        title: 'Scenic Romancecar to Hakone Thermal Springs',
+        city: 'Hakone',
+        lodging: 'Hakone Gora Byakudan Luxury Onsen Ryokan',
+        activities: [
+          { time: '09:30', title: 'Odakyu Romancecar First-Class Panorama Express to Hakone', cost: 28, category: 'Transit' },
+          { time: '13:00', title: 'Lake Ashi Sightseeing Pirate Ship Cruise with Mt. Fuji Views', cost: 24, category: 'Nature' },
+          { time: '18:00', title: '9-Course Seasonal Kaiseki Banquet & Forest Thermal Onsen Bath', cost: 0, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 5,
+        title: 'Owakudani Volcanic Valley & Open-Air Sculpture',
+        city: 'Hakone',
+        lodging: 'Hakone Gora Byakudan Luxury Onsen Ryokan',
+        activities: [
+          { time: '10:00', title: 'Hakone Ropeway Cable Car to Owakudani Active Volcanic Vents', cost: 18, category: 'Adventure' },
+          { time: '14:00', title: 'Hakone Open-Air Museum & Picasso Pavilion Gardens', cost: 25, category: 'Culture' }
+        ]
+      },
+      {
+        day: 6,
+        title: 'Shinkansen Bullet Train to Ancient Kyoto',
+        city: 'Kyoto',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '10:00', title: 'Tokaido Shinkansen Green Car at 300 km/h to Kyoto Station', cost: 95, category: 'Transit' },
+          { time: '14:00', title: 'Kiyomizu-dera Wooden Stage Temple Panoramic View', cost: 10, category: 'Culture' },
+          { time: '17:30', title: 'Twilight Stroll through Hanamikoji Geisha Quarter', cost: 0, category: 'Culture' }
+        ]
+      },
+      {
+        day: 7,
+        title: 'Fushimi Inari Torii Gates & Tea Ceremony',
+        city: 'Kyoto',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '07:00', title: 'Fushimi Inari 10,000 Vermillion Torii Gates Sunrise Trek', cost: 0, category: 'Nature' },
+          { time: '11:00', title: 'Arashiyama Bamboo Forest & Tenryu-ji Zen Rock Sanctuary', cost: 15, category: 'Nature' },
+          { time: '15:30', title: 'Private Matcha Tea Ceremony with Master in 400-Year Temple', cost: 55, category: 'Culture' }
+        ]
+      },
+      {
+        day: 8,
+        title: 'Golden Pavilion & Pontocho Riverside Dining',
+        city: 'Kyoto',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '09:30', title: 'Kinkaku-ji Golden Pavilion Mirrored Lake Reflection', cost: 12, category: 'Culture' },
+          { time: '14:00', title: 'Nishiki Food Market 100-Stall Culinary Tasting Tour', cost: 40, category: 'Food & Dining' },
+          { time: '19:00', title: 'Pontocho Alley Riverbank Kamo Terrace Dinner', cost: 85, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 9,
+        title: 'Sacred Nara Deer Park & Giant Bronze Buddha',
+        city: 'Nara',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '09:00', title: 'Kintetsu Limited Express Train to Nara', cost: 15, category: 'Transit' },
+          { time: '10:30', title: 'Todai-ji Temple & Daibutsu Great Bronze Buddha', cost: 12, category: 'Culture' },
+          { time: '14:00', title: 'Nara Deer Sanctuary Feeding & Kasuga Taisha Lanterns', cost: 5, category: 'Nature' }
+        ]
+      },
+      {
+        day: 10,
+        title: 'Osaka Feudal Castle & Dotonbori Street Food',
+        city: 'Osaka',
+        lodging: 'Swissotel Nankai Osaka (Namba)',
+        activities: [
+          { time: '10:00', title: 'JR Rapid Hop from Kyoto to Osaka', cost: 12, category: 'Transit' },
+          { time: '13:00', title: 'Osaka Castle Citadel & Nishinomaru Park Tour', cost: 18, category: 'Culture' },
+          { time: '18:00', title: 'Dotonbori Neon Canal Takoyaki & Kushikatsu Crawl', cost: 45, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 11,
+        title: 'Shinsekai Nostalgia & Umeda Sky Views',
+        city: 'Osaka',
+        lodging: 'Swissotel Nankai Osaka (Namba)',
+        activities: [
+          { time: '11:00', title: 'Shinsekai Retro District & Tsutenkaku Tower Stroll', cost: 0, category: 'Sightseeing' },
+          { time: '16:30', title: 'Umeda Sky Building Floating Garden Sunset Observatory', cost: 20, category: 'Sightseeing' },
+          { time: '19:30', title: 'Farewell Gala Dinner at Michelin-Starred Teppanyaki Lounge', cost: 120, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 12,
+        title: 'Kansai Airport Departure & Sayonara Japan',
+        city: 'Osaka',
+        lodging: 'Departure',
+        activities: [
+          { time: '10:00', title: 'Haruka Airport Express First-Class Transfer to KIX Airport', cost: 0, category: 'Transit' }
+        ]
       }
     ]
   },
   {
-    id: 'post-2',
-    author: 'David Chen',
-    role: 'Traveler',
-    avatar: 'D',
-    time: '5 hours ago',
-    title: 'Pocket Wi-Fi vs e-SIM for high-speed train travel in Japan?',
-    content: 'Traveling with 2 friends between Tokyo, Kyoto, and Osaka. Is Ubigi/Airalo eSIM fast enough on the Shinkansen, or is a dedicated pocket router better for multi-device connectivity?',
-    tags: ['Japan', 'Tech & Connectivity'],
-    upvotes: 21,
-    repliesCount: 2,
-    replies: [
+    id: 'exp-2',
+    title: 'Swiss Alpine Glacier Express & Zermatt Chalets',
+    subtitle: 'Zurich &bull; Lucerne &bull; Interlaken &bull; Zermatt &bull; Geneva',
+    duration: '10 Days / 9 Nights',
+    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80',
+    organizer: {
+      name: 'Marcelle Dubois',
+      avatar: 'M',
+      badge: 'Swiss Alpine Federation Lead',
+      rating: 4.95,
+      tripsLed: 38
+    },
+    capacity: '6 / 8 Booked',
+    price: 4200,
+    currency: 'USD',
+    stops: ['Zurich', 'Lucerne', 'Interlaken', 'Jungfraujoch', 'Zermatt (Matterhorn)'],
+    highlights: ['Glacier Express panoramic carriage through Swiss Grand Canyon', 'Top of Europe Jungfraujoch 3,454m cogwheel railway', 'Luxury car-free chalet with direct Matterhorn views'],
+    category: 'Alpine Luxury',
+    inclusions: [
+      'First-Class Swiss Travel Pass with panoramic seat reservations',
+      '9 Nights in boutique Swiss alpine chalets & 5-star lakeside properties',
+      'All mountain cogwheels, cable cars, and Jungfraujoch Top of Europe access',
+      'Daily Swiss alpine breakfast buffets and artisanal cheese fondue banquets',
+      'Dedicated Swiss mountain guide throughout the itinerary'
+    ],
+    dailyPlan: [
       {
-        author: 'Kenjiro Sato',
-        isOrganizer: true,
-        badge: 'Expedition Organizer',
-        text: 'eSIM works flawlessly on 5G across all Shinkansen routes. Airalo and Ubigi connect to NTT Docomo with zero dropouts in the tunnels!'
+        day: 1,
+        title: 'Arrival in Zurich & Old Town Limmat River Walk',
+        city: 'Zurich',
+        lodging: 'Storchen Zurich (Historic Riverside)',
+        activities: [
+          { time: '14:00', title: 'Zurich Airport VIP SBB First-Class Transfer', cost: 0, category: 'Transit' },
+          { time: '17:00', title: 'Altstadt Medieval Guild Houses & Lindenhof Hill Viewpoint', cost: 0, category: 'Culture' },
+          { time: '19:30', title: 'Swiss Gastronomy Dinner with Zürcher Geschnetzeltes', cost: 75, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 2,
+        title: 'Lucerne Lake Steamboat & Chapel Bridge',
+        city: 'Lucerne',
+        lodging: 'Hotel des Balances Lucerne',
+        activities: [
+          { time: '09:00', title: 'SBB InterCity First-Class Train to Lucerne', cost: 25, category: 'Transit' },
+          { time: '11:00', title: '14th-Century Covered Wooden Chapel Bridge & Water Tower', cost: 0, category: 'Sightseeing' },
+          { time: '14:30', title: 'Historic Steamboat Cruise on Lake Lucerne', cost: 40, category: 'Nature' }
+        ]
+      },
+      {
+        day: 3,
+        title: 'Mount Pilatus World Steepest Cogwheel Railway',
+        city: 'Lucerne',
+        lodging: 'Hotel des Balances Lucerne',
+        activities: [
+          { time: '09:30', title: 'Dragon Ride Aerial Cableway to Mount Pilatus Summit (2,128m)', cost: 78, category: 'Adventure' },
+          { time: '14:00', title: 'World Steepest 48% Gradient Cogwheel Descent to Alpnachstad', cost: 0, category: 'Transit' }
+        ]
       }
+    ]
+  },
+  {
+    id: 'exp-3',
+    title: 'Italian Renaissance, Tuscan Hills & Amalfi Coast',
+    subtitle: 'Rome &bull; Florence &bull; Siena &bull; Venice &bull; Positano',
+    duration: '9 Days / 8 Nights',
+    image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80',
+    organizer: {
+      name: 'Gianluca Rossi',
+      avatar: 'G',
+      badge: 'Italian Cultural Heritage Expert',
+      rating: 4.97,
+      tripsLed: 51
+    },
+    capacity: '10 / 12 Booked',
+    price: 3890,
+    currency: 'USD',
+    stops: ['Rome', 'Florence', 'Siena Chianti', 'Venice Grand Canal', 'Positano Amalfi'],
+    highlights: ['VIP early-access Vatican Sistine Chapel and Colosseum underground', 'Private Chianti vineyard estate wine tasting with sommelier', 'Private sunset wooden yacht cruise along Amalfi cliffs'],
+    category: 'History & Gastronomy',
+    inclusions: [
+      'Frecciarossa 1000 Executive/Business class high-speed rail passes',
+      '8 Nights in luxury historic Renaissance palazzos & cliffside Amalfi villas',
+      'All VIP skip-the-line museum admissions (Uffizi, Vatican, Colosseum, Doge Palace)',
+      'Daily Italian breakfasts, Chianti vineyard lunch, and Amalfi seafood dinners'
     ]
   }
 ];
 
 function TravelerDashboardContent() {
   const searchParams = useSearchParams();
+
   const [user, setUser] = useState<any>(null);
   const [trips, setTrips] = useState<any[]>([]);
   const [destinations, setDestinations] = useState<any[]>([]);
-  const [savedDestinations, setSavedDestinations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Tab State
-  const initialTab = (searchParams.get('tab') as any) || 'journeys';
-  const [activeTab, setActiveTab] = useState<'journeys' | 'expeditions' | 'community' | 'concierge'>(
-    ['journeys', 'expeditions', 'community', 'concierge'].includes(initialTab) ? initialTab : 'journeys'
-  );
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
 
-  // Synchronize Tab with URL query params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam && ['journeys', 'expeditions', 'community', 'concierge'].includes(tabParam)) {
-      setActiveTab(tabParam as any);
-    }
-  }, [searchParams]);
-
-  const handleTabChange = (tab: 'journeys' | 'expeditions' | 'community' | 'concierge') => {
-    setActiveTab(tab);
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('tab', tab);
-      window.history.replaceState(null, '', url.toString());
-    }
-  };
-
-  // Selected Expedition Modal State
+  // Selected Expedition for Details Modal
   const [selectedExpedition, setSelectedExpedition] = useState<any>(null);
+  const [modalTab, setModalTab] = useState<'itinerary' | 'inclusions' | 'stops'>('itinerary');
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [clonedSuccess, setClonedSuccess] = useState(false);
 
-  // Community State
-  const [posts, setPosts] = useState<any[]>(INITIAL_COMMUNITY_POSTS);
-  const [newPostTitle, setNewPostTitle] = useState('');
-  const [newPostContent, setNewPostContent] = useState('');
-  const [showNewPostModal, setShowNewPostModal] = useState(false);
-
-  // Concierge Currency Converter State
-  const [calcAmount, setCalcAmount] = useState('1000');
-  const [fromCurrency, setFromCurrency] = useState('USD');
-  const [toCurrency, setToCurrency] = useState('EUR');
-  const [calcResult, setCalcResult] = useState<number | null>(null);
-
-  // Interactive Checklist State
+  // Smart Pre-Trip Packing Checklist state
   const [checklist, setChecklist] = useState([
-    { id: 1, text: 'Renew International Passport & verify 6-month validity', done: true },
-    { id: 2, text: 'Confirm international flight & high-speed rail reservations', done: true },
-    { id: 3, text: 'Purchase universal power adapter & eSIM global data bundle', done: false },
-    { id: 4, text: 'Notify credit card provider of international travel dates', done: false },
-    { id: 5, text: 'Pack weather-appropriate footwear & alpine rain gear', done: false },
+    { id: 1, text: 'Passport & Visa Documentation valid for 6+ months', done: true },
+    { id: 2, text: 'International eSIM / Roaming Data activated', done: true },
+    { id: 3, text: 'Universal Power Adapter & Portable Power Bank', done: false },
+    { id: 4, text: 'Multi-Currency Travel Card & Local Cash Backup', done: false },
+    { id: 5, text: 'Travel Medical Insurance & Emergency Policy Copy', done: true },
   ]);
   const [newChecklistText, setNewChecklistText] = useState('');
 
-  useEffect(() => {
-    let currentUserId = 1;
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const u = JSON.parse(storedUser);
-        setUser(u);
-        if (u.id) currentUserId = u.id;
-      } catch (e) {}
-    }
+  const loadTravelerData = useCallback(async (showLoadingSpinner = true) => {
+    if (showLoadingSpinner) setLoading(true);
+    setIsSyncing(true);
 
-    async function loadTravelerData() {
-      try {
-        const token = localStorage.getItem('token');
-        const headers: any = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const [tripsRes, destsRes, savedRes] = await Promise.all([
-          fetch(`/api/trips?userId=${currentUserId}`, { headers }).then((r) => r.json()),
-          fetch('/api/destinations?limit=6').then((r) => r.json()),
-          fetch(`/api/user/saved-destinations?userId=${currentUserId}`).then((r) => r.json()),
-        ]);
-
-        if (tripsRes.success) setTrips(tripsRes.data || []);
-        if (destsRes.success) setDestinations(destsRes.data || []);
-        if (savedRes.success) setSavedDestinations(savedRes.data || []);
-      } catch (err) {
-        console.error('Error loading traveler data:', err);
-      } finally {
-        setLoading(false);
+    try {
+      let currentUserId = 1;
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const u = JSON.parse(storedUser);
+          setUser(u);
+          if (u.id) currentUserId = u.id;
+        } catch (e) {}
       }
-    }
 
-    loadTravelerData();
+      const token = localStorage.getItem('token');
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const [tripsRes, destsRes] = await Promise.all([
+        fetch(`/api/trips?userId=${currentUserId}`, { headers, cache: 'no-store' }).then((r) => r.json()),
+        fetch('/api/destinations?limit=6', { cache: 'no-store' }).then((r) => r.json()),
+      ]);
+
+      if (tripsRes.success) setTrips(tripsRes.data || []);
+      if (destsRes.success) setDestinations(destsRes.data || []);
+      setLastSyncTime(new Date());
+    } catch (err) {
+      console.error('Error loading traveler data:', err);
+    } finally {
+      if (showLoadingSpinner) setLoading(false);
+      setIsSyncing(false);
+    }
   }, []);
 
-  // Live Currency Calculator Conversion
+  // Initial mount + Dynamic Real-Time Refresh Polling & Window Focus Events
   useEffect(() => {
-    const RATES: Record<string, number> = {
-      USD: 1.0,
-      EUR: 0.92,
-      GBP: 0.79,
-      JPY: 154.5,
-      INR: 83.2,
-      CAD: 1.35,
-      AUD: 1.52,
+    loadTravelerData(true);
+
+    // Dynamic background polling every 10 seconds
+    const interval = setInterval(() => {
+      loadTravelerData(false);
+    }, 10000);
+
+    // Refresh immediately when window regain focus
+    const handleFocus = () => {
+      loadTravelerData(false);
     };
 
-    const val = parseFloat(calcAmount);
-    if (!isNaN(val) && RATES[fromCurrency] && RATES[toCurrency]) {
-      const inUSD = val / RATES[fromCurrency];
-      setCalcResult(Math.round(inUSD * RATES[toCurrency] * 100) / 100);
-    }
-  }, [calcAmount, fromCurrency, toCurrency]);
+    // Refresh when tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadTravelerData(false);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [loadTravelerData]);
 
   const toggleChecklistItem = (id: number) => {
     setChecklist(
@@ -295,54 +391,26 @@ function TravelerDashboardContent() {
     setNewChecklistText('');
   };
 
-  const handleCreatePost = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPostTitle.trim() || !newPostContent.trim()) return;
-
-    const newPost = {
-      id: `post-${Date.now()}`,
-      author: user?.name || 'Explorer',
-      role: 'Traveler',
-      avatar: (user?.name || 'E')[0].toUpperCase(),
-      time: 'Just now',
-      title: newPostTitle,
-      content: newPostContent,
-      tags: ['Travel Advice', 'Expedition'],
-      upvotes: 1,
-      repliesCount: 0,
-      replies: []
-    };
-
-    setPosts([newPost, ...posts]);
-    setNewPostTitle('');
-    setNewPostContent('');
-    setShowNewPostModal(false);
-  };
-
   const handleCloneExpedition = async (exp: any) => {
     try {
-      const token = localStorage.getItem('token');
-      const userId = user?.id || 1;
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-
       const res = await fetch('/api/trips', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId,
-          title: `${exp.title} (Cloned)`,
-          description: `Curated group itinerary led by ${exp.organizer.name}. Includes ${exp.stops.join(' -> ')}.`,
-          startDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-          endDate: new Date(Date.now() + 24 * 86400000).toISOString().split('T')[0],
+          title: exp.title,
+          description: `Group expedition led by ${exp.organizer.name}. ${exp.highlights.join('. ')}`,
+          startDate: '2026-09-15',
+          endDate: '2026-09-27',
           totalBudget: exp.price,
           currency: exp.currency,
-          visibility: 'private',
+          coverImageUrl: exp.image,
+          isPublic: true,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
         setClonedSuccess(true);
         if (data.data) {
           setTrips([data.data, ...trips]);
@@ -366,7 +434,7 @@ function TravelerDashboardContent() {
     <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-[#0c0d10]">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         
         {/* ================= 1. TRAVELER ATELIER HERO BANNER ================= */}
         <div className="relative rounded-[32px] overflow-hidden bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 p-8 sm:p-10 shadow-2xl">
@@ -374,9 +442,17 @@ function TravelerDashboardContent() {
           
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-[#e4c29e] text-[11px] font-sans font-medium mb-3">
-                <Sparkles className="w-3.5 h-3.5 text-[#c99a6b]" />
-                <span>Personal Traveler Atelier &bull; Private Portfolio</span>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-[#e4c29e] text-[11px] font-sans font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-[#c99a6b]" />
+                  <span>Personal Traveler Atelier &bull; Executive Portal</span>
+                </div>
+
+                {/* Real-Time Live Sync Badge */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-mono">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Live Sync</span>
+                </div>
               </div>
               
               <h1 className="font-serif text-3xl sm:text-5xl font-medium text-white tracking-tight leading-tight">
@@ -389,6 +465,16 @@ function TravelerDashboardContent() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 font-sans">
+              <button
+                onClick={() => loadTravelerData(false)}
+                disabled={isSyncing}
+                title="Force refresh latest data"
+                className="inline-flex items-center gap-1.5 px-4 py-3.5 rounded-2xl bg-[#0c0d10] hover:bg-white/10 text-stone-300 hover:text-white text-xs font-bold border border-white/15 transition-all cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#c99a6b]' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Sync Live'}</span>
+              </button>
+
               <Link
                 href="/trips/new"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-xl shadow-[#c99a6b]/20 hover:shadow-[#c99a6b]/35 hover:-translate-y-0.5 transition-all"
@@ -398,11 +484,11 @@ function TravelerDashboardContent() {
               </Link>
               
               <Link
-                href="/explore"
+                href="/expeditions"
                 className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-[#0c0d10] hover:bg-[#1a1b22] text-stone-200 hover:text-white text-xs font-bold border border-white/15 transition-all"
               >
                 <Compass className="w-4 h-4 text-[#c99a6b]" />
-                <span>Explore Catalog</span>
+                <span>Explore Expeditions</span>
               </Link>
             </div>
           </div>
@@ -441,542 +527,480 @@ function TravelerDashboardContent() {
 
         </div>
 
-        {/* ================= 3. FOUR INDUSTRY-GRADE TABS ================= */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-3 font-sans overflow-x-auto">
+        {/* ================= 3. FOUR DEDICATED PORTALS JUMP CARDS ================= */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
           
-          <button
-            onClick={() => handleTabChange('journeys')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'journeys'
-                ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md shadow-[#c99a6b]/20'
-                : 'text-stone-400 hover:text-white hover:bg-white/5'
-            }`}
+          <Link
+            href="/trips"
+            className="p-6 rounded-[28px] bg-[#14151a]/90 border border-white/10 hover:border-[#c99a6b]/50 transition-all shadow-xl group flex flex-col justify-between"
           >
-            <Luggage className="w-3.5 h-3.5" />
-            <span>My Custom Itineraries ({trips.length})</span>
-          </button>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[#c99a6b]/15 text-[#e4c29e] flex items-center justify-center">
+                <Luggage className="w-5 h-5" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-stone-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#e4c29e] transition-colors">
+                Itineraries Portfolio
+              </h3>
+              <p className="text-xs text-stone-400 mt-1">
+                Manage, search, sort, and edit your custom multi-city route plans.
+              </p>
+            </div>
+          </Link>
 
-          <button
-            onClick={() => handleTabChange('expeditions')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'expeditions'
-                ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md shadow-[#c99a6b]/20'
-                : 'text-stone-400 hover:text-white hover:bg-white/5'
-            }`}
+          <Link
+            href="/expeditions"
+            className="p-6 rounded-[28px] bg-[#14151a]/90 border border-white/10 hover:border-[#c99a6b]/50 transition-all shadow-xl group flex flex-col justify-between"
           >
-            <Compass className="w-3.5 h-3.5" />
-            <span>Curated Group Expeditions ({CURATED_EXPEDITIONS.length})</span>
-          </button>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[#c99a6b]/15 text-[#e4c29e] flex items-center justify-center">
+                <Compass className="w-5 h-5" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-stone-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#e4c29e] transition-colors">
+                Group Expeditions
+              </h3>
+              <p className="text-xs text-stone-400 mt-1">
+                Explore day-by-day itineraries curated by certified tour leaders.
+              </p>
+            </div>
+          </Link>
 
-          <button
-            onClick={() => handleTabChange('community')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'community'
-                ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md shadow-[#c99a6b]/20'
-                : 'text-stone-400 hover:text-white hover:bg-white/5'
-            }`}
+          <Link
+            href="/community"
+            className="p-6 rounded-[28px] bg-[#14151a]/90 border border-white/10 hover:border-[#c99a6b]/50 transition-all shadow-xl group flex flex-col justify-between"
           >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Traveler ↔ Organizer Community</span>
-          </button>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[#c99a6b]/15 text-[#e4c29e] flex items-center justify-center">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-stone-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#e4c29e] transition-colors">
+                Traveler Community
+              </h3>
+              <p className="text-xs text-stone-400 mt-1">
+                Ask tour guides, discuss routes, and join active traveler discussions.
+              </p>
+            </div>
+          </Link>
 
-          <button
-            onClick={() => handleTabChange('concierge')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'concierge'
-                ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md shadow-[#c99a6b]/20'
-                : 'text-stone-400 hover:text-white hover:bg-white/5'
-            }`}
+          <Link
+            href="/concierge"
+            className="p-6 rounded-[28px] bg-[#14151a]/90 border border-white/10 hover:border-[#c99a6b]/50 transition-all shadow-xl group flex flex-col justify-between"
           >
-            <Calculator className="w-3.5 h-3.5" />
-            <span>Smart Concierge &amp; Utilities</span>
-          </button>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[#c99a6b]/15 text-[#e4c29e] flex items-center justify-center">
+                <Calculator className="w-5 h-5" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-stone-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#e4c29e] transition-colors">
+                Smart Concierge
+              </h3>
+              <p className="text-xs text-stone-400 mt-1">
+                Live currency conversions, packing tools, and airport VIP lounge tips.
+              </p>
+            </div>
+          </Link>
 
         </div>
 
-        {/* ================= TAB 1: MY CUSTOM ITINERARIES ================= */}
-        {activeTab === 'journeys' && (
-          <div className="space-y-6">
-            
-            {trips.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {trips.map((trip) => (
-                  <div
-                    key={trip.id}
-                    className="group bg-[#14151a]/95 border border-white/10 hover:border-[#c99a6b]/50 rounded-[32px] overflow-hidden shadow-xl transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div className="p-6 sm:p-7 space-y-4">
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full bg-[#c99a6b]/15 border border-[#c99a6b]/30 text-[#e4c29e] text-[10px] font-sans font-bold uppercase tracking-wider">
-                          {trip.status || 'Active Plan'}
-                        </span>
-
-                        <span className="text-[11px] font-mono text-stone-400">
-                          {trip.stops?.length || trip.total_stops || 0} Stops
-                        </span>
-                      </div>
-
-                      <div>
-                        <h3 className="font-serif text-xl font-bold text-white group-hover:text-[#e4c29e] transition-colors line-clamp-1">
-                          {trip.title}
-                        </h3>
-                        <p className="text-xs font-sans text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                          {trip.description || 'Custom multi-city timeline with assigned lodging and activities.'}
-                        </p>
-                      </div>
-
-                      <div className="p-4 rounded-2xl bg-[#0c0d10] border border-white/10 space-y-2 font-sans">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-stone-400">Dates</span>
-                          <span className="text-white font-medium">
-                            {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &rarr; {new Date(trip.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-stone-400">Total Budget</span>
-                          <span className="text-[#e4c29e] font-bold">
-                            ${parseFloat(trip.total_budget || 0).toLocaleString()} {trip.currency || 'USD'}
-                          </span>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <div className="px-6 sm:px-7 py-4 border-t border-white/10 bg-[#0c0d10]/60 flex items-center justify-between font-sans">
-                      <Link
-                        href={`/trips/${trip.id}`}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#e4c29e] hover:text-white transition-colors"
-                      >
-                        <span>Open Itinerary Atelier</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-
-                      <Link
-                        href={`/trips/share/${trip.share_code || 'public'}`}
-                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 hover:text-white transition-colors"
-                        title="Share Route Code"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-[32px] bg-[#14151a]/95 border border-white/10 p-12 text-center shadow-xl space-y-4">
-                <div className="w-16 h-16 rounded-full bg-[#c99a6b]/10 border border-[#c99a6b]/30 text-[#e4c29e] flex items-center justify-center mx-auto text-2xl">
-                  <Compass className="w-8 h-8" />
-                </div>
-                <h3 className="font-serif text-2xl font-medium text-white">No custom journeys created yet</h3>
-                <p className="font-serif text-sm text-stone-400 max-w-md mx-auto">
-                  Start composing your first multi-city adventure with bespoke destinations, daily allowance balancing, and activity scheduling.
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href="/trips/new"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] font-sans font-bold text-xs shadow-lg shadow-[#c99a6b]/20"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Plan Your First Journey</span>
-                  </Link>
-                </div>
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* ================= TAB 2: CURATED GROUP EXPEDITIONS ================= */}
-        {activeTab === 'expeditions' && (
-          <div className="space-y-6">
-            
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="font-serif text-2xl sm:text-3xl font-medium text-white tracking-tight">
-                  Curated Multi-City <span className="font-bold italic text-[#e4c29e]">Group Expeditions</span>
-                </h2>
-                <p className="font-sans text-xs text-stone-400 mt-0.5">
-                  Hand-crafted multi-destination routes designed and led by certified expedition organizers.
-                </p>
-              </div>
-
-              <span className="text-[11px] font-sans font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-[#c99a6b]/15 text-[#e4c29e] border border-[#c99a6b]/30 self-start sm:self-auto">
-                ★ 100% Guaranteed Departures
-              </span>
+        {/* ================= 4. MY ACTIVE ITINERARIES PORTFOLIO ================= */}
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-sans">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c99a6b]">Portfolio Overview</span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-medium text-white tracking-tight">
+                My Composed Itineraries
+              </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {CURATED_EXPEDITIONS.map((exp) => (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/trips"
+                className="text-xs font-bold text-[#e4c29e] hover:text-white transition-colors"
+              >
+                View All Portfolios &rarr;
+              </Link>
+              
+              <Link
+                href="/trips/new"
+                className="px-4 py-2 rounded-full bg-[#c99a6b] hover:bg-[#dfb182] text-[#0c0d10] text-xs font-bold transition-all"
+              >
+                + New Itinerary
+              </Link>
+            </div>
+          </div>
+
+          {trips.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
+              {trips.slice(0, 3).map((trip) => (
                 <div
-                  key={exp.id}
-                  className="bg-[#14151a]/95 border border-white/10 hover:border-[#c99a6b]/50 rounded-[32px] overflow-hidden shadow-2xl transition-all duration-300 flex flex-col justify-between group"
+                  key={trip.id}
+                  className="group bg-[#14151a]/95 border border-white/10 hover:border-[#c99a6b]/50 rounded-[32px] overflow-hidden shadow-xl transition-all duration-300 flex flex-col justify-between"
                 >
-                  {/* Expedition Cover Image */}
-                  <div className="relative h-60 overflow-hidden">
-                    <img
-                      src={exp.image}
-                      alt={exp.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-95"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#14151a] via-[#14151a]/40 to-transparent" />
-
-                    {/* Category & Duration Tag */}
-                    <div className="absolute top-4 left-4 flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-[#0c0d10]/90 backdrop-blur-md border border-white/15 text-[#e4c29e] text-[10px] font-sans font-bold uppercase tracking-wider">
-                        {exp.category}
-                      </span>
-                      <span className="px-3 py-1 rounded-full bg-[#0c0d10]/90 backdrop-blur-md border border-white/15 text-stone-300 text-[10px] font-sans font-medium">
-                        {exp.duration}
-                      </span>
-                    </div>
-
-                    {/* Capacity Badge */}
-                    <div className="absolute top-4 right-4">
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-emerald-300 text-[10px] font-sans font-bold">
-                        ● {exp.capacity}
-                      </span>
-                    </div>
-
-                    {/* Bottom Title on Image */}
-                    <div className="absolute bottom-3 left-6 right-6">
-                      <h3 className="font-serif text-2xl font-bold text-white leading-snug drop-shadow-md">
-                        {exp.title}
-                      </h3>
-                      <p className="text-xs font-sans text-stone-300 mt-0.5">{exp.subtitle}</p>
-                    </div>
-                  </div>
-
-                  {/* Body Content */}
-                  <div className="p-6 sm:p-7 space-y-5">
+                  <div className="p-6 sm:p-7 space-y-4">
                     
-                    {/* Organizer Profile Card */}
-                    <div className="p-3.5 rounded-2xl bg-[#0c0d10] border border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] font-serif font-bold flex items-center justify-center text-sm shadow-md">
-                          {exp.organizer.avatar}
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-white font-sans">{exp.organizer.name}</p>
-                          <p className="text-[11px] text-[#e4c29e] font-sans">{exp.organizer.badge}</p>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-1 rounded-full bg-[#c99a6b]/15 border border-[#c99a6b]/30 text-[#e4c29e] text-[10px] font-sans font-bold uppercase tracking-wider">
+                        {trip.status || 'Active Plan'}
+                      </span>
 
-                      <div className="text-right font-sans">
-                        <span className="text-[10px] text-amber-300 font-bold flex items-center gap-1 justify-end">
-                          ★ {exp.organizer.rating}
-                        </span>
-                        <span className="text-[10px] text-stone-400">{exp.organizer.tripsLed} Tours Led</span>
-                      </div>
+                      <span className="text-[11px] font-mono text-stone-400">
+                        {trip.stops?.length || trip.total_stops || 0} Stops
+                      </span>
                     </div>
 
-                    {/* Highlights List */}
-                    <div className="space-y-1.5 font-sans">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 block mb-1">Expedition Highlights:</span>
-                      {exp.highlights.map((h, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-stone-300">
-                          <Check className="w-3.5 h-3.5 text-[#c99a6b] flex-shrink-0" />
-                          <span>{h}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                  </div>
-
-                  {/* Action Bar */}
-                  <div className="px-6 sm:px-7 py-5 border-t border-white/10 bg-[#0c0d10]/70 flex items-center justify-between font-sans">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">All-Inclusive Price</span>
-                      <p className="font-serif text-2xl font-bold text-[#e4c29e]">
-                        ${exp.price.toLocaleString()} <span className="font-sans text-xs font-normal text-stone-400">/ traveler</span>
+                      <h3 className="font-serif text-xl font-bold text-white group-hover:text-[#e4c29e] transition-colors line-clamp-1">
+                        {trip.title}
+                      </h3>
+                      <p className="text-xs font-sans text-stone-400 mt-1 line-clamp-2 leading-relaxed">
+                        {trip.description || 'Custom multi-city timeline with assigned lodging and activities.'}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSelectedExpedition(exp)}
-                        className="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-stone-200 hover:text-white text-xs font-bold border border-white/10 transition-all cursor-pointer"
-                      >
-                        View Stops
-                      </button>
-
-                      <button
-                        onClick={() => handleCloneExpedition(exp)}
-                        className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20 transition-all cursor-pointer"
-                      >
-                        Clone &amp; Join
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              ))}
-            </div>
-
-          </div>
-        )}
-
-        {/* ================= TAB 3: TRAVELER ↔ ORGANIZER COMMUNITY ================= */}
-        {activeTab === 'community' && (
-          <div className="space-y-6">
-            
-            <div className="bg-[#14151a]/95 border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="font-serif text-2xl sm:text-3xl font-medium text-white tracking-tight">
-                  Traveler &amp; Tour Guide <span className="font-bold italic text-[#e4c29e]">Community Lounge</span>
-                </h2>
-                <p className="font-sans text-xs sm:text-sm text-stone-400 mt-1">
-                  Connect with experienced expedition organizers, ask questions about destinations, and share route advice.
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowNewPostModal(true)}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] font-sans font-bold text-xs shadow-lg shadow-[#c99a6b]/20 cursor-pointer self-start sm:self-auto"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Ask Tour Guides</span>
-              </button>
-            </div>
-
-            {/* Community Threads Feed */}
-            <div className="space-y-4 font-sans">
-              {posts.map((post) => (
-                <div
-                  key={post.id}
-                  className="bg-[#14151a]/90 border border-white/10 rounded-3xl p-6 shadow-xl space-y-4 hover:border-white/20 transition-all"
-                >
-                  {/* Post Header */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#0c0d10] border border-white/15 text-[#e4c29e] font-serif font-bold flex items-center justify-center text-sm">
-                        {post.avatar}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-bold text-white">{post.author}</p>
-                          <span className="text-[10px] text-stone-400">&bull; {post.time}</span>
-                        </div>
-                        <span className="text-[10px] text-stone-400">{post.role}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      {post.tags?.map((t: string, i: number) => (
-                        <span key={i} className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-medium text-stone-300">
-                          #{t}
+                    <div className="p-4 rounded-2xl bg-[#0c0d10] border border-white/10 space-y-2 font-sans">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-stone-400">Dates</span>
+                        <span className="text-white font-medium">
+                          {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &rarr; {new Date(trip.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </span>
-                      ))}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-stone-400">Total Budget</span>
+                        <span className="text-[#e4c29e] font-bold">
+                          ${parseFloat(trip.total_budget || 0).toLocaleString()} {trip.currency || 'USD'}
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div className="px-6 sm:px-7 py-4 border-t border-white/10 bg-[#0c0d10]/60 flex items-center justify-between font-sans">
+                    <Link
+                      href={`/trips/${trip.id}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#e4c29e] hover:text-white transition-colors"
+                    >
+                      <span>Open Itinerary Atelier</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+
+                    <Link
+                      href={`/trips/share/${trip.share_code || 'public'}`}
+                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 hover:text-white transition-colors"
+                      title="Share Route Code"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[32px] bg-[#14151a]/95 border border-white/10 p-10 text-center shadow-xl space-y-4">
+              <Compass className="w-12 h-12 text-[#c99a6b] mx-auto" />
+              <h3 className="font-serif text-2xl font-medium text-white">No custom journeys created yet</h3>
+              <p className="font-serif text-sm text-stone-400 max-w-md mx-auto">
+                Start composing your first multi-city adventure with bespoke destinations, daily allowance balancing, and activity scheduling.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/trips/new"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] font-sans font-bold text-xs shadow-lg shadow-[#c99a6b]/20"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Plan Your First Journey</span>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ================= 5. TWO-COLUMN WORKSPACE: EXPEDITIONS SPOTLIGHT & PACKING ESSENTIALS ================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Featured Expeditions Spotlight (7 Cols) */}
+          <div className="lg:col-span-7 bg-[#14151a]/95 border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c99a6b]">Curated Tours</span>
+                <h3 className="font-serif text-2xl font-bold text-white mt-0.5">
+                  Featured Group Expeditions
+                </h3>
+              </div>
+
+              <Link
+                href="/expeditions"
+                className="text-xs font-bold text-[#e4c29e] hover:underline"
+              >
+                View All Expeditions &rarr;
+              </Link>
+            </div>
+
+            <div className="space-y-4 font-sans">
+              {CURATED_EXPEDITIONS.slice(0, 2).map((exp) => (
+                <div
+                  key={exp.id}
+                  className="bg-[#0c0d10] border border-white/10 hover:border-[#c99a6b]/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <img
+                      src={exp.image}
+                      alt={exp.title}
+                      className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                    />
+                    <div>
+                      <span className="text-[10px] font-bold text-[#e4c29e] uppercase">{exp.category} &bull; {exp.duration}</span>
+                      <h4 className="font-serif text-base font-bold text-white mt-0.5 line-clamp-1">{exp.title}</h4>
+                      <p className="text-[11px] text-stone-400 mt-0.5">Led by {exp.organizer.name} &bull; ⭐ {exp.organizer.rating}</p>
                     </div>
                   </div>
 
-                  {/* Post Question */}
-                  <div>
-                    <h3 className="font-serif text-lg font-bold text-white">{post.title}</h3>
-                    <p className="text-xs text-stone-300 mt-1.5 leading-relaxed">{post.content}</p>
-                  </div>
+                  <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                    <button
+                      onClick={() => setSelectedExpedition(exp)}
+                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-stone-200 text-xs font-bold border border-white/10 cursor-pointer"
+                    >
+                      View Stops
+                    </button>
 
-                  {/* Organizer Replies Section */}
-                  {post.replies?.length > 0 && (
-                    <div className="p-4 rounded-2xl bg-[#0c0d10] border border-[#c99a6b]/30 space-y-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#c99a6b] flex items-center gap-1">
-                        <Shield className="w-3.5 h-3.5" />
-                        Verified Organizer Response
-                      </span>
-                      {post.replies.map((reply: any, idx: number) => (
-                        <div key={idx} className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white">{reply.author}</span>
-                            <span className="text-[9px] px-2 py-0.2 rounded-full bg-[#c99a6b]/20 text-[#e4c29e] border border-[#c99a6b]/30 font-bold">
-                              {reply.badge}
-                            </span>
-                          </div>
-                          <p className="text-xs text-stone-300 leading-relaxed italic">&ldquo;{reply.text}&rdquo;</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="pt-2 flex items-center justify-between border-t border-white/10 text-xs text-stone-400">
-                    <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
-                      ▲ {post.upvotes} Helpful votes
-                    </span>
-                    <span>{post.repliesCount || post.replies?.length || 0} Replies</span>
+                    <button
+                      onClick={() => handleCloneExpedition(exp)}
+                      className="px-4 py-2 rounded-xl bg-[#c99a6b] hover:bg-[#dfb182] text-[#0c0d10] text-xs font-bold shadow-md cursor-pointer"
+                    >
+                      Join
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
-
           </div>
-        )}
 
-        {/* ================= TAB 4: SMART CONCIERGE & UTILITIES ================= */}
-        {activeTab === 'concierge' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {/* Currency Converter (6 Cols) */}
-            <div className="lg:col-span-6 bg-[#14151a]/95 border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-xl space-y-5 font-sans">
+          {/* Departure Packing Checklist (5 Cols) */}
+          <div className="lg:col-span-5 bg-[#14151a]/95 border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl space-y-5 font-sans">
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-[#c99a6b]" />
-                  Live Multi-Currency Travel Calculator
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c99a6b]">Travel Readiness</span>
+                <h3 className="font-serif text-xl font-bold text-white mt-0.5 flex items-center gap-2">
+                  <Luggage className="w-4 h-4 text-[#c99a6b]" />
+                  Packing Checklist
                 </h3>
-                <p className="text-xs text-stone-400 mt-0.5">Real-time daily expense conversions across your multi-city stops</p>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">Amount to Convert</label>
-                  <input
-                    type="number"
-                    value={calcAmount}
-                    onChange={(e) => setCalcAmount(e.target.value)}
-                    className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-[#c99a6b]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">From Currency</label>
-                    <select
-                      value={fromCurrency}
-                      onChange={(e) => setFromCurrency(e.target.value)}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
-                    >
-                      <option value="USD">USD ($ - US Dollar)</option>
-                      <option value="EUR">EUR (€ - Euro)</option>
-                      <option value="GBP">GBP (£ - British Pound)</option>
-                      <option value="JPY">JPY (¥ - Japanese Yen)</option>
-                      <option value="INR">INR (₹ - Indian Rupee)</option>
-                      <option value="CAD">CAD ($ - Canadian Dollar)</option>
-                      <option value="AUD">AUD ($ - Australian Dollar)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">To Currency</label>
-                    <select
-                      value={toCurrency}
-                      onChange={(e) => setToCurrency(e.target.value)}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
-                    >
-                      <option value="EUR">EUR (€ - Euro)</option>
-                      <option value="USD">USD ($ - US Dollar)</option>
-                      <option value="JPY">JPY (¥ - Japanese Yen)</option>
-                      <option value="GBP">GBP (£ - British Pound)</option>
-                      <option value="INR">INR (₹ - Indian Rupee)</option>
-                      <option value="CAD">CAD ($ - Canadian Dollar)</option>
-                      <option value="AUD">AUD ($ - Australian Dollar)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {calcResult !== null && (
-                  <div className="p-4 rounded-2xl bg-[#0c0d10] border border-[#c99a6b]/30 flex items-center justify-between">
-                    <span className="text-xs text-stone-400">Converted Value:</span>
-                    <span className="font-serif text-2xl font-bold text-[#e4c29e]">
-                      {calcResult.toLocaleString()} {toCurrency}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <span className="text-xs font-bold text-[#e4c29e]">
+                {Math.round((checklistDoneCount / checklist.length) * 100)}%
+              </span>
             </div>
 
-            {/* Smart Departure Packing Checklist (6 Cols) */}
-            <div className="lg:col-span-6 bg-[#14151a]/95 border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-xl space-y-5 font-sans">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
-                    <Luggage className="w-5 h-5 text-[#c99a6b]" />
-                    Departure Packing Checklist
-                  </h3>
-                  <p className="text-xs text-stone-400 mt-0.5">{checklistDoneCount} of {checklist.length} essential items completed</p>
-                </div>
+            {/* Progress bar */}
+            <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] h-full transition-all duration-500"
+                style={{ width: `${(checklistDoneCount / checklist.length) * 100}%` }}
+              />
+            </div>
 
-                <span className="text-xs font-bold text-[#e4c29e]">
-                  {Math.round((checklistDoneCount / checklist.length) * 100)}%
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+            {/* Checklist Items */}
+            <div className="space-y-2">
+              {checklist.map((item) => (
                 <div
-                  className="bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] h-full transition-all duration-500"
-                  style={{ width: `${(checklistDoneCount / checklist.length) * 100}%` }}
-                />
-              </div>
-
-              {/* Checklist Items */}
-              <div className="space-y-2">
-                {checklist.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => toggleChecklistItem(item.id)}
-                    className={`p-3.5 rounded-2xl border transition-all flex items-center gap-3 cursor-pointer ${
-                      item.done
-                        ? 'bg-[#0c0d10]/40 border-white/5 text-stone-500'
-                        : 'bg-[#0c0d10] border-white/10 text-stone-200 hover:border-[#c99a6b]/40'
-                    }`}
-                  >
-                    {item.done ? (
-                      <CheckSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    ) : (
-                      <Square className="w-4 h-4 text-stone-500 flex-shrink-0" />
-                    )}
-                    <span className={`text-xs ${item.done ? 'line-through text-stone-500' : 'text-stone-200'}`}>
-                      {item.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Custom Item */}
-              <form onSubmit={handleAddChecklistItem} className="flex gap-2 pt-2">
-                <input
-                  type="text"
-                  placeholder="Add custom packing item..."
-                  value={newChecklistText}
-                  onChange={(e) => setNewChecklistText(e.target.value)}
-                  className="flex-1 bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-[#c99a6b] hover:text-[#0c0d10] text-stone-200 text-xs font-bold transition-all cursor-pointer"
+                  key={item.id}
+                  onClick={() => toggleChecklistItem(item.id)}
+                  className={`p-3 rounded-xl border transition-all flex items-center gap-2.5 cursor-pointer ${
+                    item.done
+                      ? 'bg-[#0c0d10]/40 border-white/5 text-stone-500'
+                      : 'bg-[#0c0d10] border-white/10 text-stone-200 hover:border-[#c99a6b]/40'
+                  }`}
                 >
-                  Add
-                </button>
-              </form>
+                  {item.done ? (
+                    <CheckSquare className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                  ) : (
+                    <Square className="w-3.5 h-3.5 text-stone-500 flex-shrink-0" />
+                  )}
+                  <span className={`text-xs ${item.done ? 'line-through text-stone-500' : 'text-stone-200'}`}>
+                    {item.text}
+                  </span>
+                </div>
+              ))}
             </div>
 
+            {/* Add Custom Item */}
+            <form onSubmit={handleAddChecklistItem} className="flex gap-2 pt-1">
+              <input
+                type="text"
+                placeholder="Add packing item..."
+                value={newChecklistText}
+                onChange={(e) => setNewChecklistText(e.target.value)}
+                className="flex-1 bg-[#0c0d10] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
+              />
+              <button
+                type="submit"
+                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-[#c99a6b] hover:text-[#0c0d10] text-stone-200 text-xs font-bold transition-all cursor-pointer"
+              >
+                Add
+              </button>
+            </form>
           </div>
-        )}
 
-        {/* ================= EXPEDITION STOPS MODAL ================= */}
+        </div>
+
+        {/* ================= COMPREHENSIVE EXPEDITION ITINERARY MODAL ================= */}
         {selectedExpedition && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#14151a] border border-white/15 rounded-[32px] max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in fade-in">
-              <div className="flex items-start justify-between">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4">
+            <div className="bg-[#14151a] border border-white/15 rounded-[32px] max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in fade-in max-h-[90vh] overflow-y-auto font-sans">
+              
+              {/* Modal Header */}
+              <div className="flex items-start justify-between border-b border-white/10 pb-4">
                 <div>
                   <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#c99a6b]">{selectedExpedition.category}</span>
-                  <h3 className="font-serif text-2xl font-bold text-white mt-0.5">{selectedExpedition.title}</h3>
-                  <p className="text-xs text-stone-400 font-sans mt-0.5">{selectedExpedition.duration} &bull; Led by {selectedExpedition.organizer.name}</p>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white mt-0.5">{selectedExpedition.title}</h3>
+                  <p className="text-xs text-stone-400 font-sans mt-0.5">
+                    {selectedExpedition.duration} &bull; Led by {selectedExpedition.organizer.name} ({selectedExpedition.organizer.badge})
+                  </p>
                 </div>
 
                 <button
                   onClick={() => setSelectedExpedition(null)}
-                  className="p-2 rounded-xl bg-white/5 text-stone-400 hover:text-white"
+                  className="p-2 rounded-xl bg-white/5 text-stone-400 hover:text-white cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-3 font-sans">
-                <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Scheduled Multi-City Stops:</span>
+              {/* 3 Modal Tabs */}
+              <div className="flex items-center gap-2 bg-[#0c0d10] p-1.5 rounded-2xl border border-white/10 text-xs">
+                <button
+                  onClick={() => setModalTab('itinerary')}
+                  className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    modalTab === 'itinerary'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Day-by-Day Full Itinerary ({selectedExpedition.dailyPlan?.length || 0} Days)</span>
+                </button>
+
+                <button
+                  onClick={() => setModalTab('inclusions')}
+                  className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    modalTab === 'inclusions'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Inclusions &amp; Lodging</span>
+                </button>
+
+                <button
+                  onClick={() => setModalTab('stops')}
+                  className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    modalTab === 'stops'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Route Map</span>
+                </button>
+              </div>
+
+              {/* TAB 1: DAY-BY-DAY EXPANDABLE ITINERARY */}
+              {modalTab === 'itinerary' && selectedExpedition.dailyPlan && (
+                <div className="space-y-4">
+                  {/* Day Pills Bar */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/5">
+                    {selectedExpedition.dailyPlan.map((plan: any, idx: number) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedDayIndex(idx)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                          selectedDayIndex === idx
+                            ? 'bg-[#c99a6b] text-[#0c0d10] shadow-sm'
+                            : 'bg-[#0c0d10] text-stone-400 hover:text-white border border-white/5'
+                        }`}
+                      >
+                        Day {plan.day} ({plan.city})
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Selected Day View Card */}
+                  {(() => {
+                    const currentPlan = selectedExpedition.dailyPlan[selectedDayIndex] || selectedExpedition.dailyPlan[0];
+                    return (
+                      <div className="p-5 rounded-2xl bg-[#0c0d10] border border-[#c99a6b]/30 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10">
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#c99a6b]">Day {currentPlan.day} &bull; {currentPlan.city}</span>
+                            <h4 className="font-serif text-xl font-bold text-white mt-0.5">{currentPlan.title}</h4>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs text-stone-300">
+                            <Hotel className="w-4 h-4 text-[#c99a6b]" />
+                            <span className="truncate max-w-[200px]">{currentPlan.lodging}</span>
+                          </div>
+                        </div>
+
+                        {/* Activities List */}
+                        <div className="space-y-2.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Scheduled Experiences:</span>
+                          {currentPlan.activities?.map((act: any, i: number) => (
+                            <div key={i} className="p-3.5 rounded-xl bg-[#14151a] border border-white/10 flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-[#c99a6b]/15 text-[#e4c29e] text-xs font-bold font-mono">
+                                  {act.time}
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold text-white font-serif">{act.title}</p>
+                                  <span className="text-[10px] text-[#e4c29e]">{act.category}</span>
+                                </div>
+                              </div>
+
+                              <span className="font-serif text-xs font-bold text-emerald-400">
+                                {act.cost === 0 ? 'Included' : `$${act.cost}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* TAB 2: INCLUSIONS & LODGING */}
+              {modalTab === 'inclusions' && selectedExpedition.inclusions && (
+                <div className="space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Everything Included in this Expedition:</span>
+                  <div className="space-y-2">
+                    {selectedExpedition.inclusions.map((item: string, i: number) => (
+                      <div key={i} className="p-3.5 rounded-2xl bg-[#0c0d10] border border-white/10 flex items-center gap-3 text-xs text-stone-200">
+                        <Check className="w-4 h-4 text-[#c99a6b] flex-shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: ROUTE MAP */}
+              {modalTab === 'stops' && (
                 <div className="space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Scheduled Multi-City Sequence:</span>
                   {selectedExpedition.stops.map((stop: string, idx: number) => (
-                    <div key={idx} className="p-3 rounded-xl bg-[#0c0d10] border border-white/10 flex items-center gap-3">
+                    <div key={idx} className="p-3.5 rounded-2xl bg-[#0c0d10] border border-white/10 flex items-center gap-3">
                       <div className="w-6 h-6 rounded-full bg-[#c99a6b]/20 text-[#e4c29e] font-serif font-bold text-xs flex items-center justify-center">
                         {idx + 1}
                       </div>
@@ -984,7 +1008,7 @@ function TravelerDashboardContent() {
                     </div>
                   ))}
                 </div>
-              </div>
+              )}
 
               {clonedSuccess && (
                 <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2">
@@ -993,85 +1017,32 @@ function TravelerDashboardContent() {
                 </div>
               )}
 
-              <div className="pt-2 flex items-center justify-end gap-3 font-sans">
-                <button
-                  onClick={() => setSelectedExpedition(null)}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 text-xs font-bold"
-                >
-                  Close
-                </button>
-
-                <button
-                  onClick={() => handleCloneExpedition(selectedExpedition)}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20"
-                >
-                  Clone into My Itineraries
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ================= ASK TOUR GUIDES MODAL ================= */}
-        {showNewPostModal && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 font-sans">
-            <div className="bg-[#14151a] border border-white/15 rounded-[32px] max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl animate-in fade-in">
-              <div className="flex items-start justify-between">
+              {/* Action Bar */}
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
                 <div>
-                  <h3 className="font-serif text-2xl font-bold text-white">Ask Expedition Guides</h3>
-                  <p className="text-xs text-stone-400 mt-0.5">Post a question to our certified tour organizers and global travel community</p>
+                  <span className="text-[10px] uppercase text-stone-400 font-semibold block">All-Inclusive Price</span>
+                  <span className="font-serif text-2xl font-bold text-[#e4c29e]">
+                    ${selectedExpedition.price.toLocaleString()} <span className="font-sans text-xs text-stone-400">/ person</span>
+                  </span>
                 </div>
 
-                <button
-                  onClick={() => setShowNewPostModal(false)}
-                  className="p-2 rounded-xl bg-white/5 text-stone-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <form onSubmit={handleCreatePost} className="space-y-4">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">Question Title</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Best transport pass for Rome -> Florence -> Positano?"
-                    value={newPostTitle}
-                    onChange={(e) => setNewPostTitle(e.target.value)}
-                    className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">Details &amp; Context</label>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder="Provide details such as number of travelers, budget, or dates..."
-                    value={newPostContent}
-                    onChange={(e) => setNewPostContent(e.target.value)}
-                    className="w-full bg-[#0c0d10] border border-white/15 rounded-xl p-4 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
-                  />
-                </div>
-
-                <div className="pt-2 flex items-center justify-end gap-3">
+                <div className="flex items-center gap-3">
                   <button
-                    type="button"
-                    onClick={() => setShowNewPostModal(false)}
-                    className="px-4 py-2.5 rounded-xl bg-white/5 text-stone-400 hover:text-white text-xs font-bold"
+                    onClick={() => setSelectedExpedition(null)}
+                    className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 text-xs font-bold cursor-pointer"
                   >
-                    Cancel
+                    Close
                   </button>
 
                   <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20"
+                    onClick={() => handleCloneExpedition(selectedExpedition)}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20 cursor-pointer"
                   >
-                    Post Question
+                    Clone into My Itineraries
                   </button>
                 </div>
-              </form>
+              </div>
+
             </div>
           </div>
         )}

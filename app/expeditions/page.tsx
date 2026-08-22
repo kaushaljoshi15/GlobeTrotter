@@ -21,7 +21,12 @@ import {
   Clock,
   Layers,
   ChevronRight,
-  Flame
+  Flame,
+  Train,
+  CheckCircle2,
+  Hotel,
+  Utensils,
+  Camera
 } from 'lucide-react';
 
 const CURATED_EXPEDITIONS = [
@@ -45,7 +50,125 @@ const CURATED_EXPEDITIONS = [
     category: 'Alpine Adventure',
     stops: ['Zurich', 'Lucerne', 'Interlaken', 'Zermatt (Matterhorn)'],
     highlights: ['First-class Glacier Express scenic train', 'Jungfraujoch Top of Europe ascent', 'Zermatt Fondue masterclass'],
-    departureDates: ['Oct 12, 2026', 'Nov 05, 2026', 'Dec 01, 2026']
+    departureDates: ['Oct 12, 2026', 'Nov 05, 2026', 'Dec 01, 2026'],
+    inclusions: [
+      'First-Class Swiss Travel Pass (All trains, boats & 50% mountain cableways)',
+      '9 Nights in boutique 4-star & 5-star Swiss alpine chalets & lakeside hotels',
+      'Daily artisan breakfast buffets and 4 curated multi-course dinners',
+      'Certified English-speaking Alpine Expedition Master & luggage transfers',
+      'All scenic rail reservations: Glacier Express, Gornergrat & Pilatus Cogwheel'
+    ],
+    dailyPlan: [
+      {
+        day: 1,
+        title: 'Arrival in Zurich & Medieval Altstadt Stroll',
+        city: 'Zurich',
+        lodging: 'Storchen Zurich 5-Star Riverside Hotel',
+        activities: [
+          { time: '10:00', title: 'SBB Airport Meet & First-Class Rail Pass Activation', cost: 0, category: 'Transit' },
+          { time: '14:00', title: 'Altstadt Medieval Guild Quarter & Grossmünster Walk', cost: 25, category: 'Culture' },
+          { time: '19:30', title: 'Lake Zurich Welcome Dinner at Historic Zunfthaus', cost: 75, category: 'Dining' }
+        ]
+      },
+      {
+        day: 2,
+        title: 'Scenic Rail to Lucerne & Paddle Steamer Cruise',
+        city: 'Lucerne',
+        lodging: 'Hotel Schweizerhof Lucerne',
+        activities: [
+          { time: '09:30', title: 'SBB InterCity Rail Hop to Lucerne (45m)', cost: 25, category: 'Transit' },
+          { time: '11:30', title: 'Historic 14th-Century Covered Chapel Bridge & Lion Monument', cost: 0, category: 'Sightseeing' },
+          { time: '15:00', title: 'Lake Lucerne Historic Paddle Steamer Cruise with Alpine Backdrop', cost: 35, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 3,
+        title: 'Mount Pilatus Dragon Ride & World Steepest Cogwheel',
+        city: 'Lucerne',
+        lodging: 'Hotel Schweizerhof Lucerne',
+        activities: [
+          { time: '09:00', title: 'Aerial Dragon Ride Cableway Ascent to Pilatus Kulm 2,132m', cost: 78, category: 'Adventure' },
+          { time: '13:00', title: 'World Steepest Cogwheel Railway Descent (48% Gradient)', cost: 0, category: 'Adventure' },
+          { time: '17:00', title: 'Swiss Alpine Chocolate Tasting Masterclass', cost: 40, category: 'Culture' }
+        ]
+      },
+      {
+        day: 4,
+        title: 'Luzern-Interlaken Scenic Express & 72 Waterfalls Valley',
+        city: 'Interlaken',
+        lodging: 'Victoria-Jungfrau Grand Hotel & Spa',
+        activities: [
+          { time: '10:00', title: 'Panoramic Brünig Pass Train to Interlaken', cost: 35, category: 'Transit' },
+          { time: '14:00', title: 'Lauterbrunnen Valley 72 Waterfalls & Staubbach Chutes Walk', cost: 30, category: 'Nature' },
+          { time: '18:30', title: 'Harder Kulm Funicular Sunset Observation Dinner', cost: 65, category: 'Dining' }
+        ]
+      },
+      {
+        day: 5,
+        title: 'Jungfraujoch Top of Europe High-Alpine Ascent',
+        city: 'Interlaken',
+        lodging: 'Victoria-Jungfrau Grand Hotel & Spa',
+        activities: [
+          { time: '08:30', title: 'Eiger Express Tri-Cable Gondola & Alpine Train to 3,454m', cost: 145, category: 'Adventure' },
+          { time: '11:00', title: 'Aletsch Glacier Ice Palace Walk & Sphinx Observation Deck', cost: 0, category: 'Sightseeing' },
+          { time: '19:00', title: 'Traditional Valais Raclette & Fondue Feast', cost: 55, category: 'Dining' }
+        ]
+      },
+      {
+        day: 6,
+        title: 'First-Class Glacier Express Rail to Zermatt',
+        city: 'Zermatt',
+        lodging: 'Mont Cervin Palace Zermatt',
+        activities: [
+          { time: '09:30', title: 'Panoramic Glass-Roof Glacier Express First-Class Journey', cost: 95, category: 'Transit' },
+          { time: '14:30', title: 'Arrival in Car-Free Zermatt Village at Foot of Matterhorn', cost: 0, category: 'Sightseeing' },
+          { time: '17:00', title: 'Historic Mountaineers Quarter & Old Timber Chalets', cost: 0, category: 'Culture' }
+        ]
+      },
+      {
+        day: 7,
+        title: 'Gornergrat Cogwheel Train & Matterhorn Reflection',
+        city: 'Zermatt',
+        lodging: 'Mont Cervin Palace Zermatt',
+        activities: [
+          { time: '09:00', title: 'Gornergrat Cogwheel Railway to 3,089m Peak View', cost: 95, category: 'Adventure' },
+          { time: '12:00', title: 'Riffelsee Alpine Lake Matterhorn Mirror Photography Trek', cost: 0, category: 'Nature' },
+          { time: '18:30', title: 'Valais Artisan Wine & Dry-Aged Beef Dinner', cost: 80, category: 'Dining' }
+        ]
+      },
+      {
+        day: 8,
+        title: 'Matterhorn Glacier Paradise & Ice Caves',
+        city: 'Zermatt',
+        lodging: 'Mont Cervin Palace Zermatt',
+        activities: [
+          { time: '09:30', title: '3S Cableway Ascent to Europe Highest Mountain Station 3,883m', cost: 80, category: 'Adventure' },
+          { time: '14:00', title: 'Walk-Through Glacier Ice Cave Sanctuary', cost: 0, category: 'Sightseeing' },
+          { time: '19:00', title: 'Alpine Craft Brewery Tasting Experience', cost: 45, category: 'Nightlife' }
+        ]
+      },
+      {
+        day: 9,
+        title: 'Scenic Lake Geneva Rail Hop & Chillon Castle',
+        city: 'Geneva',
+        lodging: 'Hotel d\'Angleterre Geneva',
+        activities: [
+          { time: '10:00', title: 'SBB InterRegio Train past Vineyards to Lake Geneva', cost: 70, category: 'Transit' },
+          { time: '14:00', title: 'Medieval Chateau de Chillon Castle Tour in Montreux', cost: 25, category: 'Culture' },
+          { time: '20:00', title: 'Michelin-Starred Farewell Gala Dinner on Lake Geneva', cost: 110, category: 'Dining' }
+        ]
+      },
+      {
+        day: 10,
+        title: 'Geneva Jet d\'Eau & Farewell Switzerland',
+        city: 'Geneva',
+        lodging: 'Departure',
+        activities: [
+          { time: '10:00', title: 'Lake Geneva Jet d\'Eau & Old Town Saint-Pierre Promenade', cost: 0, category: 'Sightseeing' },
+          { time: '13:30', title: 'Private First-Class Transfer to Geneva Airport', cost: 0, category: 'Transit' }
+        ]
+      }
+    ]
   },
   {
     id: 'exp-2',
@@ -67,7 +190,143 @@ const CURATED_EXPEDITIONS = [
     category: 'Culture & Gastronomy',
     stops: ['Tokyo (Shinjuku)', 'Hakone (Mt Fuji View)', 'Kyoto (Gion)', 'Nara Deer Park'],
     highlights: ['Private tea ceremony in 400-year-old temple', 'Shinkansen bullet train speed pass', 'Michelin-starred Kaiseki dining'],
-    departureDates: ['Oct 20, 2026', 'Nov 14, 2026', 'Dec 08, 2026']
+    departureDates: ['Oct 20, 2026', 'Nov 14, 2026', 'Dec 08, 2026'],
+    inclusions: [
+      '7-Day JR Whole Japan Rail Pass (Green Car First-Class Shinkansen)',
+      '11 Nights luxury accommodations (Boutique Shinjuku Tower & Onsen Ryokans)',
+      'Private tea masterclass in 400-year-old Kyoto Daitoku-ji temple',
+      'Daily Japanese gourmet breakfasts and 5 multi-course Kaiseki dinners',
+      'Full luggage courier forwarding between Tokyo and Kyoto hotels'
+    ],
+    dailyPlan: [
+      {
+        day: 1,
+        title: 'Arrival in Tokyo Metropolis & Lantern-Lit Izakayas',
+        city: 'Tokyo',
+        lodging: 'Cerulean Tower Tokyu Hotel',
+        activities: [
+          { time: '14:00', title: 'Narita Express VIP Transfer & Check-In', cost: 0, category: 'Transit' },
+          { time: '18:30', title: 'Shinjuku Omoide Yokocho & Golden Gai Izakaya Food Crawl', cost: 65, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 2,
+        title: 'Shibuya 360° Sky Observatory & Digital Crystal Universe',
+        city: 'Tokyo',
+        lodging: 'Cerulean Tower Tokyu Hotel',
+        activities: [
+          { time: '10:00', title: 'Shibuya Sky Rooftop Glass Observation & Scramble Crossing', cost: 28, category: 'Sightseeing' },
+          { time: '14:00', title: 'TeamLab Planets Multi-Sensory Digital Art Immersion', cost: 36, category: 'Culture' },
+          { time: '19:00', title: 'Ginza A5 Wagyu Sukiyaki Masterclass Dinner', cost: 95, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 3,
+        title: 'Tsukiji Fish Market Safari & Asakusa Senso-ji Temple',
+        city: 'Tokyo',
+        lodging: 'Cerulean Tower Tokyu Hotel',
+        activities: [
+          { time: '08:30', title: 'Tsukiji Outer Market Otoro Tuna & Tamago Tasting Safari', cost: 45, category: 'Food & Dining' },
+          { time: '11:30', title: 'Historic 7th-Century Senso-ji Temple Incense Ritual', cost: 15, category: 'Culture' },
+          { time: '15:00', title: 'Futuristic Himiko Water Bus Cruise to Odaiba', cost: 22, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 4,
+        title: 'Romancecar Train to Hakone & Mt. Fuji Onsen Ryokan',
+        city: 'Hakone',
+        lodging: 'Hakone Gora Byakudan Luxury Ryokan',
+        activities: [
+          { time: '09:30', title: 'Odakyu Romancecar Scenic Express to Hakone', cost: 28, category: 'Transit' },
+          { time: '13:00', title: 'Lake Ashi Pirate Ship Cruise with Floating Torii Gate View', cost: 24, category: 'Sightseeing' },
+          { time: '18:00', title: '9-Course Seasonal Kaiseki Banquet & Forest Thermal Onsen', cost: 0, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 5,
+        title: 'Owakudani Volcanic Valley & Open-Air Sculpture Park',
+        city: 'Hakone',
+        lodging: 'Hakone Gora Byakudan Luxury Ryokan',
+        activities: [
+          { time: '09:30', title: 'Hakone Ropeway Cable Car over Steaming Volcanic Vents', cost: 15, category: 'Adventure' },
+          { time: '13:00', title: 'Hakone Open-Air Museum & Picasso Exhibition Pavilion', cost: 35, category: 'Culture' }
+        ]
+      },
+      {
+        day: 6,
+        title: 'Shinkansen Bullet Train to Kyoto & Gion Lanterns',
+        city: 'Kyoto',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '10:00', title: 'Tokaido Shinkansen Bullet Train at 300 km/h to Kyoto', cost: 95, category: 'Transit' },
+          { time: '14:30', title: 'Check-in at Historic Wooden Machiya in Gion District', cost: 0, category: 'Lodging' },
+          { time: '17:30', title: 'Twilight Stroll Through Hanamikoji Geisha Quarter', cost: 0, category: 'Culture' }
+        ]
+      },
+      {
+        day: 7,
+        title: 'Fushimi Inari 10,000 Torii Gates & Private Zen Tea Ceremony',
+        city: 'Kyoto',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '07:00', title: 'Fushimi Inari 10,000 Vermillion Torii Gates Sunrise Trek', cost: 0, category: 'Nature' },
+          { time: '14:00', title: 'Private Matcha Tea Ceremony with Geiko in 400-Year Temple', cost: 55, category: 'Culture' },
+          { time: '19:00', title: 'Pontocho Alley Riverside Kamo Terrace Feast', cost: 85, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 8,
+        title: 'Arashiyama Bamboo Grove & Kinkaku-ji Golden Pavilion',
+        city: 'Kyoto',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '08:30', title: 'Arashiyama Soaring Bamboo Forest & Tenryu-ji Zen Gardens', cost: 20, category: 'Nature' },
+          { time: '13:30', title: 'Kinkaku-ji Golden Pavilion Mirrored on Mirror Lake', cost: 15, category: 'Culture' },
+          { time: '16:30', title: 'Traditional Silk Kimono Weaving Workshop in Nishijin', cost: 40, category: 'Culture' }
+        ]
+      },
+      {
+        day: 9,
+        title: 'Ancient Imperial Nara & Sacred Deer Sanctuary',
+        city: 'Nara',
+        lodging: 'Kyoto Gion Machiya Heritage Suites',
+        activities: [
+          { time: '09:00', title: 'Kintetsu Limited Express Train to Ancient Nara', cost: 15, category: 'Transit' },
+          { time: '10:30', title: 'Todai-ji Temple Great Bronze Buddha (World Largest Wooden Hall)', cost: 12, category: 'Culture' },
+          { time: '14:00', title: 'Nara Park Sacred Sika Deer Feeding & Kasuga Taisha Lanterns', cost: 5, category: 'Nature' }
+        ]
+      },
+      {
+        day: 10,
+        title: 'Osaka Castle & Dotonbori Neon Street Food',
+        city: 'Osaka',
+        lodging: 'W Osaka Design Hotel',
+        activities: [
+          { time: '10:00', title: 'JR Rapid Hop to Osaka Culinary Capital', cost: 12, category: 'Transit' },
+          { time: '13:00', title: 'Osaka Castle 16th-Century Fortress & Moats Tour', cost: 18, category: 'Culture' },
+          { time: '18:00', title: 'Dotonbori Neon Canal Takoyaki & Kushikatsu Tasting Crawl', cost: 45, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 11,
+        title: 'Nishiki Market Safari & 3-Star Michelin Farewell Gala',
+        city: 'Kyoto',
+        lodging: 'W Osaka Design Hotel',
+        activities: [
+          { time: '10:30', title: 'Kyoto Nishiki Kitchen Market 5-Course Food Tasting', cost: 35, category: 'Food & Dining' },
+          { time: '19:00', title: 'Grand Michelin-Starred Kaiseki Farewell Banquet', cost: 120, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 12,
+        title: 'Kansai Departure & Sayonara Japan',
+        city: 'Osaka',
+        lodging: 'Departure',
+        activities: [
+          { time: '10:00', title: 'Haruka Express VIP Direct Train to Kansai International Airport', cost: 0, category: 'Transit' }
+        ]
+      }
+    ]
   },
   {
     id: 'exp-3',
@@ -89,7 +348,109 @@ const CURATED_EXPEDITIONS = [
     category: 'Coastal Luxury',
     stops: ['Rome', 'Florence', 'Siena', 'Positano (Amalfi)'],
     highlights: ['Chianti private estate wine tasting', 'Sunset yacht cruise past Capri Faraglioni', 'Skip-the-line Uffizi Gallery tour'],
-    departureDates: ['Sep 28, 2026', 'Oct 18, 2026', 'Nov 02, 2026']
+    departureDates: ['Sep 28, 2026', 'Oct 18, 2026', 'Nov 02, 2026'],
+    inclusions: [
+      'First-Class Trenitalia Frecciarossa high-speed rail passes',
+      '8 Nights in luxury boutique villas & cliffside Amalfi suites',
+      'Private sunset yacht charter around Capri island & Faraglioni rocks',
+      'Private Chianti Classico wine estate tastings with master sommelier',
+      'Skip-the-line VIP access to Vatican, Colosseum, and Uffizi Gallery'
+    ],
+    dailyPlan: [
+      {
+        day: 1,
+        title: 'Arrival in the Eternal City & Trastevere Wine Stroll',
+        city: 'Rome',
+        lodging: 'Palazzo Navona Hotel Rome',
+        activities: [
+          { time: '14:00', title: 'Private Leonardo Express Transfer & Check-In', cost: 0, category: 'Transit' },
+          { time: '18:30', title: 'Trastevere Sunset Food & Natural Wine Walking Safari', cost: 65, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 2,
+        title: 'Colosseum Gladiator Underground & Roman Forum',
+        city: 'Rome',
+        lodging: 'Palazzo Navona Hotel Rome',
+        activities: [
+          { time: '09:00', title: 'VIP Gladiator Arena Floor & Underground Dungeon Access', cost: 55, category: 'Culture' },
+          { time: '15:00', title: 'Trevi Fountain, Pantheon & Piazza Navona Gelato Walk', cost: 18, category: 'Sightseeing' },
+          { time: '19:30', title: 'Classic Roman Cacio e Pepe & Carbonara Tasting Dinner', cost: 60, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 3,
+        title: 'Vatican Museums, Sistine Chapel & Frecciarossa to Florence',
+        city: 'Florence',
+        lodging: 'Hotel Brunelleschi Florence',
+        activities: [
+          { time: '09:00', title: 'Skip-the-Line Vatican Papal Galleries & Sistine Chapel', cost: 48, category: 'Culture' },
+          { time: '14:30', title: 'Frecciarossa 1000 High-Speed Train to Florence (1h 30m)', cost: 45, category: 'Transit' },
+          { time: '18:00', title: 'Ponte Vecchio Sunset Stroll & Florentine Steak Feast', cost: 75, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 4,
+        title: 'Uffizi Renaissance Masterpieces & Duomo Rooftop Climb',
+        city: 'Florence',
+        lodging: 'Hotel Brunelleschi Florence',
+        activities: [
+          { time: '09:30', title: 'Uffizi Gallery Renaissance Tour (Da Vinci & Botticelli)', cost: 45, category: 'Culture' },
+          { time: '14:00', title: 'Duomo Brunelleschi Dome Climb & Secret Terraces', cost: 32, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 5,
+        title: 'Chianti Vineyard Estate Safari & Medieval Siena',
+        city: 'Siena',
+        lodging: 'Grand Hotel Continental Siena',
+        activities: [
+          { time: '09:30', title: 'Private Chianti Classico Wine Estate Tour & Truffle Pairing', cost: 85, category: 'Food & Dining' },
+          { time: '15:00', title: 'Siena Piazza del Campo & Marble Cathedral Floor Tour', cost: 20, category: 'Culture' }
+        ]
+      },
+      {
+        day: 6,
+        title: 'High-Speed Rail to Naples & Amalfi Coast Panoramic Drive',
+        city: 'Positano',
+        lodging: 'Le Sirenuse / Villa Franca Positano',
+        activities: [
+          { time: '09:30', title: 'Frecciarossa Train to Naples & Private Mercedes Coastal Drive', cost: 75, category: 'Transit' },
+          { time: '15:00', title: 'Check-in at Cliffside Whitewashed Terrace Suites in Positano', cost: 0, category: 'Lodging' },
+          { time: '19:30', title: 'Cliffside Seafood Pasta & Limoncello Tasting Dinner', cost: 80, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 7,
+        title: 'Private Sunset Yacht Charter to Capri & Faraglioni',
+        city: 'Positano',
+        lodging: 'Le Sirenuse Positano',
+        activities: [
+          { time: '10:00', title: 'Private Riva Yacht Cruise to Capri Blue Grotto & Caves', cost: 110, category: 'Coastal Luxury' },
+          { time: '17:30', title: 'Sunset Prosecco Toast Passing Faraglioni Sea Stacks', cost: 0, category: 'Sightseeing' }
+        ]
+      },
+      {
+        day: 8,
+        title: 'Path of the Gods Cliff Walk & Ravello Gardens',
+        city: 'Positano',
+        lodging: 'Le Sirenuse Positano',
+        activities: [
+          { time: '09:00', title: 'Path of the Gods (Sentiero degli Dei) Panoramic Cliff Hike', cost: 35, category: 'Nature' },
+          { time: '14:30', title: 'Ravello Villa Rufolo Infinity Terrace Gardens', cost: 20, category: 'Sightseeing' },
+          { time: '20:00', title: 'Grand Amalfi Coastline Farewell Gala Banquet', cost: 95, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 9,
+        title: 'Naples / Rome Departure & Arrivederci Italia',
+        city: 'Rome',
+        lodging: 'Departure',
+        activities: [
+          { time: '09:30', title: 'Private First-Class Transfer to Naples / Rome Fiumicino Airport', cost: 0, category: 'Transit' }
+        ]
+      }
+    ]
   },
   {
     id: 'exp-4',
@@ -111,7 +472,99 @@ const CURATED_EXPEDITIONS = [
     category: 'Arctic & Aurora',
     stops: ['Reykjavik', 'Vik Black Sand Beach', 'Jokulsarlon Glacier', 'Akureyri'],
     highlights: ['Superjeep glacier ice cave exploration', 'Nightly Northern Lights tracking', 'Geo-thermal mineral soak at Blue Lagoon'],
-    departureDates: ['Nov 10, 2026', 'Dec 05, 2026', 'Jan 15, 2027']
+    departureDates: ['Nov 10, 2026', 'Dec 05, 2026', 'Jan 15, 2027'],
+    inclusions: [
+      'Luxury Arctic Superjeep 4x4 expedition transport throughout',
+      '7 Nights in Nordic glass-roof aurora lodges & geothermal boutique hotels',
+      'Professional Arctic Expedition Lead & professional aurora photography guidance',
+      'All glacier cave gear, crampons, thermal suits, and Blue Lagoon Retreat passes',
+      'Daily Icelandic farmhouse breakfasts and fresh Arctic seafood dinners'
+    ],
+    dailyPlan: [
+      {
+        day: 1,
+        title: 'Arrival in Reykjavik & Geothermal Blue Lagoon Retreat',
+        city: 'Reykjavik',
+        lodging: 'The Retreat at Blue Lagoon',
+        activities: [
+          { time: '13:00', title: 'Keflavik Airport VIP Superjeep Pickup', cost: 0, category: 'Transit' },
+          { time: '15:00', title: 'Blue Lagoon Silica & Mineral Geothermal Soak with Mud Mask', cost: 85, category: 'Wellness' },
+          { time: '19:30', title: 'Lava Restaurant Nordic Tasting Dinner', cost: 75, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 2,
+        title: 'Golden Circle, Geysir & Gullfoss Roaring Falls',
+        city: 'Reykjavik',
+        lodging: 'ION Adventure Hotel (Glass Aurora Roof)',
+        activities: [
+          { time: '09:00', title: 'Thingvellir National Park Tectonic Rift Valley Walk', cost: 20, category: 'Nature' },
+          { time: '12:30', title: 'Strokkur Erupting Geyser & Gullfoss Two-Tier Waterfall', cost: 45, category: 'Adventure' },
+          { time: '21:30', title: 'Nightly Guided Aurora Borealis Celestial Light Chase', cost: 75, category: 'Nature' }
+        ]
+      },
+      {
+        day: 3,
+        title: 'South Coast Waterfalls & Vik Black Sand Beaches',
+        city: 'Vik',
+        lodging: 'Hotel Kria Vik',
+        activities: [
+          { time: '09:00', title: 'Seljalandsfoss Walk-Behind Waterfall & Skogafoss Chute', cost: 25, category: 'Nature' },
+          { time: '14:30', title: 'Reynisfjara Black Sand Beach & Basalt Sea Columns', cost: 0, category: 'Sightseeing' },
+          { time: '21:00', title: 'Coastal Aurora Tracking over Reynisdrangar Sea Stacks', cost: 0, category: 'Nature' }
+        ]
+      },
+      {
+        day: 4,
+        title: 'Jokulsarlon Glacier Lagoon & Crystal Ice Caves',
+        city: 'Jokulsarlon',
+        lodging: 'Fosshotel Glacier Lagoon',
+        activities: [
+          { time: '09:30', title: 'Superjeep Glacier Expedition to Vatnajokull Natural Ice Cave', cost: 110, category: 'Adventure' },
+          { time: '14:00', title: 'Diamond Beach Floating Iceberg Photography Walk', cost: 0, category: 'Nature' }
+        ]
+      },
+      {
+        day: 5,
+        title: 'East Fjords Scenic Coastal Passes to North Iceland',
+        city: 'Akureyri',
+        lodging: 'Hotel Kea Akureyri',
+        activities: [
+          { time: '09:00', title: 'Scenic Mountain Superjeep Passage through Dramatic Fjords', cost: 0, category: 'Transit' },
+          { time: '15:00', title: 'Lake Myvatn Volcanic Craters & Dimmuborgir Lava Formations', cost: 35, category: 'Adventure' }
+        ]
+      },
+      {
+        day: 6,
+        title: 'Godafoss Waterfall of the Gods & Geothermal Forest Lagoon',
+        city: 'Akureyri',
+        lodging: 'Hotel Kea Akureyri',
+        activities: [
+          { time: '10:00', title: 'Godafoss Roaring Horseshoe Glacial Waterfall', cost: 0, category: 'Nature' },
+          { time: '15:00', title: 'Forest Lagoon Geothermal Infinity Pools with Fjord Panorama', cost: 50, category: 'Wellness' }
+        ]
+      },
+      {
+        day: 7,
+        title: 'Reykjavik Capital Culture & Grand Farewell Arctic Feast',
+        city: 'Reykjavik',
+        lodging: 'Canopy by Hilton Reykjavik City Centre',
+        activities: [
+          { time: '10:00', title: 'Superjeep Return to Reykjavik via Hvalfjordur Tunnel', cost: 0, category: 'Transit' },
+          { time: '14:00', title: 'Hallgrimskirkja Tower 360° City View & Rainbow Street Stroll', cost: 15, category: 'Culture' },
+          { time: '19:30', title: 'Grand Arctic Tasting Gala with Smoked Salmon & Reindeer Carpaccio', cost: 95, category: 'Food & Dining' }
+        ]
+      },
+      {
+        day: 8,
+        title: 'Keflavik Departure & Farewell Iceland',
+        city: 'Reykjavik',
+        lodging: 'Departure',
+        activities: [
+          { time: '10:00', title: 'VIP Direct Transfer to Keflavik International Airport', cost: 0, category: 'Transit' }
+        ]
+      }
+    ]
   }
 ];
 
@@ -119,6 +572,8 @@ export default function ExpeditionsPage() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedExpedition, setSelectedExpedition] = useState<any>(null);
+  const [modalTab, setModalTab] = useState<'itinerary' | 'inclusions' | 'stops'>('itinerary');
+  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
   const [clonedSuccess, setClonedSuccess] = useState(false);
 
   const filteredExpeditions = CURATED_EXPEDITIONS.filter((exp) => {
@@ -192,7 +647,6 @@ export default function ExpeditionsPage() {
 
         {/* Search & Filter Strip */}
         <div className="bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 p-5 sm:p-6 rounded-[32px] shadow-2xl space-y-4 font-sans">
-          
           <div className="relative">
             <Search className="w-4 h-4 text-stone-500 absolute left-5 top-1/2 -translate-y-1/2" />
             <input
@@ -324,10 +778,14 @@ export default function ExpeditionsPage() {
 
                 <div className="flex items-center gap-2.5">
                   <button
-                    onClick={() => setSelectedExpedition(exp)}
+                    onClick={() => {
+                      setSelectedExpedition(exp);
+                      setModalTab('itinerary');
+                      setSelectedDayIndex(0);
+                    }}
                     className="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-stone-200 hover:text-white text-xs font-bold border border-white/10 transition-all cursor-pointer"
                   >
-                    View Details
+                    View Day-by-Day
                   </button>
 
                   <button
@@ -343,28 +801,151 @@ export default function ExpeditionsPage() {
           ))}
         </div>
 
-        {/* Detailed Modal */}
+        {/* ================= COMPREHENSIVE DAY-BY-DAY ITINERARY MODAL ================= */}
         {selectedExpedition && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#14151a] border border-white/15 rounded-[32px] max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in fade-in">
-              <div className="flex items-start justify-between">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4">
+            <div className="bg-[#14151a] border border-white/15 rounded-[32px] max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl animate-in fade-in max-h-[90vh] overflow-y-auto font-sans">
+              
+              {/* Modal Header */}
+              <div className="flex items-start justify-between border-b border-white/10 pb-4">
                 <div>
                   <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#c99a6b]">{selectedExpedition.category}</span>
-                  <h3 className="font-serif text-2xl font-bold text-white mt-0.5">{selectedExpedition.title}</h3>
-                  <p className="text-xs text-stone-400 font-sans mt-0.5">{selectedExpedition.duration} &bull; Led by {selectedExpedition.organizer.name}</p>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white mt-0.5">{selectedExpedition.title}</h3>
+                  <p className="text-xs text-stone-400 font-sans mt-0.5">
+                    {selectedExpedition.duration} &bull; Led by {selectedExpedition.organizer.name} ({selectedExpedition.organizer.badge})
+                  </p>
                 </div>
 
                 <button
                   onClick={() => setSelectedExpedition(null)}
-                  className="p-2 rounded-xl bg-white/5 text-stone-400 hover:text-white"
+                  className="p-2 rounded-xl bg-white/5 text-stone-400 hover:text-white cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-3 font-sans">
-                <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Scheduled Multi-City Route:</span>
+              {/* 3 Modal Tabs */}
+              <div className="flex items-center gap-2 bg-[#0c0d10] p-1.5 rounded-2xl border border-white/10 text-xs">
+                <button
+                  onClick={() => setModalTab('itinerary')}
+                  className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    modalTab === 'itinerary'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Day-by-Day Full Itinerary ({selectedExpedition.dailyPlan?.length || 0} Days)</span>
+                </button>
+
+                <button
+                  onClick={() => setModalTab('inclusions')}
+                  className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    modalTab === 'inclusions'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Inclusions &amp; Lodging</span>
+                </button>
+
+                <button
+                  onClick={() => setModalTab('stops')}
+                  className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    modalTab === 'stops'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Route Map</span>
+                </button>
+              </div>
+
+              {/* TAB 1: DAY-BY-DAY EXPANDABLE ITINERARY */}
+              {modalTab === 'itinerary' && selectedExpedition.dailyPlan && (
+                <div className="space-y-4">
+                  {/* Day Pills Bar */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/5">
+                    {selectedExpedition.dailyPlan.map((plan: any, idx: number) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedDayIndex(idx)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                          selectedDayIndex === idx
+                            ? 'bg-[#c99a6b] text-[#0c0d10] shadow-sm'
+                            : 'bg-[#0c0d10] text-stone-400 hover:text-white border border-white/5'
+                        }`}
+                      >
+                        Day {plan.day} ({plan.city})
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Selected Day View Card */}
+                  {(() => {
+                    const currentPlan = selectedExpedition.dailyPlan[selectedDayIndex] || selectedExpedition.dailyPlan[0];
+                    return (
+                      <div className="p-5 rounded-2xl bg-[#0c0d10] border border-[#c99a6b]/30 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10">
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#c99a6b]">Day {currentPlan.day} &bull; {currentPlan.city}</span>
+                            <h4 className="font-serif text-xl font-bold text-white mt-0.5">{currentPlan.title}</h4>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs text-stone-300">
+                            <Hotel className="w-4 h-4 text-[#c99a6b]" />
+                            <span className="truncate max-w-[200px]">{currentPlan.lodging}</span>
+                          </div>
+                        </div>
+
+                        {/* Activities List */}
+                        <div className="space-y-2.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Scheduled Experiences:</span>
+                          {currentPlan.activities?.map((act: any, i: number) => (
+                            <div key={i} className="p-3.5 rounded-xl bg-[#14151a] border border-white/10 flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-[#c99a6b]/15 text-[#e4c29e] text-xs font-bold font-mono">
+                                  {act.time}
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold text-white font-serif">{act.title}</p>
+                                  <span className="text-[10px] text-[#e4c29e]">{act.category}</span>
+                                </div>
+                              </div>
+
+                              <span className="font-serif text-xs font-bold text-emerald-400">
+                                {act.cost === 0 ? 'Included' : `$${act.cost}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* TAB 2: INCLUSIONS & LODGING */}
+              {modalTab === 'inclusions' && selectedExpedition.inclusions && (
+                <div className="space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Everything Included in this Expedition:</span>
+                  <div className="space-y-2">
+                    {selectedExpedition.inclusions.map((item: string, i: number) => (
+                      <div key={i} className="p-3.5 rounded-2xl bg-[#0c0d10] border border-white/10 flex items-center gap-3 text-xs text-stone-200">
+                        <Check className="w-4 h-4 text-[#c99a6b] flex-shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: ROUTE MAP */}
+              {modalTab === 'stops' && (
                 <div className="space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-300">Scheduled Multi-City Sequence:</span>
                   {selectedExpedition.stops.map((stop: string, idx: number) => (
                     <div key={idx} className="p-3.5 rounded-2xl bg-[#0c0d10] border border-white/10 flex items-center gap-3">
                       <div className="w-6 h-6 rounded-full bg-[#c99a6b]/20 text-[#e4c29e] font-serif font-bold text-xs flex items-center justify-center">
@@ -374,7 +955,7 @@ export default function ExpeditionsPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              )}
 
               {clonedSuccess && (
                 <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2">
@@ -383,21 +964,32 @@ export default function ExpeditionsPage() {
                 </div>
               )}
 
-              <div className="pt-2 flex items-center justify-end gap-3 font-sans">
-                <button
-                  onClick={() => setSelectedExpedition(null)}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 text-xs font-bold"
-                >
-                  Close
-                </button>
+              {/* Action Bar */}
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase text-stone-400 font-semibold block">All-Inclusive Price</span>
+                  <span className="font-serif text-2xl font-bold text-[#e4c29e]">
+                    ${selectedExpedition.price.toLocaleString()} <span className="font-sans text-xs text-stone-400">/ person</span>
+                  </span>
+                </div>
 
-                <button
-                  onClick={() => handleCloneExpedition(selectedExpedition)}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20"
-                >
-                  Clone into My Itineraries
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedExpedition(null)}
+                    className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 text-xs font-bold cursor-pointer"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    onClick={() => handleCloneExpedition(selectedExpedition)}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20 cursor-pointer"
+                  >
+                    Clone into My Itineraries
+                  </button>
+                </div>
               </div>
+
             </div>
           </div>
         )}

@@ -208,9 +208,9 @@ export default function ExplorePage() {
 
         {/* Destinations Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mb-20">
-          {destinations.map((dest) => (
+          {destinations.map((dest, idx) => (
             <div
-              key={dest.id}
+              key={`dest-${dest.id}-${dest.name}-${idx}`}
               onClick={() => openCityDetails(dest.id)}
               className="group rounded-[28px] bg-[#14151a]/90 backdrop-blur-xl border border-white/10 hover:border-[#c99a6b]/50 overflow-hidden shadow-2xl transition-all duration-300 flex flex-col cursor-pointer"
             >
@@ -294,9 +294,9 @@ export default function ExplorePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {activities.slice(0, 8).map((act) => (
+            {activities.slice(0, 8).map((act, idx) => (
               <div
-                key={act.id}
+                key={`act-${act.id}-${act.name}-${idx}`}
                 className="bg-[#14151a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex flex-col justify-between hover:border-[#c99a6b]/50 transition-all font-sans"
               >
                 <div>
@@ -373,8 +373,8 @@ export default function ExplorePage() {
                   Top Curated Experiences ({selectedCity.activities?.length || 0})
                 </h4>
                 <div className="space-y-2.5">
-                  {selectedCity.activities?.map((act: any) => (
-                    <div key={act.id} className="bg-[#0c0d10] border border-white/10 p-3.5 rounded-xl flex items-center justify-between text-xs">
+                  {selectedCity.activities?.map((act: any, idx: number) => (
+                    <div key={`city-act-${act.id || idx}-${act.name}-${idx}`} className="bg-[#0c0d10] border border-white/10 p-3.5 rounded-xl flex items-center justify-between text-xs">
                       <div>
                         <p className="font-bold text-white">{act.name}</p>
                         <p className="text-[11px] text-stone-400 mt-0.5 capitalize">{act.category} &bull; {act.duration_hours} hrs</p>
