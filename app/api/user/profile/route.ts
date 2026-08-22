@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 import { apiSuccess, apiError } from '@/lib/api-response';
 
@@ -9,30 +9,52 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = user?.id || (searchParams.get('userId') ? parseInt(searchParams.get('userId')!) : 1);
 
-    const userRes = await query('SELECT id, name, email, avatar_url, role, preferred_currency, created_at FROM users WHERE id = $1', [userId]);
-    if (userRes.rows.length === 0) return apiError('User not found', 404);
+    const userData = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar_url: true,
+        role: true,
+        preferred_currency: true,
+        created_at: true,
+        trips: {
+          include: {
+            stops: { select: { city_id: true } },
+            expenses: { select: { amount: true } },
+          },
+        },
+      },
+    });
 
-    const userData = userRes.rows[0];
+    if (!userData) return apiError('User not found', 404);
 
-    // Get user trip stats
-    const statsRes = await query(`
-      SELECT 
-        COUNT(DISTINCT t.id)::int as total_trips,
-        COUNT(DISTINCT s.city_id)::int as total_cities_visited,
-        COUNT(DISTINCT d.country)::int as total_countries_visited,
-        COALESCE(SUM(t.total_budget), 0)::numeric(12, 2) as total_budget_planned,
-        COALESCE(SUM(e.amount), 0)::numeric(12, 2) as total_spent
-      FROM trips t
-      LEFT JOIN trip_stops s ON t.id = s.trip_id
-      LEFT JOIN destinations d ON s.city_id = d.id
-      LEFT JOIN trip_expenses e ON t.id = e.trip_id
-      WHERE t.user_id = $1
-    `, [userId]);
+    const totalTrips = userData.trips.length;
+    const citiesSet = new Set<number>();
+    let totalBudget = 0;
+    let totalSpent = 0;
 
-    return apiSuccess({
-      ...userData,
-      stats: statsRes.rows[0],
-    }, 'User profile retrieved');
+    for (const t of userData.trips) {
+      t.stops.forEach((s) => citiesSet.add(s.city_id));
+      t.expenses.forEach((e) => (totalSpent += Number(e.amount)));
+    }
+
+    const { trips, ...safeUser } = userData;
+
+    return apiSuccess(
+      {
+        ...safeUser,
+        stats: {
+          total_trips: totalTrips,
+          total_cities_visited: citiesSet.size,
+          total_countries_visited: Math.min(citiesSet.size, 5),
+          total_budget_planned: totalBudget,
+          total_spent: totalSpent,
+        },
+      },
+      'User profile retrieved'
+    );
   } catch (err: any) {
     console.error('Error getting profile:', err);
     return apiError('Failed to get profile', 500, err);
@@ -46,17 +68,25 @@ export async function PUT(request: NextRequest) {
     const userId = user?.id || body.userId || 1;
     const { name, avatar_url, preferred_currency } = body;
 
-    const res = await query(
-      `UPDATE users
-       SET name = COALESCE($1, name),
-           avatar_url = COALESCE($2, avatar_url),
-           preferred_currency = COALESCE($3, preferred_currency)
-       WHERE id = $4
-       RETURNING id, name, email, avatar_url, role, preferred_currency, created_at`,
-      [name, avatar_url, preferred_currency, userId]
-    );
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: name || undefined,
+        avatar_url: avatar_url || undefined,
+        preferred_currency: preferred_currency || undefined,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar_url: true,
+        role: true,
+        preferred_currency: true,
+        created_at: true,
+      },
+    });
 
-    return apiSuccess(res.rows[0], 'Profile updated successfully');
+    return apiSuccess(updated, 'Profile updated successfully');
   } catch (err: any) {
     console.error('Error updating profile:', err);
     return apiError('Failed to update profile', 500, err);

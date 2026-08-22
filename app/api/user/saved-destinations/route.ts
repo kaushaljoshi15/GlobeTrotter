@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 import { apiSuccess, apiError } from '@/lib/api-response';
 
@@ -9,15 +9,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = user?.id || (searchParams.get('userId') ? parseInt(searchParams.get('userId')!) : 1);
 
-    const res = await query(`
-      SELECT d.*, usd.created_at as saved_at
-      FROM user_saved_destinations usd
-      JOIN destinations d ON usd.destination_id = d.id
-      WHERE usd.user_id = $1
-      ORDER BY usd.created_at DESC
-    `, [userId]);
+    const saved = await prisma.userSavedDestination.findMany({
+      where: { user_id: userId },
+      include: {
+        destination: true,
+      },
+      orderBy: { created_at: 'desc' },
+    });
 
-    return apiSuccess(res.rows, 'Saved destinations retrieved');
+    const destinations = saved.map((s) => ({
+      ...s.destination,
+      avg_daily_cost: Number(s.destination.avg_daily_cost),
+      saved_at: s.created_at,
+    }));
+
+    return apiSuccess(destinations, 'Saved destinations retrieved');
   } catch (err: any) {
     console.error('Error fetching saved destinations:', err);
     return apiError('Failed to fetch saved destinations', 500, err);
@@ -33,12 +39,19 @@ export async function POST(request: NextRequest) {
 
     if (!destinationId) return apiError('Destination ID is required', 400);
 
-    await query(
-      `INSERT INTO user_saved_destinations (user_id, destination_id)
-       VALUES ($1, $2)
-       ON CONFLICT DO NOTHING`,
-      [userId, parseInt(destinationId)]
-    );
+    await prisma.userSavedDestination.upsert({
+      where: {
+        user_id_destination_id: {
+          user_id: userId,
+          destination_id: parseInt(destinationId),
+        },
+      },
+      create: {
+        user_id: userId,
+        destination_id: parseInt(destinationId),
+      },
+      update: {},
+    });
 
     return apiSuccess({ destinationId }, 'Destination saved to wishlist', 201);
   } catch (err: any) {
@@ -56,10 +69,12 @@ export async function DELETE(request: NextRequest) {
 
     if (!destinationId) return apiError('Destination ID is required', 400);
 
-    await query(
-      `DELETE FROM user_saved_destinations WHERE user_id = $1 AND destination_id = $2`,
-      [userId, parseInt(destinationId)]
-    );
+    await prisma.userSavedDestination.deleteMany({
+      where: {
+        user_id: userId,
+        destination_id: parseInt(destinationId),
+      },
+    });
 
     return apiSuccess({ destinationId: parseInt(destinationId) }, 'Destination removed from wishlist');
   } catch (err: any) {

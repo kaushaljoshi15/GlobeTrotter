@@ -11,14 +11,19 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  name          String
-  email         String   @unique
-  password_hash String?
-  google_id     String?
-  role          String   @default("volunteer")
-  is_verified   Boolean  @default(false)
-  created_at    DateTime @default(now())
+  id                 Int       @id @default(autoincrement())
+  name               String
+  email              String    @unique
+  password_hash      String?
+  avatar_url         String?
+  google_id          String?
+  role               String    @default("traveler")
+  preferred_currency String    @default("USD")
+  is_verified        Boolean   @default(false)
+  created_at         DateTime  @default(now())
+
+  trips              Trip[]
+  saved_destinations UserSavedDestination[]
 
   @@map("users")
 }
@@ -31,4 +36,148 @@ model VerificationCode {
   created_at DateTime @default(now())
 
   @@map("verification_codes")
+}
+
+model Destination {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  country            String
+  continent          String
+  description        String?
+  image_url          String?
+  cost_index         String    @default("moderate")
+  avg_daily_cost     Decimal   @default(120.00) @db.Decimal(10, 2)
+  currency           String    @default("USD")
+  latitude           Decimal?  @db.Decimal(10, 6)
+  longitude          Decimal?  @db.Decimal(10, 6)
+  popularity_score   Int       @default(85)
+  best_time_to_visit String?
+  created_at         DateTime  @default(now())
+
+  activities         Activity[]
+  trip_stops         TripStop[]
+  saved_by_users     UserSavedDestination[]
+
+  @@index([continent])
+  @@index([cost_index])
+  @@map("destinations")
+}
+
+model Activity {
+  id             Int          @id @default(autoincrement())
+  city_id        Int
+  name           String
+  category       String
+  description    String?
+  image_url      String?
+  cost           Decimal      @default(0.00) @db.Decimal(10, 2)
+  duration_hours Decimal      @default(2.0) @db.Decimal(4, 1)
+  rating         Decimal      @default(4.8) @db.Decimal(3, 2)
+  location_name  String?
+  created_at     DateTime     @default(now())
+
+  destination    Destination  @relation(fields: [city_id], references: [id], onDelete: Cascade)
+  trip_activities TripActivity[]
+
+  @@index([city_id])
+  @@map("activities")
+}
+
+model Trip {
+  id              Int            @id @default(autoincrement())
+  user_id         Int
+  title           String
+  description     String?
+  cover_image_url String?
+  start_date      DateTime       @db.Date
+  end_date        DateTime       @db.Date
+  total_budget    Decimal        @default(2000.00) @db.Decimal(12, 2)
+  currency        String         @default("USD")
+  is_public       Boolean        @default(true)
+  share_code      String         @unique
+  status          String         @default("planning")
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @default(now()) @updatedAt
+
+  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  stops           TripStop[]
+  expenses        TripExpense[]
+
+  @@index([user_id])
+  @@index([share_code])
+  @@map("trips")
+}
+
+model TripStop {
+  id                       Int            @id @default(autoincrement())
+  trip_id                  Int
+  city_id                  Int
+  stop_order               Int            @default(1)
+  arrival_date             DateTime       @db.Date
+  departure_date           DateTime       @db.Date
+  stay_cost_estimated      Decimal        @default(0.00) @db.Decimal(10, 2)
+  transport_cost_estimated Decimal        @default(0.00) @db.Decimal(10, 2)
+  notes                    String?
+  created_at               DateTime       @default(now())
+
+  trip                     Trip           @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+  destination              Destination    @relation(fields: [city_id], references: [id], onDelete: Restrict)
+  activities               TripActivity[]
+  expenses                 TripExpense[]
+
+  @@index([trip_id])
+  @@index([city_id])
+  @@map("trip_stops")
+}
+
+model TripActivity {
+  id           Int       @id @default(autoincrement())
+  trip_stop_id Int
+  activity_id  Int?
+  custom_title String?
+  category     String    @default("sightseeing")
+  activity_date DateTime @db.Date
+  start_time   String    @default("09:00")
+  end_time     String    @default("11:00")
+  cost         Decimal   @default(0.00) @db.Decimal(10, 2)
+  notes        String?
+  is_completed Boolean   @default(false)
+  created_at   DateTime  @default(now())
+
+  trip_stop    TripStop  @relation(fields: [trip_stop_id], references: [id], onDelete: Cascade)
+  activity     Activity? @relation(fields: [activity_id], references: [id], onDelete: SetNull)
+
+  @@index([trip_stop_id])
+  @@map("trip_activities")
+}
+
+model TripExpense {
+  id             Int       @id @default(autoincrement())
+  trip_id        Int
+  trip_stop_id   Int?
+  category       String
+  title          String
+  amount         Decimal   @db.Decimal(10, 2)
+  expense_date   DateTime  @db.Date
+  payment_method String    @default("Card")
+  created_at     DateTime  @default(now())
+
+  trip           Trip      @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+  trip_stop      TripStop? @relation(fields: [trip_stop_id], references: [id], onDelete: SetNull)
+
+  @@index([trip_id])
+  @@map("trip_expenses")
+}
+
+model UserSavedDestination {
+  id             Int         @id @default(autoincrement())
+  user_id        Int
+  destination_id Int
+  created_at     DateTime    @default(now())
+
+  user           User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  destination    Destination @relation(fields: [destination_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, destination_id])
+  @@map("user_saved_destinations")
 }

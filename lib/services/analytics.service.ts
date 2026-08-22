@@ -1,65 +1,89 @@
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 export class AnalyticsService {
   /**
-   * Platform-wide Admin Metrics and Insights
+   * Platform-wide Admin Metrics and Insights using Prisma ORM
    */
   static async getAdminMetrics() {
-    // 1. Core KPIs
-    const usersCount = await query('SELECT COUNT(id)::int as count FROM users');
-    const tripsCount = await query('SELECT COUNT(id)::int as count FROM trips');
-    const stopsCount = await query('SELECT COUNT(id)::int as count FROM trip_stops');
-    const activitiesCount = await query('SELECT COUNT(id)::int as count FROM trip_activities');
-    const budgetTotal = await query('SELECT COALESCE(SUM(total_budget), 0)::numeric(12, 2) as total FROM trips');
-    const expensesTotal = await query('SELECT COALESCE(SUM(amount), 0)::numeric(12, 2) as total FROM trip_expenses');
+    const [
+      usersCount,
+      tripsCount,
+      stopsCount,
+      activitiesCount,
+      budgetAggregate,
+      expenseAggregate,
+      topDestinationsRaw,
+      categoryStatsRaw,
+      recentTrips,
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.trip.count(),
+      prisma.tripStop.count(),
+      prisma.tripActivity.count(),
+      prisma.trip.aggregate({ _sum: { total_budget: true } }),
+      prisma.tripExpense.aggregate({ _sum: { amount: true } }),
+      prisma.tripStop.groupBy({
+        by: ['city_id'],
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 6,
+      }),
+      prisma.tripActivity.groupBy({
+        by: ['category'],
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+      }),
+      prisma.trip.findMany({
+        take: 8,
+        orderBy: { created_at: 'desc' },
+        include: {
+          user: {
+            select: { name: true, email: true },
+          },
+        },
+      }),
+    ]);
 
-    // 2. Top Visited Destinations
-    const topDestinations = await query(`
-      SELECT d.name, d.country, d.image_url, COUNT(s.id)::int as trip_count
-      FROM destinations d
-      JOIN trip_stops s ON d.id = s.city_id
-      GROUP BY d.id
-      ORDER BY trip_count DESC
-      LIMIT 6
-    `);
+    // Fetch destination details for top destinations
+    const cityIds = topDestinationsRaw.map((d) => d.city_id);
+    const destinationDetails = await prisma.destination.findMany({
+      where: { id: { in: cityIds } },
+      select: { id: true, name: true, country: true, image_url: true },
+    });
 
-    // 3. Activity Category Popularity
-    const categoryStats = await query(`
-      SELECT COALESCE(category, 'sightseeing') as category, COUNT(id)::int as count
-      FROM trip_activities
-      GROUP BY category
-      ORDER BY count DESC
-    `);
+    const destinationMap = new Map(destinationDetails.map((d) => [d.id, d]));
+    const topDestinations = topDestinationsRaw.map((d) => {
+      const dest = destinationMap.get(d.city_id);
+      return {
+        name: dest?.name || 'Unknown',
+        country: dest?.country || '',
+        image_url: dest?.image_url || '',
+        trip_count: d._count.id,
+      };
+    });
 
-    // 4. Trip Status Breakdown
-    const statusStats = await query(`
-      SELECT status, COUNT(id)::int as count
-      FROM trips
-      GROUP BY status
-    `);
-
-    // 5. Recent Trips created across platform
-    const recentTrips = await query(`
-      SELECT t.id, t.title, t.start_date, t.end_date, t.total_budget, t.created_at, u.name as user_name, u.email as user_email
-      FROM trips t
-      JOIN users u ON t.user_id = u.id
-      ORDER BY t.created_at DESC
-      LIMIT 8
-    `);
+    const categoryStats = categoryStatsRaw.map((c) => ({
+      category: c.category || 'sightseeing',
+      count: c._count.id,
+    }));
 
     return {
       kpis: {
-        totalUsers: usersCount.rows[0]?.count || 0,
-        totalTrips: tripsCount.rows[0]?.count || 0,
-        totalStops: stopsCount.rows[0]?.count || 0,
-        totalActivitiesScheduled: activitiesCount.rows[0]?.count || 0,
-        totalBudgetPlanned: parseFloat(budgetTotal.rows[0]?.total || '0'),
-        totalExpensesLogged: parseFloat(expensesTotal.rows[0]?.total || '0'),
+        totalUsers: usersCount,
+        totalTrips: tripsCount,
+        totalStops: stopsCount,
+        totalActivitiesScheduled: activitiesCount,
+        totalBudgetPlanned: Number(budgetAggregate._sum.total_budget || 0),
+        totalExpensesLogged: Number(expenseAggregate._sum.amount || 0),
       },
-      topDestinations: topDestinations.rows,
-      categoryStats: categoryStats.rows,
-      statusStats: statusStats.rows,
-      recentTrips: recentTrips.rows,
+      topDestinations,
+      categoryStats,
+      recentTrips: recentTrips.map((t) => ({
+        ...t,
+        total_budget: Number(t.total_budget),
+        user_name: t.user.name,
+        user_email: t.user.email,
+      })),
     };
   }
 }

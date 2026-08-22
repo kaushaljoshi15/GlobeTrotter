@@ -1,8 +1,8 @@
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 export class DestinationService {
   /**
-   * Search and filter destinations with optional continent, cost index, and search query.
+   * Search and filter destinations with optional continent, cost index, and search query using Prisma.
    */
   static async getDestinations(filters?: {
     search?: string;
@@ -10,103 +10,120 @@ export class DestinationService {
     cost_index?: string;
     limit?: number;
   }) {
-    let sql = `
-      SELECT d.*, 
-             COUNT(DISTINCT a.id)::int as total_activities,
-             AVG(a.rating)::numeric(3, 2) as average_activity_rating
-      FROM destinations d
-      LEFT JOIN activities a ON d.id = a.city_id
-      WHERE 1=1
-    `;
-    const params: any[] = [];
-    let paramIdx = 1;
+    const where: any = {};
 
     if (filters?.search) {
-      sql += ` AND (d.name ILIKE $${paramIdx} OR d.country ILIKE $${paramIdx} OR d.description ILIKE $${paramIdx})`;
-      params.push(`%${filters.search}%`);
-      paramIdx++;
+      where.OR = [
+        { name: { contains: filters.search, mode: 'insensitive' } },
+        { country: { contains: filters.search, mode: 'insensitive' } },
+        { description: { contains: filters.search, mode: 'insensitive' } },
+      ];
     }
 
     if (filters?.continent && filters.continent !== 'all') {
-      sql += ` AND d.continent ILIKE $${paramIdx}`;
-      params.push(filters.continent);
-      paramIdx++;
+      where.continent = { equals: filters.continent, mode: 'insensitive' };
     }
 
     if (filters?.cost_index && filters.cost_index !== 'all') {
-      sql += ` AND d.cost_index = $${paramIdx}`;
-      params.push(filters.cost_index);
-      paramIdx++;
+      where.cost_index = filters.cost_index;
     }
 
-    sql += ` GROUP BY d.id ORDER BY d.popularity_score DESC`;
+    const destinations = await prisma.destination.findMany({
+      where,
+      orderBy: { popularity_score: 'desc' },
+      take: filters?.limit || undefined,
+      include: {
+        _count: {
+          select: { activities: true },
+        },
+      },
+    });
 
-    if (filters?.limit) {
-      sql += ` LIMIT $${paramIdx}`;
-      params.push(filters.limit);
-      paramIdx++;
-    }
-
-    const res = await query(sql, params);
-    return res.rows;
+    return destinations.map((d) => ({
+      ...d,
+      avg_daily_cost: Number(d.avg_daily_cost),
+      latitude: d.latitude ? Number(d.latitude) : null,
+      longitude: d.longitude ? Number(d.longitude) : null,
+      total_activities: d._count.activities,
+    }));
   }
 
   /**
-   * Get single destination with full curated activities
+   * Get single destination with full curated activities using Prisma.
    */
   static async getDestinationById(id: number) {
-    const destRes = await query('SELECT * FROM destinations WHERE id = $1', [id]);
-    if (destRes.rows.length === 0) return null;
+    const destination = await prisma.destination.findUnique({
+      where: { id },
+      include: {
+        activities: {
+          orderBy: [{ rating: 'desc' }, { cost: 'asc' }],
+        },
+      },
+    });
 
-    const destination = destRes.rows[0];
-    const activitiesRes = await query(
-      'SELECT * FROM activities WHERE city_id = $1 ORDER BY rating DESC, cost ASC',
-      [id]
-    );
+    if (!destination) return null;
 
     return {
       ...destination,
-      activities: activitiesRes.rows,
+      avg_daily_cost: Number(destination.avg_daily_cost),
+      latitude: destination.latitude ? Number(destination.latitude) : null,
+      longitude: destination.longitude ? Number(destination.longitude) : null,
+      activities: destination.activities.map((a) => ({
+        ...a,
+        cost: Number(a.cost),
+        duration_hours: Number(a.duration_hours),
+        rating: Number(a.rating),
+      })),
     };
   }
 
   /**
-   * Search activities across all or specific city
+   * Search activities across all or specific city using Prisma.
    */
   static async getActivities(filters?: {
     city_id?: number;
     category?: string;
     search?: string;
   }) {
-    let sql = `
-      SELECT a.*, d.name as city_name, d.country, d.currency
-      FROM activities a
-      JOIN destinations d ON a.city_id = d.id
-      WHERE 1=1
-    `;
-    const params: any[] = [];
-    let paramIdx = 1;
+    const where: any = {};
 
     if (filters?.city_id) {
-      sql += ` AND a.city_id = $${paramIdx}`;
-      params.push(filters.city_id);
-      paramIdx++;
+      where.city_id = filters.city_id;
     }
 
     if (filters?.category && filters.category !== 'all') {
-      sql += ` AND a.category = $${paramIdx}`;
-      params.push(filters.category);
-      paramIdx++;
+      where.category = filters.category;
     }
 
     if (filters?.search) {
-      sql += ` AND (a.name ILIKE $${paramIdx} OR a.description ILIKE $${paramIdx} OR d.name ILIKE $${paramIdx})`;
-      params.push(`%${filters.search}%`);
-      paramIdx++;
+      where.OR = [
+        { name: { contains: filters.search, mode: 'insensitive' } },
+        { description: { contains: filters.search, mode: 'insensitive' } },
+      ];
     }
 
-    sql += ` ORDER BY a.rating DESC, a.name ASC`;
-    const res = await query(sql, params);
-    return res.rows;
+    const activities = await prisma.activity.findMany({
+      where,
+      include: {
+        destination: {
+          select: {
+            name: true,
+            country: true,
+            currency: true,
+          },
+        },
+      },
+      orderBy: [{ rating: 'desc' }, { name: 'asc' }],
+    });
+
+    return activities.map((a) => ({
+      ...a,
+      cost: Number(a.cost),
+      duration_hours: Number(a.duration_hours),
+      rating: Number(a.rating),
+      city_name: a.destination.name,
+      country: a.destination.country,
+      currency: a.destination.currency,
+    }));
   }
 }

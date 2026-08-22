@@ -1,8 +1,8 @@
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
 export class ExpenseService {
   /**
-   * Add an itemized expense
+   * Add an itemized expense using Prisma
    */
   static async addExpense(data: {
     tripId: number;
@@ -13,80 +13,92 @@ export class ExpenseService {
     expenseDate: string;
     paymentMethod?: string;
   }) {
-    const res = await query(
-      `INSERT INTO trip_expenses 
-        (trip_id, trip_stop_id, category, title, amount, expense_date, payment_method)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING *`,
-      [
-        data.tripId,
-        data.tripStopId || null,
-        data.category,
-        data.title,
-        data.amount,
-        data.expenseDate,
-        data.paymentMethod || 'Card',
-      ]
-    );
-    return res.rows[0];
+    const expense = await prisma.tripExpense.create({
+      data: {
+        trip_id: data.tripId,
+        trip_stop_id: data.tripStopId || null,
+        category: data.category,
+        title: data.title,
+        amount: data.amount,
+        expense_date: new Date(data.expenseDate),
+        payment_method: data.paymentMethod || 'Card',
+      },
+    });
+
+    return {
+      ...expense,
+      amount: Number(expense.amount),
+    };
   }
 
   /**
-   * Delete an expense
+   * Delete an expense using Prisma
    */
   static async deleteExpense(expenseId: number, tripId: number) {
-    const res = await query('DELETE FROM trip_expenses WHERE id = $1 AND trip_id = $2 RETURNING id', [
-      expenseId,
-      tripId,
-    ]);
-    return res.rows.length > 0;
+    const deleted = await prisma.tripExpense.deleteMany({
+      where: { id: expenseId, trip_id: tripId },
+    });
+    return deleted.count > 0;
   }
 
   /**
-   * Get financial analytics & category breakdown for a trip
+   * Get financial analytics & category breakdown for a trip using Prisma
    */
   static async getTripFinancials(tripId: number) {
-    // 1. Get Trip budget & dates
-    const tripRes = await query('SELECT total_budget, start_date, end_date, currency FROM trips WHERE id = $1', [tripId]);
-    if (tripRes.rows.length === 0) return null;
-    const trip = tripRes.rows[0];
+    const trip = await prisma.trip.findUnique({
+      where: { id: tripId },
+      include: {
+        expenses: {
+          orderBy: { expense_date: 'asc' },
+        },
+      },
+    });
 
-    // 2. Category totals
-    const catRes = await query(
-      `SELECT category, SUM(amount)::numeric(10, 2) as total_amount, COUNT(id)::int as count
-       FROM trip_expenses
-       WHERE trip_id = $1
-       GROUP BY category
-       ORDER BY total_amount DESC`,
-      [tripId]
-    );
+    if (!trip) return null;
 
-    // 3. Total expenses
-    const totalSpentRes = await query(
-      `SELECT COALESCE(SUM(amount), 0)::numeric(12, 2) as total_spent FROM trip_expenses WHERE trip_id = $1`,
-      [tripId]
-    );
-    const totalSpent = parseFloat(totalSpentRes.rows[0].total_spent);
-    const totalBudget = parseFloat(trip.total_budget);
+    const totalBudget = Number(trip.total_budget);
 
-    // 4. Daily spend breakdown
-    const dailyRes = await query(
-      `SELECT expense_date::text as date, SUM(amount)::numeric(10, 2) as amount
-       FROM trip_expenses
-       WHERE trip_id = $1
-       GROUP BY expense_date
-       ORDER BY expense_date ASC`,
-      [tripId]
-    );
+    // Group expenses by category
+    const categoryMap: { [cat: string]: { total_amount: number; count: number } } = {};
+    let totalSpent = 0;
 
-    // 5. Calculate trip duration in days
+    for (const exp of trip.expenses) {
+      const amt = Number(exp.amount);
+      totalSpent += amt;
+      if (!categoryMap[exp.category]) {
+        categoryMap[exp.category] = { total_amount: 0, count: 0 };
+      }
+      categoryMap[exp.category].total_amount += amt;
+      categoryMap[exp.category].count += 1;
+    }
+
+    const categories = Object.keys(categoryMap).map((cat) => ({
+      category: cat,
+      total_amount: categoryMap[cat].total_amount,
+      count: categoryMap[cat].count,
+    }));
+
+    // Group expenses by daily timeline
+    const dailyMap: { [dateStr: string]: number } = {};
+    for (const exp of trip.expenses) {
+      const dStr = exp.expense_date.toISOString().split('T')[0];
+      dailyMap[dStr] = (dailyMap[dStr] || 0) + Number(exp.amount);
+    }
+
+    const dailyTimeline = Object.keys(dailyMap)
+      .sort()
+      .map((date) => ({
+        date,
+        amount: dailyMap[date],
+      }));
+
+    // Trip duration calculation
     const start = new Date(trip.start_date);
     const end = new Date(trip.end_date);
     const durationDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
     const dailyBudgetAllowance = totalBudget / durationDays;
     const avgDailySpent = totalSpent / durationDays;
 
-    // Overbudget alert check
     const isOverBudget = totalSpent > totalBudget;
     const remainingBudget = Math.max(0, totalBudget - totalSpent);
     const budgetUsagePercent = Math.round((totalSpent / (totalBudget || 1)) * 100);
@@ -101,8 +113,8 @@ export class ExpenseService {
       durationDays,
       dailyBudgetAllowance: parseFloat(dailyBudgetAllowance.toFixed(2)),
       avgDailySpent: parseFloat(avgDailySpent.toFixed(2)),
-      categories: catRes.rows,
-      dailyTimeline: dailyRes.rows,
+      categories,
+      dailyTimeline,
     };
   }
 }
