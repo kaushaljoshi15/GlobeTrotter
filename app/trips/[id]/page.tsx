@@ -35,6 +35,7 @@ import {
   PieChart as PieIcon,
   Eye
 } from 'lucide-react';
+import CityAdaptiveBackground from '@/components/CityAdaptiveBackground';
 
 const CATEGORY_COLORS: { [key: string]: string } = {
   stay: '#c99a6b', // Gold
@@ -53,6 +54,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [availableDestinations, setAvailableDestinations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'builder' | 'timeline' | 'analytics' | 'expenses'>('builder');
+  const [focusedCity, setFocusedCity] = useState<string>('');
 
   // Modals state
   const [showAddStopModal, setShowAddStopModal] = useState(false);
@@ -282,10 +284,11 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   })) || [];
 
   return (
-    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white relative overflow-x-hidden">
+      <CityAdaptiveBackground query={focusedCity || trip?.stops?.[0]?.destination?.name || trip?.title || 'himalayas'} showLiveTag={false} />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         
         {/* Top Hero Banner */}
         <div className="relative rounded-[32px] overflow-hidden border border-white/10 shadow-2xl mb-10">
