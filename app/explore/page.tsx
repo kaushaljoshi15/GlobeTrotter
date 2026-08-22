@@ -7,17 +7,14 @@ import Footer from '@/components/Footer';
 import {
   Compass,
   Search,
-  Filter,
   MapPin,
   Star,
-  DollarSign,
   Clock,
   Plus,
   Sparkles,
   Check,
   ChevronRight,
-  Globe2,
-  Calendar,
+  ArrowUpRight,
   X
 } from 'lucide-react';
 
@@ -132,57 +129,57 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
         
         {/* Top Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Global Travel Catalog</span>
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-[#e4c29e] text-[11px] font-sans font-medium mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-[#c99a6b]" />
+            <span>Global Travel Atlas &bull; Edition 2026</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
-            Discover Global Destinations
+          <h1 className="font-serif text-4xl sm:text-6xl font-medium text-white tracking-tight mb-3">
+            Curated Global <span className="font-bold italic text-[#e4c29e]">Destinations.</span>
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base">
-            Browse world-class cities, check cost indexes, and add curated experiences into your custom itineraries.
+          <p className="font-serif text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
+            Explore world-renowned regions, review daily budget indexes, and compose curated stops into your bespoke itinerary.
           </p>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-3xl mb-10 shadow-xl space-y-4">
+        <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 p-5 sm:p-6 rounded-[32px] mb-12 shadow-2xl space-y-4">
           
           {/* Search Input */}
           <form onSubmit={handleSearchSubmit} className="relative">
-            <Search className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-stone-500 absolute left-5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by city (e.g. Tokyo, Paris, Rome, Bali) or country..."
+              placeholder="Search by city (e.g. Tokyo, Paris, Rome, Bali, Zermatt) or country..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl pl-11 pr-28 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              className="w-full bg-[#0c0d10] border border-white/15 rounded-full pl-12 pr-32 py-3.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b] focus:ring-1 focus:ring-[#c99a6b] transition-all"
             />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
             >
               Search
             </button>
           </form>
 
           {/* Continent Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
-            <span className="text-xs font-bold text-slate-500 uppercase mr-2">Continent:</span>
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
+            <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider mr-2 font-sans">Continent:</span>
             {['all', 'Europe', 'Asia', 'North America', 'Africa', 'Middle East'].map((cont) => (
               <button
                 key={cont}
                 onClick={() => setSelectedContinent(cont)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer ${
                   selectedContinent === cont
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                    ? 'bg-[#FAF8F5] text-[#0c0d10] font-bold shadow-md'
+                    : 'bg-[#14151a] text-stone-300 border border-white/10 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {cont === 'all' ? 'All Continents' : cont}
@@ -192,15 +189,15 @@ export default function ExplorePage() {
 
           {/* Cost Index Filter Pills */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 uppercase mr-2">Cost Index:</span>
+            <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider mr-2 font-sans">Budget Index:</span>
             {['all', 'budget', 'moderate', 'luxury'].map((cost) => (
               <button
                 key={cost}
                 onClick={() => setSelectedCostIndex(cost)}
-                className={`px-3 py-1 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+                className={`px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
                   selectedCostIndex === cost
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                    ? 'bg-[#c99a6b] text-[#0c0d10] font-bold shadow-md'
+                    : 'bg-[#14151a] text-stone-400 border border-white/10 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {cost === 'all' ? 'All Budgets' : cost}
@@ -210,53 +207,53 @@ export default function ExplorePage() {
         </div>
 
         {/* Destinations Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mb-20">
           {destinations.map((dest) => (
             <div
               key={dest.id}
               onClick={() => openCityDetails(dest.id)}
-              className="group bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col cursor-pointer"
+              className="group rounded-[28px] bg-[#14151a]/90 backdrop-blur-xl border border-white/10 hover:border-[#c99a6b]/50 overflow-hidden shadow-2xl transition-all duration-300 flex flex-col cursor-pointer"
             >
-              <div className="h-52 relative overflow-hidden">
+              <div className="h-56 relative overflow-hidden">
                 <img
                   src={dest.image_url}
                   alt={dest.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-95"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#14151a] via-[#14151a]/30 to-transparent" />
                 
                 {/* Badges */}
-                <div className="absolute top-3 right-3 flex items-center gap-2">
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${
+                <div className="absolute top-3.5 right-3.5 flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border ${
                     dest.cost_index === 'budget' 
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/30'
                       : dest.cost_index === 'luxury'
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                      : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                      ? 'bg-amber-950/70 text-[#e4c29e] border-amber-500/30'
+                      : 'bg-stone-900/80 text-stone-300 border-white/20'
                   }`}>
                     {dest.cost_index}
                   </span>
                 </div>
 
-                <div className="absolute bottom-3 left-4 right-4">
-                  <h3 className="text-xl font-black text-white leading-tight group-hover:text-blue-300 transition-colors">
+                <div className="absolute bottom-3.5 left-5 right-5">
+                  <h3 className="font-serif text-2xl font-bold text-white leading-tight group-hover:text-[#e4c29e] transition-colors">
                     {dest.name}
                   </h3>
-                  <p className="text-xs text-slate-300 mt-0.5">{dest.country} &bull; {dest.continent}</p>
+                  <p className="text-xs text-stone-300 mt-0.5 font-sans">{dest.country} &bull; {dest.continent}</p>
                 </div>
               </div>
 
-              <div className="p-5 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-slate-400 mb-4 line-clamp-2">{dest.description}</p>
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <p className="text-xs text-stone-300 mb-5 line-clamp-2 leading-relaxed font-sans">{dest.description}</p>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
+                <div className="flex items-center justify-between pt-3.5 border-t border-white/10 text-xs font-sans">
                   <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-semibold">Avg Daily Spend</span>
-                    <p className="font-bold text-slate-200">${dest.avg_daily_cost} / day</p>
+                    <span className="text-[10px] text-stone-400 uppercase font-semibold">Avg Daily Spend</span>
+                    <p className="font-bold text-white text-sm mt-0.5">${dest.avg_daily_cost} USD / day</p>
                   </div>
 
-                  <span className="inline-flex items-center gap-1 font-semibold text-blue-400 group-hover:translate-x-1 transition-transform">
-                    Explore <ChevronRight className="w-3.5 h-3.5" />
+                  <span className="inline-flex items-center gap-1 font-bold text-[#e4c29e] group-hover:translate-x-1 transition-transform">
+                    Explore Details <ChevronRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>
@@ -266,13 +263,16 @@ export default function ExplorePage() {
 
         {/* Curated Experiences Spotlight */}
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                <Star className="w-5 h-5 text-amber-400" />
-                Curated Travel Experiences & Sights
+              <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#c99a6b]">
+                Signature Experiences
+              </span>
+              <h2 className="font-serif text-3xl font-medium text-white tracking-tight mt-1 flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                Curated Travel Experiences &amp; Sights
               </h2>
-              <p className="text-slate-400 text-xs mt-0.5">Top-rated activities filtered by category</p>
+              <p className="text-stone-400 text-xs mt-0.5 font-sans">Handcrafted activities filtered by category</p>
             </div>
 
             {/* Category Filter Pills */}
@@ -281,10 +281,10 @@ export default function ExplorePage() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1 rounded-xl text-xs font-semibold capitalize whitespace-nowrap transition-all ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all cursor-pointer ${
                     selectedCategory === cat
-                      ? 'bg-amber-500 text-slate-950 font-bold'
-                      : 'bg-slate-900 text-slate-400 hover:text-white'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] font-bold shadow-md'
+                      : 'bg-[#14151a] text-stone-300 border border-white/10 hover:text-white'
                   }`}
                 >
                   {cat.replace('_', ' ')}
@@ -297,11 +297,11 @@ export default function ExplorePage() {
             {activities.slice(0, 8).map((act) => (
               <div
                 key={act.id}
-                className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-colors"
+                className="bg-[#14151a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex flex-col justify-between hover:border-[#c99a6b]/50 transition-all font-sans"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded-md">
+                    <span className="text-[10px] font-bold text-[#e4c29e] uppercase tracking-wider bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
                       {act.city_name}
                     </span>
                     <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
@@ -309,13 +309,13 @@ export default function ExplorePage() {
                     </span>
                   </div>
 
-                  <h4 className="text-sm font-bold text-white mb-1.5 line-clamp-1">{act.name}</h4>
-                  <p className="text-xs text-slate-400 line-clamp-2 mb-3">{act.description}</p>
+                  <h4 className="font-serif text-base font-bold text-white mb-1.5 line-clamp-1">{act.name}</h4>
+                  <p className="text-xs text-stone-400 line-clamp-2 mb-3 leading-relaxed">{act.description}</p>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
-                  <span className="text-emerald-400 font-bold">${parseFloat(act.cost).toFixed(0)}</span>
-                  <span className="text-slate-500 flex items-center gap-1">
+                <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs">
+                  <span className="text-emerald-400 font-bold">${parseFloat(act.cost).toFixed(0)} USD</span>
+                  <span className="text-stone-400 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {act.duration_hours}h
                   </span>
@@ -329,73 +329,73 @@ export default function ExplorePage() {
 
       {/* ================= CITY DETAIL MODAL / DRAWER ================= */}
       {selectedCity && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-[#0c0d10]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-[#14151a] border border-white/15 rounded-[32px] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative font-sans">
             <button
               onClick={() => setSelectedCity(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-slate-950/80 text-slate-400 hover:text-white border border-slate-700 z-10"
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-[#0c0d10]/80 text-stone-300 hover:text-white border border-white/20 z-10 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* City Cover Banner */}
-            <div className="h-56 relative">
+            <div className="h-60 relative">
               <img src={selectedCity.image_url} alt={selectedCity.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
-              <div className="absolute bottom-4 left-6 right-6">
-                <h3 className="text-3xl font-black text-white">{selectedCity.name}</h3>
-                <p className="text-xs text-slate-300 mt-0.5">{selectedCity.country} &bull; {selectedCity.continent}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#14151a] via-[#14151a]/40 to-transparent" />
+              <div className="absolute bottom-5 left-6 right-6">
+                <h3 className="font-serif text-3xl sm:text-4xl font-bold text-white">{selectedCity.name}</h3>
+                <p className="text-xs text-stone-300 mt-1 font-sans">{selectedCity.country} &bull; {selectedCity.continent}</p>
               </div>
             </div>
 
             <div className="p-6 sm:p-8 space-y-6">
-              <p className="text-sm text-slate-300 leading-relaxed">{selectedCity.description}</p>
+              <p className="font-serif text-sm text-stone-300 leading-relaxed">{selectedCity.description}</p>
 
               {/* City Facts Grid */}
-              <div className="grid grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div className="grid grid-cols-3 gap-3 bg-[#0c0d10] p-4 rounded-2xl border border-white/10 text-center font-sans">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-semibold">Cost Index</span>
-                  <p className="text-xs font-bold text-white capitalize">{selectedCity.cost_index}</p>
+                  <span className="text-[10px] text-stone-400 uppercase font-semibold">Budget Tier</span>
+                  <p className="text-xs font-bold text-white capitalize mt-0.5">{selectedCity.cost_index}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-semibold">Daily Avg</span>
-                  <p className="text-xs font-bold text-emerald-400">${selectedCity.avg_daily_cost}</p>
+                  <span className="text-[10px] text-stone-400 uppercase font-semibold">Daily Avg</span>
+                  <p className="text-xs font-bold text-emerald-400 mt-0.5">${selectedCity.avg_daily_cost} USD</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-semibold">Best Time</span>
-                  <p className="text-xs font-bold text-blue-400 truncate">{selectedCity.best_time_to_visit || 'Spring/Autumn'}</p>
+                  <span className="text-[10px] text-stone-400 uppercase font-semibold">Best Season</span>
+                  <p className="text-xs font-bold text-[#e4c29e] truncate mt-0.5">{selectedCity.best_time_to_visit || 'Spring/Autumn'}</p>
                 </div>
               </div>
 
               {/* Curated Activities */}
               <div>
-                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">
+                <h4 className="text-xs font-bold uppercase text-stone-300 tracking-wider mb-3">
                   Top Curated Experiences ({selectedCity.activities?.length || 0})
                 </h4>
                 <div className="space-y-2.5">
                   {selectedCity.activities?.map((act: any) => (
-                    <div key={act.id} className="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between text-xs">
+                    <div key={act.id} className="bg-[#0c0d10] border border-white/10 p-3.5 rounded-xl flex items-center justify-between text-xs">
                       <div>
                         <p className="font-bold text-white">{act.name}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5 capitalize">{act.category} &bull; {act.duration_hours} hrs</p>
+                        <p className="text-[11px] text-stone-400 mt-0.5 capitalize">{act.category} &bull; {act.duration_hours} hrs</p>
                       </div>
-                      <span className="font-black text-emerald-400">${act.cost}</span>
+                      <span className="font-bold text-emerald-400">${act.cost}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-between pt-4 border-t border-white/10">
                 <button
                   onClick={() => setSelectedCity(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-stone-400 hover:text-white"
                 >
                   Close
                 </button>
                 <button
                   onClick={() => setShowAddToTripModal(true)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-500/20"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/30 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add {selectedCity.name} to My Itinerary</span>
@@ -408,10 +408,10 @@ export default function ExplorePage() {
 
       {/* ================= ADD TO TRIP SELECTOR MODAL ================= */}
       {showAddToTripModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-1">Add {selectedCity?.name} to Itinerary</h3>
-            <p className="text-xs text-slate-400 mb-6">Select which trip itinerary to add this destination stop into</p>
+        <div className="fixed inset-0 z-50 bg-[#0c0d10]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-[#14151a] border border-white/15 rounded-[32px] p-6 sm:p-8 max-w-md w-full shadow-2xl font-sans">
+            <h3 className="font-serif text-xl font-bold text-white mb-1">Add {selectedCity?.name} to Itinerary</h3>
+            <p className="text-xs text-stone-400 mb-6">Select which trip itinerary to add this destination stop into</p>
 
             {addedSuccess ? (
               <div className="py-6 text-center text-emerald-400 font-bold text-sm flex flex-col items-center gap-2">
@@ -420,10 +420,10 @@ export default function ExplorePage() {
               </div>
             ) : userTrips.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-xs text-slate-400 mb-4">You have no active trips yet. Create one first!</p>
+                <p className="text-xs text-stone-400 mb-4">You have no active trips yet. Create one first!</p>
                 <Link
                   href="/trips/new"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold"
+                  className="px-5 py-2.5 bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] rounded-full text-xs font-bold shadow-md inline-block"
                 >
                   Create New Trip
                 </Link>
@@ -431,11 +431,11 @@ export default function ExplorePage() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Choose Itinerary</label>
+                  <label className="block text-xs font-bold uppercase text-stone-400 mb-1.5">Choose Itinerary</label>
                   <select
                     value={selectedTripId}
                     onChange={(e) => setSelectedTripId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full bg-[#0c0d10] border border-white/20 rounded-full px-4 py-2.5 text-xs text-white"
                   >
                     {userTrips.map((t) => (
                       <option key={t.id} value={t.id}>
@@ -445,16 +445,16 @@ export default function ExplorePage() {
                   </select>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                   <button
                     onClick={() => setShowAddToTripModal(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                    className="px-5 py-2 rounded-full text-xs font-semibold text-stone-400 hover:text-white"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddCityToTrip}
-                    className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20"
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold shadow-md shadow-[#c99a6b]/30"
                   >
                     Confirm &amp; Add
                   </button>

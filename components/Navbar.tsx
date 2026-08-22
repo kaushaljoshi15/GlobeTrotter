@@ -82,8 +82,8 @@ export default function Navbar() {
   // Role Badge Styling
   const roleBadges: { [key: string]: { label: string; icon: any; color: string } } = {
     admin: { label: 'Admin', icon: Crown, color: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    organizer: { label: 'Organizer', icon: Users, color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
-    traveler: { label: 'Traveler', icon: Compass, color: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+    organizer: { label: 'Organizer', icon: Users, color: 'bg-stone-500/10 text-[#c99a6b] border-[#c99a6b]/30' },
+    traveler: { label: 'Traveler', icon: Compass, color: 'bg-stone-500/10 text-stone-300 border-stone-600/30' },
   };
 
   const currentRoleInfo = roleBadges[currentRole] || roleBadges.traveler;
@@ -129,10 +129,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-sans ${
         isScrolled
-          ? 'bg-slate-950/90 backdrop-blur-2xl border-b border-slate-800/80 shadow-2xl shadow-black/40 py-3'
-          : 'bg-slate-950/70 backdrop-blur-xl border-b border-slate-800/50 py-3.5'
+          ? 'bg-[#0c0d10]/95 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/60 py-3'
+          : 'bg-[#0c0d10]/80 backdrop-blur-xl border-b border-white/5 py-3.5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -142,7 +142,7 @@ export default function Navbar() {
           href={!user ? '/' : currentRole === 'admin' ? '/admin' : currentRole === 'organizer' ? '/dashboard/organizer' : '/dashboard/traveler'} 
           className="flex items-center gap-3 group"
         >
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-black text-xs shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] flex items-center justify-center text-[#0c0d10] font-serif font-bold text-xs shadow-md shadow-[#c99a6b]/20 group-hover:scale-105 transition-transform">
             GT
           </div>
           <div className="flex flex-col">
@@ -156,7 +156,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-full border border-slate-800 backdrop-blur-md">
+        <nav className="hidden md:flex items-center gap-1 bg-[#14151a]/90 p-1.5 rounded-full border border-white/10 backdrop-blur-md">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
