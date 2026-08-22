@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'globetrotter-super-secret-jwt-key-2026';
 
 export async function POST(request: Request) {
   try {
@@ -12,23 +14,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing email or password' }, { status: 400 });
     }
 
-    // 2. Find user in database
-    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = result.rows[0];
+    // 2. Find user in database via Prisma
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
     // 2.5 Check if user signed up with Google (no password)
     if (!user.password_hash) {
-      return NextResponse.json({ error: 'Please sign in with Google' }, { status: 401 });
+      return NextResponse.json({ error: 'This account was created with Google. Please use Google Sign In.' }, { status: 401 });
     }
 
     // 2.6 Check verification status
     if (!user.is_verified) {
       return NextResponse.json({ 
-        error: 'Email not verified. Please check your email.',
+        error: 'Email not verified. Please check your email for the verification code.',
         requiresVerification: true 
       }, { status: 403 });
     }
@@ -36,14 +39,14 @@ export async function POST(request: Request) {
     // 3. Check Password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    // 4. Generate JWT Token (The "Session")
+    // 4. Generate JWT Token
     const token = jwt.sign(
-      { userId: user.id, role: user.role }, // Data inside the token
-      process.env.JWT_SECRET!,              // Your Secret Key
-      { expiresIn: '1d' }                   // Token lasts for 1 day
+      { id: user.id, userId: user.id, email: user.email, name: user.name, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
     );
 
     // 5. Send success response with token
@@ -51,7 +54,14 @@ export async function POST(request: Request) {
       { 
         message: 'Login successful', 
         token, 
-        user: { id: user.id, name: user.name, role: user.role } 
+        user: { 
+          id: user.id, 
+          name: user.name, 
+          email: user.email, 
+          role: user.role,
+          avatar_url: user.avatar_url,
+          preferred_currency: user.preferred_currency,
+        } 
       },
       { status: 200 }
     );

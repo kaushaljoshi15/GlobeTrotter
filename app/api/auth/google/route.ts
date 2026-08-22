@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-// Note: Replace with actual client ID from environment
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'your-google-client-id';
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 const client = new OAuth2Client(CLIENT_ID);
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'globetrotter-super-secret-jwt-key-2026';
 
 export async function POST(request: Request) {
   try {
@@ -15,58 +14,86 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing credential' }, { status: 400 });
     }
 
-    // 1. Verify Google Token
+    // 1. Verify Google Token with Google OAuth
     const ticket = await client.verifyIdToken({
       idToken: credential,
       audience: CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    
+
     if (!payload || !payload.email || !payload.sub) {
       return NextResponse.json({ error: 'Invalid Google token' }, { status: 401 });
     }
 
-    const { email, name, sub: google_id } = payload;
+    const { email, name, sub: google_id, picture } = payload;
 
-    // 2. Check if user exists
-    let result = await query('SELECT * FROM users WHERE email = $1', [email]);
-    let user = result.rows[0];
+    // 2. Check if user exists in PostgreSQL via Prisma
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user) {
-      // 3. If no user, silently register them
-      // Since it's from Google, we automatically consider email verified
-      const insertResult = await query(
-        `INSERT INTO users (name, email, google_id, role, is_verified) 
-         VALUES ($1, $2, $3, 'volunteer', TRUE) RETURNING id, name, email, role, is_verified`,
-        [name, email, google_id]
-      );
-      user = insertResult.rows[0];
+      // 3. Automatically create user with verified status
+      user = await prisma.user.create({
+        data: {
+          name: name || 'Traveler',
+          email,
+          google_id,
+          avatar_url: picture || null,
+          role: 'traveler',
+          is_verified: true,
+          preferred_currency: 'USD',
+        },
+      });
 
-      // Send the Welcome Email to demonstrate Nodemailer works perfectly with Google Auth too
-      const { sendGoogleWelcomeEmail } = await import('@/lib/email');
-      await sendGoogleWelcomeEmail(email, name || 'User');
-      
+      // Send Welcome Email
+      try {
+        const { sendGoogleWelcomeEmail } = await import('@/lib/email');
+        await sendGoogleWelcomeEmail(email, name || 'Traveler');
+      } catch (emailErr) {
+        console.warn('Welcome email error:', emailErr);
+      }
     } else {
-      // If user exists but didn't have google_id linked, link it now
-      if (!user.google_id) {
-        await query('UPDATE users SET google_id = $1, is_verified = TRUE WHERE email = $2', [google_id, email]);
+      // Link google_id and mark verified if not already
+      if (!user.google_id || !user.is_verified) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            google_id,
+            is_verified: true,
+            avatar_url: user.avatar_url || picture || null,
+          },
+        });
       }
     }
 
-    // 4. Generate local JWT session
+    // 4. Generate standard JWT session
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { id: user.id, userId: user.id, email: user.email, name: user.name, role: user.role },
       JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '7d' }
     );
 
     return NextResponse.json(
-      { message: 'Google Sign In successful', token, user },
+      {
+        message: 'Google Sign In successful',
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          avatar_url: user.avatar_url,
+          preferred_currency: user.preferred_currency,
+        },
+      },
       { status: 200 }
     );
-
-  } catch (error) {
+  } catch (error: any) {
     console.error('Google Auth Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || 'Internal Server Error during Google Auth' },
+      { status: 500 }
+    );
   }
 }
