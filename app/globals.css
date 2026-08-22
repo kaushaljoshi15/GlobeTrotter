@@ -55,3 +55,55 @@ body {
 .animate-kenburns {
   animation: kenburns-slow 18s ease-in-out infinite alternate;
 }
+
+/* ================= PRINT / PDF EXPORT OPTIMIZATION ================= */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  nav, footer, .no-print, button:not(.print-include) {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .bg-\[\#14151a\]\/90,
+  .bg-\[\#14151a\]\/95,
+  .bg-\[\#0c0d10\],
+  .bg-\[\#14151a\] {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border-color: #dddddd !important;
+  }
+
+  .text-white {
+    color: #111111 !important;
+  }
+
+  .text-stone-300,
+  .text-stone-400,
+  .text-stone-500 {
+    color: #444444 !important;
+  }
+
+  .text-\[\#e4c29e\],
+  .text-\[\#c99a6b\] {
+    color: #8a582c !important;
+  }
+
+  .border-white\/10,
+  .border-white\/15,
+  .border-white\/20 {
+    border-color: #e5e5e5 !important;
+  }
+}

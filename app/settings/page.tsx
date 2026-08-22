@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import confetti from 'canvas-confetti';
 import {
   User,
   Shield,
@@ -25,7 +26,8 @@ import {
   Sparkles,
   Sliders,
   DollarSign,
-  ArrowRight
+  ArrowRight,
+  RefreshCw
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -33,16 +35,17 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState('');
 
   // General Account Settings
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    homeCity: 'San Francisco, USA',
-    passportCountry: 'United States',
-    preferredCurrency: 'USD',
-    measurementUnit: 'Metric (°C, km)',
+    name: 'Kaushal Joshi',
+    email: 'kaushaldj1515@gmail.com',
+    homeCity: 'Mumbai, India',
+    passportCountry: 'India',
+    preferredCurrency: 'INR',
+    measurementUnit: 'Metric (°C, km, meters)',
     dateFormat: 'DD/MM/YYYY',
   });
 
@@ -50,7 +53,7 @@ export default function SettingsPage() {
   const [emergencyData, setEmergencyData] = useState({
     contactName: 'Elena Rostova',
     relationship: 'Spouse / Family',
-    contactPhone: '+1 (555) 234-5678',
+    contactPhone: '+91 98765 43210',
     emergencyEmail: 'elena.rostova@example.com',
     bloodGroup: 'O+',
     allergies: 'None recorded',
@@ -75,23 +78,118 @@ export default function SettingsPage() {
   // Privacy & Data
   const [isPublicProfile, setIsPublicProfile] = useState(true);
 
-  useEffect(() => {
+  // Load Settings from API & LocalStorage
+  const loadSettingsData = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    setIsSyncing(true);
+
     const storedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    let userId = 1;
+
     if (storedUser) {
       try {
         const u = JSON.parse(storedUser);
         setUser(u);
+        if (u.id) userId = u.id;
         setFormData((prev) => ({
           ...prev,
-          name: u.name || '',
-          email: u.email || '',
-          preferredCurrency: u.preferred_currency || 'USD',
+          name: u.name || prev.name,
+          email: u.email || prev.email,
+          preferredCurrency: u.preferred_currency || prev.preferredCurrency,
         }));
       } catch (e) {}
     }
-    setLoading(false);
+
+    // Load persisted emergency info
+    const storedEmergency = localStorage.getItem('globetrotter_emergency_contact');
+    if (storedEmergency) {
+      try { setEmergencyData(JSON.parse(storedEmergency)); } catch (e) {}
+    }
+
+    // Load persisted notifications
+    const storedNotifs = localStorage.getItem('globetrotter_notifications');
+    if (storedNotifs) {
+      try { setNotifications(JSON.parse(storedNotifs)); } catch (e) {}
+    }
+
+    // Load persisted 2FA
+    const stored2FA = localStorage.getItem('globetrotter_2fa');
+    if (stored2FA !== null) {
+      setTwoFactorEnabled(stored2FA === 'true');
+    }
+
+    // Load persisted privacy
+    const storedPrivacy = localStorage.getItem('globetrotter_privacy');
+    if (storedPrivacy !== null) {
+      setIsPublicProfile(storedPrivacy === 'true');
+    }
+
+    // Fetch from backend API
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+      const res = await fetch(`/api/user/profile?userId=${userId}`, { headers, cache: 'no-store' });
+      const data = await res.json();
+      if (data.success && data.data) {
+        const u = data.data;
+        setUser(u);
+        setFormData((prev) => ({
+          ...prev,
+          name: u.name || prev.name,
+          email: u.email || prev.email,
+          preferredCurrency: u.preferred_currency || prev.preferredCurrency,
+        }));
+      }
+    } catch (e) {
+      console.error('Error loading settings from API:', e);
+    } finally {
+      if (showLoading) setLoading(false);
+      setIsSyncing(false);
+    }
   }, []);
 
+  // Real-time synchronization listeners
+  useEffect(() => {
+    loadSettingsData(true);
+
+    const handleStorageChange = () => loadSettingsData(false);
+    const handleFocus = () => loadSettingsData(false);
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loadSettingsData]);
+
+  // Real-time Toggle Handlers
+  const handleToggle2FA = () => {
+    const nextVal = !twoFactorEnabled;
+    setTwoFactorEnabled(nextVal);
+    localStorage.setItem('globetrotter_2fa', String(nextVal));
+    setSaveSuccess(nextVal ? 'Two-Factor Authentication enabled!' : 'Two-Factor Authentication disabled.');
+    setTimeout(() => setSaveSuccess(''), 2500);
+  };
+
+  const handleToggleNotification = (key: keyof typeof notifications) => {
+    const updated = { ...notifications, [key]: !notifications[key] };
+    setNotifications(updated);
+    localStorage.setItem('globetrotter_notifications', JSON.stringify(updated));
+  };
+
+  const handleTogglePrivacy = () => {
+    const nextVal = !isPublicProfile;
+    setIsPublicProfile(nextVal);
+    localStorage.setItem('globetrotter_privacy', String(nextVal));
+    setSaveSuccess(nextVal ? 'Itinerary cloner enabled for public travelers!' : 'Itinerary cloner set to private.');
+    setTimeout(() => setSaveSuccess(''), 2500);
+  };
+
+  // Save General Account Settings to Backend DB & LocalStorage
   const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -116,15 +214,19 @@ export default function SettingsPage() {
 
       const data = await res.json();
       if (data.success) {
-        setSaveSuccess('Account preferences updated successfully!');
+        setSaveSuccess('Account preferences synchronized & saved successfully!');
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
         setTimeout(() => setSaveSuccess(''), 3000);
 
-        if (user) {
-          const updated = { ...user, name: formData.name, preferred_currency: formData.preferredCurrency };
-          setUser(updated);
-          localStorage.setItem('user', JSON.stringify(updated));
-          window.dispatchEvent(new Event('storage'));
-        }
+        const updated = {
+          ...(user || {}),
+          name: formData.name,
+          preferred_currency: formData.preferredCurrency
+        };
+        setUser(updated);
+        localStorage.setItem('user', JSON.stringify(updated));
+        localStorage.setItem('globetrotter_general_settings', JSON.stringify(formData));
+        window.dispatchEvent(new Event('storage'));
       }
     } catch (e) {
       console.error('Error updating settings:', e);
@@ -133,20 +235,28 @@ export default function SettingsPage() {
     }
   };
 
+  // Save Emergency Contacts
   const handleSaveEmergency = (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setTimeout(() => {
+      localStorage.setItem('globetrotter_emergency_contact', JSON.stringify(emergencyData));
       setSaving(false);
-      setSaveSuccess('Emergency traveler safety profile saved!');
+      setSaveSuccess('Emergency traveler safety profile saved and active!');
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       setTimeout(() => setSaveSuccess(''), 3000);
-    }, 600);
+    }, 400);
   };
 
+  // Update Password Handler
   const handleUpdatePassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       alert('New passwords do not match!');
+      return;
+    }
+    if (newPassword.length < 8) {
+      alert('Password must be at least 8 characters!');
       return;
     }
     setSaving(true);
@@ -155,27 +265,47 @@ export default function SettingsPage() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setSaveSuccess('Security credentials updated successfully!');
+      setSaveSuccess('Master security credentials updated successfully!');
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       setTimeout(() => setSaveSuccess(''), 3000);
-    }, 800);
+    }, 600);
   };
 
-  const handleExportData = () => {
-    const dataToExport = {
-      user,
-      generalSettings: formData,
-      emergencyContact: emergencyData,
-      notifications,
-      exportTimestamp: new Date().toISOString(),
-      platform: 'GlobeTrotter Atelier Multi-City OS',
-    };
+  // Real-time Complete Data Export
+  const handleExportData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = user?.id || 1;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `globetrotter_account_backup_${user?.name?.replace(/\s+/g, '_') || 'traveler'}.json`;
-    a.click();
+      const [tripsRes, profRes] = await Promise.all([
+        fetch(`/api/trips?userId=${userId}`, { headers }).then(r => r.json()).catch(() => ({ data: [] })),
+        fetch(`/api/user/profile?userId=${userId}`, { headers }).then(r => r.json()).catch(() => ({ data: null })),
+      ]);
+
+      const dataToExport = {
+        user: profRes.data || user,
+        itineraries: tripsRes.data || [],
+        generalSettings: formData,
+        emergencyContact: emergencyData,
+        notifications,
+        twoFactorAuthActive: twoFactorEnabled,
+        exportTimestamp: new Date().toISOString(),
+        platform: 'GlobeTrotter Multi-City OS (Atelier Edition)',
+      };
+
+      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `globetrotter_account_backup_${formData.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      setSaveSuccess('Complete itinerary & profile archive exported successfully!');
+      setTimeout(() => setSaveSuccess(''), 3000);
+    } catch (e) {
+      console.error('Error exporting data:', e);
+    }
   };
 
   if (loading) {
@@ -200,75 +330,99 @@ export default function SettingsPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-8">
         
-        {/* Page Header */}
-        <div className="bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-10 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c99a6b]/15 border border-[#c99a6b]/30 text-[#e4c29e] text-xs font-sans font-bold mb-2">
-              <Sliders className="w-3.5 h-3.5" />
-              <span>Personal Traveler Control Center</span>
-            </div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-tight">
-              Account &amp; Security <span className="font-bold italic text-[#e4c29e]">Settings.</span>
-            </h1>
-            <p className="font-serif text-sm text-stone-300 mt-1">
-              Manage personal travel identity, international emergency safeguards, security credentials, and data exports.
-            </p>
-          </div>
+        {/* ================= 1. HEADER HERO BANNER ================= */}
+        <div className="relative rounded-[32px] overflow-hidden bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 p-6 sm:p-8 shadow-2xl">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#c99a6b]/10 rounded-full blur-3xl pointer-events-none" />
 
-          <Link
-            href="/profile"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0c0d10] hover:bg-[#1a1b22] text-stone-200 hover:text-white text-xs font-bold font-sans border border-white/15 transition-all self-start sm:self-auto"
-          >
-            <span>&larr; Back to Passport</span>
-          </Link>
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#c99a6b]">
+                  Account Settings &amp; Preferences
+                </span>
+
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Real-Time Sync Active</span>
+                </div>
+              </div>
+
+              <h1 className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-tight">
+                Traveler Profile &amp; <span className="font-bold italic text-[#e4c29e]">System Preferences</span>
+              </h1>
+              
+              <p className="text-stone-400 text-xs mt-1 max-w-2xl font-sans">
+                Fine-tune your personal identity, base currency formats, emergency contact safeguards, and data security credentials.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 font-sans">
+              <button
+                onClick={() => loadSettingsData(false)}
+                disabled={isSyncing}
+                title="Force refresh settings"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0c0d10] hover:bg-white/10 text-stone-300 hover:text-white text-xs font-bold border border-white/15 transition-all cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#c99a6b]' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+              </button>
+
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#c99a6b]/20 hover:bg-[#c99a6b]/30 text-[#e4c29e] text-xs font-bold border border-[#c99a6b]/40 transition-all"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>View Passport</span>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Success Alert Banner */}
+        {/* Global Save Feedback Alert Banner */}
         {saveSuccess && (
-          <div className="p-4 rounded-2xl bg-[#c99a6b]/15 border border-[#c99a6b]/30 text-[#e4c29e] text-xs font-bold font-sans flex items-center gap-2 shadow-lg animate-in fade-in">
-            <Check className="w-4 h-4 text-[#c99a6b]" />
-            <span>{saveSuccess}</span>
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-between gap-3 animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>{saveSuccess}</span>
+            </div>
+            <button onClick={() => setSaveSuccess('')} className="text-emerald-400 hover:text-white font-mono text-sm cursor-pointer">&times;</button>
           </div>
         )}
 
-        {/* 2-Column Settings Layout */}
+        {/* ================= 2. TWO-COLUMN SETTINGS LAYOUT ================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Navigation Menu (4 Cols) */}
-          <div className="lg:col-span-4 bg-[#14151a]/95 border border-white/10 rounded-[32px] p-3 shadow-xl space-y-1 font-sans">
+          {/* Navigation Sidebar (4 Cols) */}
+          <div className="lg:col-span-4 space-y-2 font-sans">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isSelected = activeSection === item.id;
+              const isActive = activeSection === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id as any)}
-                  className={`w-full p-3.5 rounded-2xl text-left transition-all flex items-start gap-3.5 group cursor-pointer ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-lg shadow-[#c99a6b]/20'
-                      : 'hover:bg-white/5 text-stone-300'
+                  className={`w-full p-4 rounded-2xl border transition-all text-left flex items-start gap-3.5 cursor-pointer ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] border-transparent shadow-lg shadow-[#c99a6b]/20 scale-[1.02]'
+                      : 'bg-[#14151a]/90 text-stone-300 border-white/10 hover:border-white/20 hover:bg-[#1a1b22]'
                   }`}
                 >
-                  <div className={`p-2 rounded-xl border ${isSelected ? 'bg-[#0c0d10] border-transparent text-[#e4c29e]' : 'bg-[#0c0d10] border-white/10 text-[#c99a6b] group-hover:border-white/20'}`}>
+                  <div className={`p-2 rounded-xl flex-shrink-0 ${isActive ? 'bg-[#0c0d10] text-[#e4c29e]' : 'bg-white/5 text-[#c99a6b]'}`}>
                     <Icon className="w-4 h-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-bold ${isSelected ? 'text-[#0c0d10]' : 'text-stone-200 group-hover:text-white'}`}>
-                      {item.label}
-                    </p>
-                    <p className={`text-[11px] mt-0.5 truncate ${isSelected ? 'text-[#0c0d10]/80 font-medium' : 'text-stone-400'}`}>
-                      {item.desc}
-                    </p>
+                  <div>
+                    <h3 className={`text-xs font-bold ${isActive ? 'text-[#0c0d10]' : 'text-white'}`}>{item.label}</h3>
+                    <p className={`text-[11px] mt-0.5 ${isActive ? 'text-[#0c0d10]/80' : 'text-stone-400'}`}>{item.desc}</p>
                   </div>
                 </button>
               );
             })}
           </div>
 
-          {/* Right Content Panel (8 Cols) */}
-          <div className="lg:col-span-8 bg-[#14151a]/95 border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-xl">
+          {/* Active Settings Panel (8 Cols) */}
+          <div className="lg:col-span-8 bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl space-y-6 font-sans">
             
-            {/* ================= 1. GENERAL ACCOUNT SETTINGS ================= */}
+            {/* ================= 1. GENERAL & TRAVELER PERSONA ================= */}
             {activeSection === 'account' && (
               <form onSubmit={handleSaveGeneral} className="space-y-6">
                 <div>
@@ -287,7 +441,7 @@ export default function SettingsPage() {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
 
@@ -309,8 +463,8 @@ export default function SettingsPage() {
                       type="text"
                       value={formData.homeCity}
                       onChange={(e) => setFormData({ ...formData, homeCity: e.target.value })}
-                      placeholder="e.g. San Francisco, USA"
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
+                      placeholder="e.g. Mumbai, India / London, UK"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
 
@@ -320,58 +474,60 @@ export default function SettingsPage() {
                       type="text"
                       value={formData.passportCountry}
                       onChange={(e) => setFormData({ ...formData, passportCountry: e.target.value })}
-                      placeholder="e.g. United States"
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b]"
+                      placeholder="e.g. India / United States"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 font-sans">
+                <div className="pt-4 border-t border-white/10">
                   <h3 className="font-serif text-sm font-bold text-white mb-3 flex items-center gap-2">
                     <Globe2 className="w-4 h-4 text-[#c99a6b]" />
                     Regional Units &amp; Currency Defaults
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-sans">
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">Base Currency</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">Base Currency</label>
                       <select
                         value={formData.preferredCurrency}
                         onChange={(e) => setFormData({ ...formData, preferredCurrency: e.target.value })}
-                        className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                        className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       >
-                        <option value="USD">USD ($ - United States)</option>
-                        <option value="EUR">EUR (€ - Eurozone)</option>
-                        <option value="GBP">GBP (£ - British Pound)</option>
-                        <option value="JPY">JPY (¥ - Japanese Yen)</option>
                         <option value="INR">INR (₹ - Indian Rupee)</option>
-                        <option value="CAD">CAD ($ - Canada)</option>
-                        <option value="AUD">AUD ($ - Australia)</option>
+                        <option value="USD">USD ($ - United States Dollar)</option>
+                        <option value="EUR">EUR (€ - Euro)</option>
+                        <option value="GBP">GBP (£ - British Pound)</option>
+                        <option value="AED">AED (د.إ - UAE Dirham)</option>
+                        <option value="JPY">JPY (¥ - Japanese Yen)</option>
+                        <option value="CHF">CHF (Swiss Franc)</option>
+                        <option value="CAD">CAD ($ - Canadian Dollar)</option>
+                        <option value="AUD">AUD ($ - Australian Dollar)</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">Measurement System</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">Measurement System</label>
                       <select
                         value={formData.measurementUnit}
                         onChange={(e) => setFormData({ ...formData, measurementUnit: e.target.value })}
-                        className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                        className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       >
-                        <option value="Metric (°C, km)">Metric (°C, km, meters)</option>
-                        <option value="Imperial (°F, mi)">Imperial (°F, miles, ft)</option>
+                        <option value="Metric (°C, km, meters)">Metric (°C, km, meters)</option>
+                        <option value="Imperial (°F, miles, ft)">Imperial (°F, miles, ft)</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1">Date Format</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">Date Format</label>
                       <select
                         value={formData.dateFormat}
                         onChange={(e) => setFormData({ ...formData, dateFormat: e.target.value })}
-                        className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                        className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       >
                         <option value="DD/MM/YYYY">DD/MM/YYYY (e.g. 22/08/2026)</option>
                         <option value="MM/DD/YYYY">MM/DD/YYYY (e.g. 08/22/2026)</option>
-                        <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD (ISO standard)</option>
                       </select>
                     </div>
                   </div>
@@ -381,10 +537,10 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-bold shadow-lg shadow-[#c99a6b]/20 transition-all cursor-pointer disabled:opacity-50"
                   >
                     <Save className="w-3.5 h-3.5" />
-                    <span>{saving ? 'Saving...' : 'Save General Settings'}</span>
+                    <span>{saving ? 'Saving Changes...' : 'Save General Settings'}</span>
                   </button>
                 </div>
               </form>
@@ -409,7 +565,7 @@ export default function SettingsPage() {
                       required
                       value={emergencyData.contactName}
                       onChange={(e) => setEmergencyData({ ...emergencyData, contactName: e.target.value })}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
 
@@ -420,7 +576,7 @@ export default function SettingsPage() {
                       required
                       value={emergencyData.relationship}
                       onChange={(e) => setEmergencyData({ ...emergencyData, relationship: e.target.value })}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
                 </div>
@@ -433,7 +589,7 @@ export default function SettingsPage() {
                       required
                       value={emergencyData.contactPhone}
                       onChange={(e) => setEmergencyData({ ...emergencyData, contactPhone: e.target.value })}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-mono"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
 
@@ -443,7 +599,7 @@ export default function SettingsPage() {
                       type="email"
                       value={emergencyData.emergencyEmail}
                       onChange={(e) => setEmergencyData({ ...emergencyData, emergencyEmail: e.target.value })}
-                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-mono"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
                 </div>
@@ -457,7 +613,7 @@ export default function SettingsPage() {
                         type="text"
                         value={emergencyData.bloodGroup}
                         onChange={(e) => setEmergencyData({ ...emergencyData, bloodGroup: e.target.value })}
-                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       />
                     </div>
                     <div>
@@ -466,7 +622,7 @@ export default function SettingsPage() {
                         type="text"
                         value={emergencyData.allergies}
                         onChange={(e) => setEmergencyData({ ...emergencyData, allergies: e.target.value })}
-                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       />
                     </div>
                   </div>
@@ -511,7 +667,7 @@ export default function SettingsPage() {
                       placeholder="••••••••"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full bg-[#14151a] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white"
+                      className="w-full bg-[#14151a] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                     />
                   </div>
 
@@ -524,7 +680,7 @@ export default function SettingsPage() {
                         placeholder="Min 8 chars"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white"
+                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       />
                     </div>
                     <div>
@@ -535,7 +691,7 @@ export default function SettingsPage() {
                         placeholder="Repeat new password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white"
+                        className="w-full bg-[#14151a] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#c99a6b]"
                       />
                     </div>
                   </div>
@@ -569,8 +725,10 @@ export default function SettingsPage() {
                     <div>
                       <h4 className="text-xs font-bold text-white flex items-center gap-2">
                         Two-Factor Authentication (Email OTP)
-                        <span className="text-[10px] text-[#e4c29e] bg-[#c99a6b]/15 px-2 py-0.5 rounded-full border border-[#c99a6b]/30 font-bold">
-                          Active
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
+                          twoFactorEnabled ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' : 'bg-stone-800 border-white/10 text-stone-400'
+                        }`}>
+                          {twoFactorEnabled ? 'Active' : 'Disabled'}
                         </span>
                       </h4>
                       <p className="text-[11px] text-stone-400 mt-0.5">Requires a 6-digit verification code sent to your email on new sign-ins</p>
@@ -578,7 +736,7 @@ export default function SettingsPage() {
                   </div>
 
                   <button
-                    onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
+                    onClick={handleToggle2FA}
                     className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${twoFactorEnabled ? 'bg-[#c99a6b] justify-end' : 'bg-stone-800 justify-start'}`}
                   >
                     <div className="bg-[#0c0d10] w-4 h-4 rounded-full shadow-md" />
@@ -605,7 +763,7 @@ export default function SettingsPage() {
                       <p className="text-[11px] text-stone-400 mt-0.5">Triggers visual alerts when your recorded receipts exceed the daily burn allocation</p>
                     </div>
                     <button
-                      onClick={() => setNotifications({ ...notifications, budgetThreshold: !notifications.budgetThreshold })}
+                      onClick={() => handleToggleNotification('budgetThreshold')}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${notifications.budgetThreshold ? 'bg-[#c99a6b] justify-end' : 'bg-stone-800 justify-start'}`}
                     >
                       <div className="bg-[#0c0d10] w-4 h-4 rounded-full shadow-md" />
@@ -618,7 +776,7 @@ export default function SettingsPage() {
                       <p className="text-[11px] text-stone-400 mt-0.5">Receive best time-to-visit tips and seasonal weather notifications</p>
                     </div>
                     <button
-                      onClick={() => setNotifications({ ...notifications, weatherAdvisories: !notifications.weatherAdvisories })}
+                      onClick={() => handleToggleNotification('weatherAdvisories')}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${notifications.weatherAdvisories ? 'bg-[#c99a6b] justify-end' : 'bg-stone-800 justify-start'}`}
                     >
                       <div className="bg-[#0c0d10] w-4 h-4 rounded-full shadow-md" />
@@ -631,7 +789,7 @@ export default function SettingsPage() {
                       <p className="text-[11px] text-stone-400 mt-0.5">Notices and meeting point updates published by your tour organizer</p>
                     </div>
                     <button
-                      onClick={() => setNotifications({ ...notifications, groupChatBroadcasts: !notifications.groupChatBroadcasts })}
+                      onClick={() => handleToggleNotification('groupChatBroadcasts')}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${notifications.groupChatBroadcasts ? 'bg-[#c99a6b] justify-end' : 'bg-stone-800 justify-start'}`}
                     >
                       <div className="bg-[#0c0d10] w-4 h-4 rounded-full shadow-md" />
@@ -659,7 +817,7 @@ export default function SettingsPage() {
                       <p className="text-[11px] text-stone-400 mt-0.5">Allow other travelers to clone your public multi-city trips</p>
                     </div>
                     <button
-                      onClick={() => setIsPublicProfile(!isPublicProfile)}
+                      onClick={handleTogglePrivacy}
                       className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${isPublicProfile ? 'bg-[#c99a6b] justify-end' : 'bg-stone-800 justify-start'}`}
                     >
                       <div className="bg-[#0c0d10] w-4 h-4 rounded-full shadow-md" />

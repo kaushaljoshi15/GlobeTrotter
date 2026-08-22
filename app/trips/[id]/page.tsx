@@ -46,7 +46,8 @@ import {
   Globe2,
   Compass,
   Hotel,
-  Utensils
+  Utensils,
+  Download
 } from 'lucide-react';
 
 const CATEGORY_COLORS: { [key: string]: string } = {
@@ -528,6 +529,14 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
               </span>
 
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/60 hover:bg-white/10 text-stone-200 text-xs font-semibold backdrop-blur-md border border-white/20 transition-colors cursor-pointer"
+                  title="Download Itinerary PDF"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#c99a6b]" />
+                  <span>Download PDF</span>
+                </button>
                 <Link
                   href={`/trips/share/${trip.share_code}`}
                   target="_blank"

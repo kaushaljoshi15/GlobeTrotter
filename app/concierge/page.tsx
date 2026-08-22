@@ -38,54 +38,65 @@ import {
 } from 'lucide-react';
 
 // Master Exchange Rates relative to 1 USD
-const FX_RATES: Record<string, { rate: number; symbol: string; name: string; flag: string }> = {
-  INR: { rate: 83.45, symbol: '₹', name: 'Indian Rupee', flag: '🇮🇳' },
-  USD: { rate: 1.0, symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
-  EUR: { rate: 0.92, symbol: '€', name: 'Euro', flag: '🇪🇺' },
-  GBP: { rate: 0.79, symbol: '£', name: 'British Pound', flag: '🇬🇧' },
-  AED: { rate: 3.67, symbol: 'د.إ', name: 'UAE Dirham', flag: '🇦🇪' },
-  JPY: { rate: 154.5, symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵' },
-  CHF: { rate: 0.89, symbol: 'CHF', name: 'Swiss Franc', flag: '🇨🇭' },
-  SGD: { rate: 1.34, symbol: 'S$', name: 'Singapore Dollar', flag: '🇸🇬' },
-  THB: { rate: 36.2, symbol: '฿', name: 'Thai Baht', flag: '🇹🇭' },
-  CAD: { rate: 1.36, symbol: 'CA$', name: 'Canadian Dollar', flag: '🇨🇦' },
-  AUD: { rate: 1.51, symbol: 'AU$', name: 'Australian Dollar', flag: '🇦🇺' },
+const FX_RATES: Record<string, { rate: number; symbol: string; name: string; tag: string }> = {
+  INR: { rate: 83.45, symbol: '₹', name: 'Indian Rupee', tag: 'IND' },
+  USD: { rate: 1.0, symbol: '$', name: 'US Dollar', tag: 'USA' },
+  EUR: { rate: 0.92, symbol: '€', name: 'Euro', tag: 'EUR' },
+  GBP: { rate: 0.79, symbol: '£', name: 'British Pound', tag: 'GBR' },
+  AED: { rate: 3.67, symbol: 'د.إ', name: 'UAE Dirham', tag: 'UAE' },
+  JPY: { rate: 154.5, symbol: '¥', name: 'Japanese Yen', tag: 'JPN' },
+  CHF: { rate: 0.89, symbol: 'CHF', name: 'Swiss Franc', tag: 'CHE' },
+  SGD: { rate: 1.34, symbol: 'S$', name: 'Singapore Dollar', tag: 'SGP' },
+  THB: { rate: 36.2, symbol: '฿', name: 'Thai Baht', tag: 'THA' },
+  CAD: { rate: 1.36, symbol: 'CA$', name: 'Canadian Dollar', tag: 'CAN' },
+  AUD: { rate: 1.51, symbol: 'AU$', name: 'Australian Dollar', tag: 'AUS' },
 };
 
-// Curated Destination Climate Radar & Best Travel Seasons
+// Curated Destination Climate Radar & Best Travel Seasons (Carefully balanced into exact multiples of 4 for a perfect grid)
 const CLIMATE_DATABASE = [
-  // India Hubs
-  { id: 'c-in-1', city: 'Jaipur, Rajasthan', region: 'India', flag: '🇮🇳', tempC: 28, tempF: 82, condition: 'Pleasant & Sunny', season: 'Oct - Mar (Royal Palaces & Forts)', icon: '☀️' },
-  { id: 'c-in-2', city: 'Goa (Beaches & Heritage)', region: 'India', flag: '🇮🇳', tempC: 29, tempF: 84, condition: 'Tropical Coastal Breeze', season: 'Nov - Apr (Beach Festivals & Sun)', icon: '🌴' },
-  { id: 'c-in-3', city: 'Kerala (Munnar & Alleppey)', region: 'India', flag: '🇮🇳', tempC: 24, tempF: 75, condition: 'Lush Green Backwaters', season: 'Sep - Mar (Houseboats & Tea Hills)', icon: '🚤' },
-  { id: 'c-in-4', city: 'Agra (Taj Mahal)', region: 'India', flag: '🇮🇳', tempC: 26, tempF: 78, condition: 'Clear Skies', season: 'Oct - Mar (Mughal Heritage Walks)', icon: '🕌' },
-  { id: 'c-in-5', city: 'Delhi (NCR)', region: 'India', flag: '🇮🇳', tempC: 25, tempF: 77, condition: 'Comfortable Autumn/Spring', season: 'Oct - Mar (Culinary & Monument Tours)', icon: '🏛️' },
-  { id: 'c-in-6', city: 'Manali & Solang Valley', region: 'India', flag: '🇮🇳', tempC: 14, tempF: 57, condition: 'Crisp Mountain Breeze', season: 'Mar - Jun & Oct - Feb (Snow)', icon: '🏔️' },
-  { id: 'c-in-7', city: 'Kashmir (Srinagar & Gulmarg)', region: 'India', flag: '🇮🇳', tempC: 11, tempF: 52, condition: 'Alpine Fresh / Snow', season: 'Apr - Oct (Tulips) & Dec - Feb (Snow)', icon: '❄️' },
-  { id: 'c-in-8', city: 'Varanasi (Ganga Ghats)', region: 'India', flag: '🇮🇳', tempC: 27, tempF: 80, condition: 'Mild Evenings', season: 'Oct - Mar (Ganga Aarti & Boat Safaris)', icon: '🪔' },
-  { id: 'c-in-9', city: 'Mumbai (Coastal Metropolis)', region: 'India', flag: '🇮🇳', tempC: 28, tempF: 82, condition: 'Warm Sea Breeze', season: 'Oct - Mar (Heritage Art Deco & Promenade)', icon: '🌊' },
-  { id: 'c-in-10', city: 'Jodhpur (Blue City)', region: 'India', flag: '🇮🇳', tempC: 27, tempF: 80, condition: 'Sun-drenched Desert Air', season: 'Oct - Mar (Mehrangarh Fort Safaris)', icon: '🏰' },
-  { id: 'c-in-11', city: 'Ladakh (Leh & Pangong)', region: 'India', flag: '🇮🇳', tempC: 12, tempF: 54, condition: 'High Altitude Sun', season: 'May - Sep (Azure Lakes & Passes)', icon: '🦅' },
-  { id: 'c-in-12', city: 'Andaman (Havelock Islands)', region: 'India', flag: '🇮🇳', tempC: 29, tempF: 84, condition: 'Tropical Turquoise Waters', season: 'Oct - May (Scuba & Radhanagar Sunsets)', icon: '🤿' },
-  { id: 'c-in-13', city: 'Amritsar (Golden Temple)', region: 'India', flag: '🇮🇳', tempC: 22, tempF: 72, condition: 'Clear & Crisp', season: 'Oct - Mar (Spiritual Darshan & Langar)', icon: '✨' },
-  { id: 'c-in-14', city: 'Darjeeling (Himalayan Tea)', region: 'India', flag: '🇮🇳', tempC: 15, tempF: 59, condition: 'Mist & Fresh Tea Slopes', season: 'Mar - May & Oct - Dec (Tiger Hill Sunrise)', icon: '☕' },
-  { id: 'c-in-15', city: 'Hampi (Vijayanagara)', region: 'India', flag: '🇮🇳', tempC: 29, tempF: 84, condition: 'Dry & Pleasant', season: 'Oct - Mar (Ancient Stone Architecture)', icon: '🗿' },
-  { id: 'c-in-16', city: 'Pondicherry (French Town)', region: 'India', flag: '🇮🇳', tempC: 28, tempF: 82, condition: 'Gentle Bay of Bengal Breeze', season: 'Oct - Mar (Colonial Quarters & Auroville)', icon: '🏖️' },
+  // ===== 🇮🇳 INDIA TOURISM HUBS (12 items = 3 perfect rows of 4) =====
+  { id: 'c-in-1', city: 'Jaipur', country: 'Rajasthan', countryTag: 'IND', region: 'India', tempC: 28, tempF: 82, condition: 'Pleasant & Sunny', season: 'Oct - Mar (Royal Palaces & Forts)', icon: '☀️' },
+  { id: 'c-in-2', city: 'Goa', country: 'Coastal India', countryTag: 'IND', region: 'India', tempC: 29, tempF: 84, condition: 'Tropical Sea Breeze', season: 'Nov - Apr (Sun, Beaches & Festivities)', icon: '🌴' },
+  { id: 'c-in-3', city: 'Kerala', country: 'Munnar & Alleppey', countryTag: 'IND', region: 'India', tempC: 24, tempF: 75, condition: 'Lush Green Backwaters', season: 'Sep - Mar (Houseboats & Tea Hills)', icon: '🚤' },
+  { id: 'c-in-4', city: 'Agra', country: 'Uttar Pradesh', countryTag: 'IND', region: 'India', tempC: 26, tempF: 78, condition: 'Clear Skies', season: 'Oct - Mar (Taj Mahal Sunrise)', icon: '🕌' },
+  { id: 'c-in-5', city: 'Delhi', country: 'National Capital', countryTag: 'IND', region: 'India', tempC: 25, tempF: 77, condition: 'Comfortable Autumn', season: 'Oct - Mar (Historic Monuments & Food)', icon: '🏛️' },
+  { id: 'c-in-6', city: 'Manali', country: 'Himachal Pradesh', countryTag: 'IND', region: 'India', tempC: 14, tempF: 57, condition: 'Crisp Mountain Breeze', season: 'Mar - Jun & Oct - Feb (Snow)', icon: '🏔️' },
+  { id: 'c-in-7', city: 'Kashmir', country: 'Srinagar & Gulmarg', countryTag: 'IND', region: 'India', tempC: 11, tempF: 52, condition: 'Alpine Fresh', season: 'Apr - Oct (Tulips) & Dec - Feb (Snow)', icon: '❄️' },
+  { id: 'c-in-8', city: 'Varanasi', country: 'Uttar Pradesh', countryTag: 'IND', region: 'India', tempC: 27, tempF: 80, condition: 'Mild Evenings', season: 'Oct - Mar (Ganga Aarti & Boat Safaris)', icon: '🪔' },
+  { id: 'c-in-9', city: 'Ladakh', country: 'Leh & Pangong', countryTag: 'IND', region: 'India', tempC: 12, tempF: 54, condition: 'High Altitude Sun', season: 'May - Sep (Azure Lakes & Passes)', icon: '🦅' },
+  { id: 'c-in-10', city: 'Andaman', country: 'Havelock Island', countryTag: 'IND', region: 'India', tempC: 29, tempF: 84, condition: 'Tropical Island Air', season: 'Oct - May (Scuba & Sunset Beaches)', icon: '🤿' },
+  { id: 'c-in-11', city: 'Amritsar', country: 'Punjab', countryTag: 'IND', region: 'India', tempC: 22, tempF: 72, condition: 'Clear & Crisp', season: 'Oct - Mar (Harmandir Sahib & Langar)', icon: '✨' },
+  { id: 'c-in-12', city: 'Udaipur', country: 'Rajasthan', countryTag: 'IND', region: 'India', tempC: 27, tempF: 80, condition: 'Serene Lake Breeze', season: 'Sep - Mar (Marble Palaces & Boat Trips)', icon: '🏰' },
 
-  // International Hubs
-  { id: 'c-jp-1', city: 'Tokyo, Japan', region: 'Asia', flag: '🇯🇵', tempC: 22, tempF: 72, condition: 'Sunny & Crisp', season: 'Mar - May (Sakura) & Oct - Nov', icon: '🌸' },
-  { id: 'c-jp-2', city: 'Kyoto, Japan', region: 'Asia', flag: '🇯🇵', tempC: 21, tempF: 70, condition: 'Mild Autumn Foliage', season: 'Oct - Dec & Apr - May (Temples)', icon: '🍁' },
-  { id: 'c-sg-1', city: 'Singapore (Garden City)', region: 'Asia', flag: '🇸🇬', tempC: 30, tempF: 86, condition: 'Tropical Warmth', season: 'All Year (Gardens by the Bay & Dining)', icon: '🏙️' },
-  { id: 'c-id-1', city: 'Bali (Ubud & Seminyak)', region: 'Asia', flag: '🇮🇩', tempC: 28, tempF: 82, condition: 'Balmy Island Breeze', season: 'Apr - Oct (Rice Terraces & Beaches)', icon: '🌴' },
-  { id: 'c-ch-1', city: 'Zurich, Switzerland', region: 'Europe', flag: '🇨🇭', tempC: 16, tempF: 61, condition: 'Crisp Alpine Breeze', season: 'May - Sep (Scenic Trains & Lakes)', icon: '⛅' },
-  { id: 'c-ch-2', city: 'Zermatt (Matterhorn)', region: 'Europe', flag: '🇨🇭', tempC: 8, tempF: 46, condition: 'Fresh Glacial Air', season: 'Jun - Sep (Hiking) & Dec - Apr (Ski)', icon: '🏔️' },
-  { id: 'c-it-1', city: 'Rome & Amalfi, Italy', region: 'Europe', flag: '🇮🇹', tempC: 25, tempF: 77, condition: 'Warm Mediterranean', season: 'Apr - Jun & Sep - Oct (Harvest)', icon: '🍷' },
-  { id: 'c-fr-1', city: 'Paris, France', region: 'Europe', flag: '🇫🇷', tempC: 19, tempF: 66, condition: 'Mild & Romantic', season: 'Apr - Jun & Sep - Nov (Museums)', icon: '🥐' },
-  { id: 'c-gb-1', city: 'London, United Kingdom', region: 'Europe', flag: '🇬🇧', tempC: 17, tempF: 63, condition: 'Mild Overcast / Sunny Spells', season: 'May - Sep (Royal Sights & Theatres)', icon: '🎡' },
-  { id: 'c-gr-1', city: 'Santorini, Greece', region: 'Europe', flag: '🇬🇷', tempC: 26, tempF: 79, condition: 'Aegean Sun & Sea Breeze', season: 'May - Oct (Caldera Sunsets)', icon: '⛵' },
-  { id: 'c-ae-1', city: 'Dubai, UAE', region: 'Global', flag: '🇦🇪', tempC: 29, tempF: 84, condition: 'Warm Desert Sun', season: 'Nov - Mar (Desert Safaris & Skyline)', icon: '🏙️' },
-  { id: 'c-us-1', city: 'New York City, USA', region: 'Global', flag: '🇺🇸', tempC: 20, tempF: 68, condition: 'Brisk Autumn Sky', season: 'Sep - Nov & Apr - Jun (Central Park)', icon: '🗽' },
-  { id: 'c-is-1', city: 'Reykjavik, Iceland', region: 'Global', flag: '🇮🇸', tempC: 5, tempF: 41, condition: 'Aurora Borealis Active', season: 'Sep - Mar (Northern Lights Hunt)', icon: '🌌' },
+  // ===== 🌏 ASIA & EAST HUBS (8 items = 2 perfect rows of 4) =====
+  { id: 'c-as-1', city: 'Tokyo', country: 'Japan', countryTag: 'JPN', region: 'Asia', tempC: 22, tempF: 72, condition: 'Sunny & Crisp', season: 'Mar - May (Sakura) & Oct - Nov', icon: '🌸' },
+  { id: 'c-as-2', city: 'Kyoto', country: 'Japan', countryTag: 'JPN', region: 'Asia', tempC: 21, tempF: 70, condition: 'Mild Autumn Foliage', season: 'Oct - Dec & Apr - May (Temples)', icon: '🍁' },
+  { id: 'c-as-3', city: 'Singapore', country: 'Garden City', countryTag: 'SGP', region: 'Asia', tempC: 30, tempF: 86, condition: 'Tropical Warmth', season: 'All Year (Marina Bay & Dining)', icon: '🏙️' },
+  { id: 'c-as-4', city: 'Bali', country: 'Indonesia', countryTag: 'IDN', region: 'Asia', tempC: 28, tempF: 82, condition: 'Balmy Island Breeze', season: 'Apr - Oct (Rice Terraces & Beaches)', icon: '🌴' },
+  { id: 'c-as-5', city: 'Bangkok', country: 'Thailand', countryTag: 'THA', region: 'Asia', tempC: 31, tempF: 88, condition: 'Warm & Vibrant', season: 'Nov - Feb (Grand Palace & Street Food)', icon: '🛕' },
+  { id: 'c-as-6', city: 'Seoul', country: 'South Korea', countryTag: 'KOR', region: 'Asia', tempC: 18, tempF: 64, condition: 'Crisp & Sunny', season: 'Mar - May & Sep - Nov (Palaces)', icon: '🏮' },
+  { id: 'c-as-7', city: 'Dubai', country: 'UAE', countryTag: 'UAE', region: 'Asia', tempC: 29, tempF: 84, condition: 'Warm Desert Sun', season: 'Nov - Mar (Desert Safaris & Skyline)', icon: '🏙️' },
+  { id: 'c-as-8', city: 'Maldives', country: 'Indian Ocean', countryTag: 'MDV', region: 'Asia', tempC: 29, tempF: 84, condition: 'Turquoise Lagoons', season: 'Nov - Apr (Overwater Villas & Diving)', icon: '🐠' },
+
+  // ===== 🏔️ EUROPE & ALPS HUBS (8 items = 2 perfect rows of 4) =====
+  { id: 'c-eu-1', city: 'Zurich', country: 'Switzerland', countryTag: 'CHE', region: 'Europe', tempC: 16, tempF: 61, condition: 'Crisp Alpine Breeze', season: 'May - Sep (Scenic Trains & Lakes)', icon: '⛅' },
+  { id: 'c-eu-2', city: 'Zermatt', country: 'Matterhorn', countryTag: 'CHE', region: 'Europe', tempC: 8, tempF: 46, condition: 'Fresh Glacial Air', season: 'Jun - Sep (Hiking) & Dec - Apr (Ski)', icon: '🏔️' },
+  { id: 'c-eu-3', city: 'Rome', country: 'Italy', countryTag: 'ITA', region: 'Europe', tempC: 25, tempF: 77, condition: 'Warm Mediterranean', season: 'Apr - Jun & Sep - Oct (Colosseum)', icon: '🍷' },
+  { id: 'c-eu-4', city: 'Paris', country: 'France', countryTag: 'FRA', region: 'Europe', tempC: 19, tempF: 66, condition: 'Mild & Romantic', season: 'Apr - Jun & Sep - Nov (Louvre & Seine)', icon: '🥐' },
+  { id: 'c-eu-5', city: 'London', country: 'United Kingdom', countryTag: 'GBR', region: 'Europe', tempC: 17, tempF: 63, condition: 'Mild Overcast / Sun', season: 'May - Sep (Royal Sights & Theatres)', icon: '🎡' },
+  { id: 'c-eu-6', city: 'Santorini', country: 'Greece', countryTag: 'GRC', region: 'Europe', tempC: 26, tempF: 79, condition: 'Aegean Sun & Sea Breeze', season: 'May - Oct (Caldera Sunsets)', icon: '⛵' },
+  { id: 'c-eu-7', city: 'Venice', country: 'Grand Canal', countryTag: 'ITA', region: 'Europe', tempC: 22, tempF: 72, condition: 'Lagoon Breeze', season: 'Apr - Jun & Sep - Oct (Gondola Tours)', icon: '🎭' },
+  { id: 'c-eu-8', city: 'Reykjavik', country: 'Iceland', countryTag: 'ISL', region: 'Europe', tempC: 5, tempF: 41, condition: 'Aurora Active', season: 'Sep - Mar (Northern Lights Hunt)', icon: '🌌' },
+
+  // ===== 🌐 GLOBAL HOTSPOTS (8 items = 2 perfect rows of 4) =====
+  { id: 'c-gl-1', city: 'Dubai', country: 'United Arab Emirates', countryTag: 'UAE', region: 'Global', tempC: 29, tempF: 84, condition: 'Warm Desert Sun', season: 'Nov - Mar (Desert Safaris & Skyline)', icon: '🏙️' },
+  { id: 'c-gl-2', city: 'New York City', country: 'United States', countryTag: 'USA', region: 'Global', tempC: 20, tempF: 68, condition: 'Brisk Autumn Sky', season: 'Sep - Nov & Apr - Jun (Central Park)', icon: '🗽' },
+  { id: 'c-gl-3', city: 'London', country: 'United Kingdom', countryTag: 'GBR', region: 'Global', tempC: 17, tempF: 63, condition: 'Mild Autumn', season: 'May - Sep (West End & Museums)', icon: '🎡' },
+  { id: 'c-gl-4', city: 'Singapore', country: 'Southeast Asia', countryTag: 'SGP', region: 'Global', tempC: 30, tempF: 86, condition: 'Warm & Tropical', season: 'All Year (Gardens by the Bay)', icon: '🏙️' },
+  { id: 'c-gl-5', city: 'Bali', country: 'Indonesia', countryTag: 'IDN', region: 'Global', tempC: 28, tempF: 82, condition: 'Balmy Island Air', season: 'Apr - Oct (Ubud & Cliff Temples)', icon: '🌴' },
+  { id: 'c-gl-6', city: 'Tokyo', country: 'Japan', countryTag: 'JPN', region: 'Global', tempC: 22, tempF: 72, condition: 'Sunny & Clear', season: 'Mar - May & Oct - Nov (Shibuya)', icon: '🌸' },
+  { id: 'c-gl-7', city: 'Sydney', country: 'Australia', countryTag: 'AUS', region: 'Global', tempC: 23, tempF: 73, condition: 'Pacific Breeze', season: 'Sep - Nov & Mar - May (Harbour)', icon: '🦘' },
+  { id: 'c-gl-8', city: 'Reykjavik', country: 'Iceland', countryTag: 'ISL', region: 'Global', tempC: 5, tempF: 41, condition: 'Aurora Active', season: 'Sep - Mar (Northern Lights Hunt)', icon: '🌌' },
 ];
 
 // Pre-Departure Essentials Checklist Items with Categories
@@ -128,7 +139,6 @@ export default function ConciergePage() {
     if (!isNaN(val) && val >= 0 && FX_RATES[fromCurrency] && FX_RATES[toCurrency]) {
       const fromObj = FX_RATES[fromCurrency];
       const toObj = FX_RATES[toCurrency];
-      // Convert to USD base first, then to target currency
       const inUSD = val / fromObj.rate;
       const converted = inUSD * toObj.rate;
       setCalcResult(Math.round(converted * 100) / 100);
@@ -254,7 +264,7 @@ export default function ConciergePage() {
                 className="px-4 py-2 rounded-xl bg-[#c99a6b]/20 hover:bg-[#c99a6b]/30 text-[#e4c29e] text-xs font-bold border border-[#c99a6b]/40 transition-all flex items-center gap-1.5"
               >
                 <Shield className="w-3.5 h-3.5 text-[#c99a6b]" />
-                <span>Helpline 112 / 1363</span>
+                <span>Helplines</span>
               </a>
             </div>
           </div>
@@ -332,7 +342,7 @@ export default function ConciergePage() {
                   >
                     {Object.entries(FX_RATES).map(([code, info]) => (
                       <option key={code} value={code} className="bg-[#14151a] text-white">
-                        {info.flag} {code} ({info.symbol} - {info.name})
+                        [{info.tag}] {code} ({info.symbol} - {info.name})
                       </option>
                     ))}
                   </select>
@@ -359,7 +369,7 @@ export default function ConciergePage() {
                   >
                     {Object.entries(FX_RATES).map(([code, info]) => (
                       <option key={code} value={code} className="bg-[#14151a] text-white">
-                        {info.flag} {code} ({info.symbol} - {info.name})
+                        [{info.tag}] {code} ({info.symbol} - {info.name})
                       </option>
                     ))}
                   </select>
@@ -432,31 +442,34 @@ export default function ConciergePage() {
               </div>
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {/* Category Filter Pills (Clean Wrapping - No Ugly Scrollbar) */}
+            <div className="flex flex-wrap items-center gap-2">
               {[
-                { id: 'all', label: 'All' },
-                { id: 'documents', label: '🛂 Documents' },
-                { id: 'money', label: '💳 Money & Cards' },
-                { id: 'tech', label: '🔌 Electronics' },
-                { id: 'clothing', label: '👔 Clothing' },
-                { id: 'health', label: '💊 Health' },
+                { id: 'all', label: 'All Items', count: checklist.length },
+                { id: 'documents', label: '🛂 Documents', count: checklist.filter(c => c.category === 'documents').length },
+                { id: 'money', label: '💳 Money & Cards', count: checklist.filter(c => c.category === 'money').length },
+                { id: 'tech', label: '🔌 Electronics', count: checklist.filter(c => c.category === 'tech').length },
+                { id: 'clothing', label: '👔 Clothing', count: checklist.filter(c => c.category === 'clothing').length },
+                { id: 'health', label: '💊 Health', count: checklist.filter(c => c.category === 'health').length },
               ].map((filter) => (
                 <button
                   key={filter.id}
                   onClick={() => setSelectedPackingFilter(filter.id)}
-                  className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     selectedPackingFilter === filter.id
-                      ? 'bg-[#c99a6b] text-[#0c0d10] shadow-sm'
-                      : 'bg-[#0c0d10] text-stone-400 border border-white/10 hover:text-white'
+                      ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-sm'
+                      : 'bg-[#0c0d10] text-stone-400 border border-white/10 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {filter.label}
+                  <span>{filter.label}</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono ${selectedPackingFilter === filter.id ? 'bg-[#0c0d10]/30 text-[#0c0d10]' : 'bg-white/10 text-stone-300'}`}>
+                    {filter.count}
+                  </span>
                 </button>
               ))}
             </div>
 
-            {/* Checklist Items Container (Clean natural expansion, no forced ugly scrollbar) */}
+            {/* Checklist Items Container */}
             <div className="space-y-2.5">
               {filteredChecklist.map((item) => (
                 <div
@@ -552,20 +565,26 @@ export default function ConciergePage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 self-start sm:self-auto">
+            <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
               {/* Region Filter */}
               <div className="flex items-center gap-1 bg-[#0c0d10] p-1 rounded-xl border border-white/10 text-xs">
-                {['all', 'India', 'Asia', 'Europe', 'Global'].map((reg) => (
+                {[
+                  { id: 'all', label: 'All Cities (24)' },
+                  { id: 'India', label: '🇮🇳 India (12)' },
+                  { id: 'Asia', label: '🌏 Asia (8)' },
+                  { id: 'Europe', label: '🏔️ Europe (8)' },
+                  { id: 'Global', label: '🌐 Global (8)' },
+                ].map((reg) => (
                   <button
-                    key={reg}
-                    onClick={() => setSelectedRegion(reg)}
+                    key={reg.id}
+                    onClick={() => setSelectedRegion(reg.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      selectedRegion === reg
-                        ? 'bg-[#c99a6b] text-[#0c0d10] shadow-sm'
+                      selectedRegion === reg.id
+                        ? 'bg-gradient-to-r from-[#c99a6b] to-[#d4a373] text-[#0c0d10] shadow-sm'
                         : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    {reg === 'all' ? 'All Regions' : reg}
+                    {reg.label}
                   </button>
                 ))}
               </div>
@@ -592,7 +611,7 @@ export default function ConciergePage() {
             </div>
           </div>
 
-          {/* Climate Cards Grid */}
+          {/* Climate Cards Grid - Perfectly Balanced 4-column layout with zero blank slots */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {filteredWeather.map((item) => (
               <div
@@ -602,16 +621,23 @@ export default function ConciergePage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl">{item.icon}</span>
-                    <span className="font-serif text-2xl font-bold text-white group-hover:text-[#e4c29e] transition-colors">
+                    <span className="font-serif text-2xl font-bold text-white group-hover:text-[#e4c29e] transition-colors font-mono">
                       {tempUnit === 'C' ? `${item.tempC}°C` : `${item.tempF}°F`}
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-base font-bold text-white mt-2 flex items-center gap-1.5">
-                    <span>{item.flag}</span>
-                    <span>{item.city}</span>
-                  </h3>
-                  <p className="text-xs text-[#e4c29e] mt-0.5">{item.condition}</p>
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-serif text-base font-bold text-white group-hover:text-[#e4c29e] transition-colors">
+                        {item.city}
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[9px] font-mono font-bold text-[#e4c29e]">
+                        {item.countryTag}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-400">{item.country}</p>
+                    <p className="text-xs text-[#e4c29e] font-medium mt-1">{item.condition}</p>
+                  </div>
                 </div>
 
                 <div className="pt-2.5 border-t border-white/10">
@@ -650,7 +676,7 @@ export default function ConciergePage() {
               </div>
 
               <div>
-                <p className="font-serif text-2xl font-bold text-white">112</p>
+                <p className="font-serif text-2xl font-bold text-white font-mono">112</p>
                 <p className="text-xs text-stone-400 mt-0.5">National Unified Emergency Services (Police, Fire, Medical)</p>
               </div>
 
@@ -671,13 +697,13 @@ export default function ConciergePage() {
               </div>
 
               <div>
-                <p className="font-serif text-2xl font-bold text-white">1363</p>
+                <p className="font-serif text-2xl font-bold text-white font-mono">1363</p>
                 <p className="text-xs text-stone-400 mt-0.5">Ministry of Tourism 24x7 Helpline (English, Hindi &amp; 10 Global Languages)</p>
               </div>
 
               <button
                 onClick={() => handleCopyNumber('1363')}
-                className="w-full py-2 rounded-xl bg-[#c99a6b] hover:bg-[#dfb182] text-xs font-bold text-[#0c0d10] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                className="w-full py-2 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-xs font-bold text-[#0c0d10] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 {copiedHelpline === '1363' ? <Check className="w-3.5 h-3.5 text-emerald-900" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedHelpline === '1363' ? 'Copied 1363!' : 'Copy 1363'}</span>
@@ -692,7 +718,7 @@ export default function ConciergePage() {
               </div>
 
               <div>
-                <p className="font-serif text-2xl font-bold text-white">139</p>
+                <p className="font-serif text-2xl font-bold text-white font-mono">139</p>
                 <p className="text-xs text-stone-400 mt-0.5">Vande Bharat &amp; Express Trains (Security, Medical &amp; PNR Status)</p>
               </div>
 
@@ -713,7 +739,7 @@ export default function ConciergePage() {
               </div>
 
               <div>
-                <p className="font-serif text-xl font-bold text-white">911 / 112 / 999</p>
+                <p className="font-serif text-xl font-bold text-white font-mono">911 / 112 / 999</p>
                 <p className="text-xs text-stone-400 mt-0.5">USA (911), Europe (112), Japan (110), UK/UAE (999)</p>
               </div>
 

@@ -14,7 +14,8 @@ import {
   Clock,
   Check,
   Sparkles,
-  Globe2
+  Globe2,
+  Download
 } from 'lucide-react';
 
 export default function PublicTripSharePage({ params }: { params: Promise<{ shareCode: string }> }) {
@@ -116,6 +117,15 @@ export default function PublicTripSharePage({ params }: { params: Promise<{ shar
           </Link>
 
           <div className="flex items-center gap-3 font-sans">
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#14151a] hover:bg-white/10 text-stone-300 text-xs font-semibold border border-white/10 transition-colors cursor-pointer"
+              title="Download Itinerary PDF"
+            >
+              <Download className="w-3.5 h-3.5 text-[#c99a6b]" />
+              <span>Download PDF</span>
+            </button>
+
             <button
               onClick={handleCopyLink}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#14151a] hover:bg-white/10 text-stone-300 text-xs font-semibold border border-white/10 transition-colors cursor-pointer"
