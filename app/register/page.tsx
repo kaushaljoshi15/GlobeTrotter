@@ -1,12 +1,12 @@
-'use client'; // This is required for forms in Next.js App Router
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { Compass, Shield, Users, Sparkles, Check, ArrowRight, Globe } from 'lucide-react';
 
-// Note: Replace with actual client ID
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'your-google-client-id';
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,11 +14,36 @@ export default function RegisterPage() {
     name: '',
     email: '',
     password: '',
-    role: 'volunteer', // Default role
+    role: 'traveler', // 'traveler', 'organizer', 'admin'
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const roles = [
+    {
+      id: 'traveler',
+      title: 'Solo & Family Traveler',
+      desc: 'Plan personal multi-city trips, discover hidden gems, track daily expenses',
+      icon: Compass,
+      badgeColor: 'border-blue-500/40 bg-blue-500/10 text-blue-400',
+    },
+    {
+      id: 'organizer',
+      title: 'Trip Organizer & Guide',
+      desc: 'Create group expeditions, publish sharable itineraries, coordinate activities',
+      icon: Users,
+      badgeColor: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-400',
+    },
+    {
+      id: 'admin',
+      title: 'Platform Administrator',
+      desc: 'Manage global destination catalog, monitor platform analytics & user adoption',
+      icon: Shield,
+      badgeColor: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
+    },
+  ];
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -34,7 +59,7 @@ export default function RegisterPage() {
 
       localStorage.setItem('token', data.token);
       if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/dashboard'); 
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);
     }
@@ -46,10 +71,11 @@ export default function RegisterPage() {
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      setError('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.');
-      return; // Stop the request from going to the backend
+      setError('Password must be at least 8 characters with uppercase, lowercase, number, and special character.');
+      return;
     }
 
+    setLoading(true);
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -58,205 +84,216 @@ export default function RegisterPage() {
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Registration failed');
 
-      if (!res.ok) {
-        let errorMessage = 'Something went wrong';
-        
-        // Strict parent object verification before accessing child properties
-        if (data && data.error) {
-          errorMessage = data.error;
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      // If successful, check if verification is required
-      if (data && data.requiresVerification) {
+      if (data.requiresVerification) {
         router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
       } else {
-        alert('Registration Successful! Please login.');
         router.push('/login');
       }
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
-      <div className="flex min-h-screen w-full bg-white font-sans text-slate-900">
+      <div className="flex min-h-screen w-full bg-slate-950 font-sans text-slate-100 selection:bg-blue-600 selection:text-white">
         
-        {/* Left Panel: Branding & Marketing (Hidden on smaller screens) */}
-        <div className="hidden lg:flex w-1/2 flex-col justify-between bg-slate-900 p-12 relative overflow-hidden">
-          {/* Subtle Background Pattern */}
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
-          
+        {/* Left Branding Showcase Panel */}
+        <div className="hidden lg:flex w-1/2 flex-col justify-between bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-12 relative overflow-hidden border-r border-slate-800/80">
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
+
+          {/* Logo */}
           <div className="relative z-10">
-            <div className="flex items-center gap-2 text-white">
-              {/* Simple Logo Placeholder */}
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <span className="font-bold text-lg leading-none">G</span>
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-black text-white text-base shadow-lg shadow-blue-500/20">
+                GT
               </div>
-              <span className="text-2xl font-bold tracking-tight">GlobeTrotter</span>
+              <div>
+                <span className="text-2xl font-black tracking-tight text-white">GlobeTrotter</span>
+                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Multi-City Travel OS</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Hero Pitch */}
+          <div className="relative z-10 max-w-lg space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Role-Based Travel Intelligence</span>
+            </div>
+
+            <h1 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
+              Empower your wanderlust with smart multi-city itineraries.
+            </h1>
+
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Whether you're a solo explorer, an organizer curating trips for groups, or an administrator tracking platform analytics, GlobeTrotter gives you ultimate control.
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+                <span className="text-xl font-black text-white">12+</span>
+                <p className="text-xs text-slate-400 mt-0.5">Global Destinations</p>
+              </div>
+              <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+                <span className="text-xl font-black text-emerald-400">100%</span>
+                <p className="text-xs text-slate-400 mt-0.5">Automated Budgets</p>
+              </div>
             </div>
           </div>
 
-          <div className="relative z-10 max-w-lg">
-            <h1 className="text-4xl font-semibold tracking-tight text-white mb-6 leading-snug">
-              Start your next global adventure today.
-            </h1>
-            <p className="text-lg text-slate-400">
-              Join GlobeTrotter to discover breathtaking destinations, connect with fellow travelers, and plan unforgettable journeys seamlessly.
-            </p>
-          </div>
-
-          <div className="relative z-10 text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} GlobeTrotter. All rights reserved.
+          <div className="relative z-10 text-xs text-slate-500">
+            &copy; {new Date().getFullYear()} GlobeTrotter. Built for the Odoo Hackathon.
           </div>
         </div>
 
-        {/* Right Panel: Functional Registration Form */}
-        <div className="flex w-full lg:w-1/2 flex-col justify-center items-center p-8 sm:p-12 md:p-24 bg-slate-50 lg:bg-white">
-          
-          <div className="w-full max-w-sm">
-            {/* Mobile Logo (Visible only on small screens) */}
-            <div className="flex lg:hidden items-center gap-2 mb-8 text-slate-900">
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <span className="font-bold text-lg text-white leading-none">G</span>
-              </div>
-              <span className="text-2xl font-bold tracking-tight">GlobeTrotter</span>
+        {/* Right Form Panel */}
+        <div className="flex w-full lg:w-1/2 flex-col justify-center items-center p-6 sm:p-10 md:p-12 overflow-y-auto">
+          <div className="w-full max-w-md space-y-6">
+            
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Create your account</h2>
+              <p className="text-slate-400 text-xs mt-1">Select your account role and enter your details to start</p>
             </div>
 
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold tracking-tight mb-2">Create an account</h2>
-              <p className="text-slate-500 text-sm">Please register with Google or enter your details.</p>
-            </div>
-
-            {/* Error State */}
+            {/* Error Banner */}
             {error && (
-              <div className="mb-6 rounded-lg bg-red-50 p-4 border border-red-200">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                  </div>
-                </div>
+              <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium">
+                {error}
               </div>
             )}
 
             {/* Google OAuth Button */}
-            <div className="mb-6 flex justify-center">
+            <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Google sign-in failed')}
+                theme="filled_black"
+                shape="pill"
               />
             </div>
 
-            <div className="relative mb-6">
+            <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300"></div>
+                <div className="w-full border-t border-slate-800"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-slate-50 lg:bg-white px-2 text-slate-500">Or register with email</span>
+              <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+                <span className="bg-slate-950 px-3 text-slate-500 font-bold">Or register with email</span>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Standard Label & Input - Name */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Role Selector Cards */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                  Select Your Account Role
+                </label>
+                <div className="grid grid-cols-1 gap-2.5">
+                  {roles.map((r) => {
+                    const Icon = r.icon;
+                    const isSelected = formData.role === r.id;
+                    return (
+                      <div
+                        key={r.id}
+                        onClick={() => setFormData({ ...formData, role: r.id })}
+                        className={`p-3 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-blue-600/10 border-blue-500 ring-2 ring-blue-500/20'
+                            : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-xl border ${r.badgeColor}`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                              {r.title}
+                              {isSelected && <span className="text-[10px] text-blue-400 font-bold">✓ Selected</span>}
+                            </p>
+                            <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{r.desc}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
                   Full Name
                 </label>
                 <input
-                  id="name"
                   type="text"
                   name="name"
                   required
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:text-sm transition-colors"
-                  onChange={handleChange}
+                  placeholder="e.g. Alex Rivera"
                   value={formData.name}
-                  placeholder="Enter Username"
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 />
               </div>
 
-              {/* Standard Label & Input - Email */}
+              {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Email address
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Email Address
                 </label>
                 <input
-                  id="email"
                   type="email"
                   name="email"
                   required
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:text-sm transition-colors"
-                  onChange={handleChange}
-                  value={formData.email}
                   placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 />
               </div>
 
-              {/* Standard Label & Input - Password */}
+              {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
                   Password
                 </label>
                 <input
-                  id="password"
                   type="password"
                   name="password"
                   required
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:text-sm transition-colors"
-                  onChange={handleChange}
+                  placeholder="Min 8 chars with Aa, 123, &amp; @#$"
                   value={formData.password}
-                  placeholder="Enter Password"
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 />
               </div>
 
-              {/* Standard Label & Input - Role */}
-              <div>
-                <label htmlFor="role" className="block text-sm font-medium text-slate-700 mb-1.5">
-                  I am a...
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:text-sm transition-colors"
-                  onChange={handleChange}
-                  value={formData.role}
-                >
-                  <option value="volunteer">Volunteer (Participant)</option>
-                  <option value="organizer">Organizer (Event Manager)</option>
-                  {/* Admin option is completely hidden from the public UI */}
-                </select>
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full flex justify-center items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors active:scale-[0.98]"
-                >
-                  Create Account
-                </button>
-              </div>
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-500/25 transition-all disabled:opacity-50 active:scale-98"
+              >
+                {loading ? 'Creating Account...' : 'Create Account & Start Planning 🚀'}
+              </button>
             </form>
 
-            {/* Footer Navigation */}
-            <p className="mt-8 text-center text-sm text-slate-500">
+            <p className="text-center text-xs text-slate-400">
               Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline underline-offset-4 transition-colors">
-                Login
+              <Link href="/login" className="font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                Sign In
               </Link>
             </p>
 
           </div>
         </div>
-        
+
       </div>
     </GoogleOAuthProvider>
   );
