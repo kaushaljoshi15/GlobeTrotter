@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 function VerifyOTPForm() {
   const router = useRouter();
@@ -47,32 +48,23 @@ function VerifyOTPForm() {
   };
 
   return (
-    <div className="w-full max-w-sm">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight mb-2">Check your email</h2>
-        <p className="text-slate-500 text-sm">
-          We sent a 6-digit verification code to <span className="font-semibold text-slate-800">{email}</span>.
+    <div className="w-full max-w-sm font-sans">
+      <div className="mb-8 text-center">
+        <h2 className="font-serif text-3xl font-medium text-white mb-2">Check your email</h2>
+        <p className="text-stone-400 text-xs leading-relaxed">
+          We sent a 6-digit verification code to <span className="font-semibold text-[#e4c29e]">{email}</span>.
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 rounded-lg bg-red-50 p-4 border border-red-200">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{error}</h3>
-            </div>
-          </div>
+        <div className="mb-6 rounded-2xl bg-red-500/10 p-3.5 border border-red-500/30 text-red-400 text-xs font-medium text-center">
+          {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="code" className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label htmlFor="code" className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2 text-center">
             Verification Code
           </label>
           <input
@@ -80,7 +72,7 @@ function VerifyOTPForm() {
             type="text"
             maxLength={6}
             required
-            className="block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-center text-2xl tracking-[0.5em] text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors"
+            className="block w-full rounded-full border border-white/15 bg-[#0c0d10] px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] text-white focus:border-[#c99a6b] focus:outline-none transition-colors"
             onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ''))}
             value={code}
             placeholder="000000"
@@ -90,9 +82,9 @@ function VerifyOTPForm() {
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full flex justify-center items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors active:scale-[0.98]"
+            className="w-full flex justify-center items-center rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-[#0c0d10] shadow-lg shadow-[#c99a6b]/30 transition-all active:scale-98 cursor-pointer"
           >
-            Verify &amp; Login
+            Verify &amp; Enter Atelier →
           </button>
         </div>
       </form>
@@ -102,15 +94,15 @@ function VerifyOTPForm() {
 
 export default function VerifyPage() {
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 font-sans text-slate-900 items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 sm:p-12 border border-slate-100 flex flex-col items-center">
-        <div className="flex items-center gap-2 mb-8 text-slate-900">
-          <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-            <span className="font-bold text-lg text-white leading-none">G</span>
+    <div className="flex min-h-screen w-full bg-[#0c0d10] font-sans text-stone-100 items-center justify-center p-4 selection:bg-[#c99a6b] selection:text-white">
+      <div className="w-full max-w-md bg-[#14151a]/95 backdrop-blur-2xl rounded-[32px] shadow-2xl p-8 sm:p-10 border border-white/10 flex flex-col items-center">
+        <Link href="/" className="flex items-center gap-2.5 mb-8">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] flex items-center justify-center font-serif font-bold text-xs text-[#0c0d10] shadow-md">
+            GT
           </div>
-          <span className="text-2xl font-bold tracking-tight">GlobeTrotter</span>
-        </div>
-        <Suspense fallback={<div>Loading...</div>}>
+          <span className="font-serif text-xl text-white tracking-tight">the <span className="font-bold italic">GLOBETROTTER</span></span>
+        </Link>
+        <Suspense fallback={<div className="text-xs text-stone-400">Loading...</div>}>
           <VerifyOTPForm />
         </Suspense>
       </div>

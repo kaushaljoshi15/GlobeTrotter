@@ -1,0 +1,9 @@
+# Keep this one (Local Database)
+DATABASE_URL="postgres://postgres:odoo@159@localhost:5432/globetrotter_db"
+
+# Keep your secret key
+JWT_SECRET="d3a945be3059bb3155c3f924ee14d78395dc85bdc7b5c55840e71398eb2cc158"
+
+EMAIL_USER="joshikaushal259@gmail.com"
+EMAIL_PASS="wzwunfjxfoolclox"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=872313609717-thafmm8ksli4fhqkvt6hfs29ofmp7bn3.apps.googleusercontent.com

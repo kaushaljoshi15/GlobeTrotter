@@ -10,14 +10,11 @@ import {
   DollarSign, 
   Plus, 
   Search, 
-  Filter, 
   Share2, 
   Trash2, 
   ExternalLink, 
-  Clock, 
   Check, 
   Globe2, 
-  Sparkles,
   LayoutGrid,
   List
 } from 'lucide-react';
@@ -84,42 +81,46 @@ export default function TripsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
         
         {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-              <Globe2 className="w-8 h-8 text-blue-500" />
-              My Travel Itineraries
+            <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#c99a6b]">
+              Personal Portfolios
+            </span>
+            <h1 className="font-serif text-3xl sm:text-5xl font-medium tracking-tight text-white mt-1">
+              My Travel <span className="font-bold italic text-[#e4c29e]">Itineraries.</span>
             </h1>
-            <p className="text-slate-400 text-sm mt-1">Manage and track your multi-city journeys and budgets</p>
+            <p className="font-serif text-stone-300 text-xs sm:text-sm mt-1">
+              Curate, review, and track your multi-city journeys and daily budget allowances.
+            </p>
           </div>
 
           <Link
             href="/trips/new"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all self-start sm:self-auto"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#c99a6b]/30 hover:-translate-y-0.5 transition-all self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
-            <span>Create New Trip</span>
+            <span>Create New Itinerary</span>
           </Link>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl mb-8 flex flex-col md:flex-row gap-4 items-center justify-between shadow-xl">
+        <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 p-4 sm:p-5 rounded-[28px] mb-10 flex flex-col md:flex-row gap-4 items-center justify-between shadow-2xl font-sans">
           {/* Status Pills */}
           <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
             {['all', 'planning', 'active', 'completed'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap ${
+                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
                   statusFilter === status
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                    ? 'bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] shadow-md'
+                    : 'bg-[#0c0d10] text-stone-400 border border-white/10 hover:text-white hover:bg-white/5'
                 }`}
               >
                 {status}
@@ -130,28 +131,28 @@ export default function TripsPage() {
           {/* Search Form & View Toggle */}
           <div className="flex items-center gap-3 w-full md:w-auto">
             <form onSubmit={handleSearchSubmit} className="relative flex-1 md:w-64">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-stone-500 absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search itineraries..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                className="w-full bg-[#0c0d10] border border-white/15 rounded-full pl-10 pr-4 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#c99a6b] transition-all"
               />
             </form>
 
-            <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-1">
+            <div className="flex items-center bg-[#0c0d10] border border-white/10 rounded-full p-1">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-slate-800 text-blue-400' : 'text-slate-500 hover:text-white'}`}
+                className={`p-2 rounded-full cursor-pointer transition-colors ${viewMode === 'grid' ? 'bg-[#14151a] text-[#e4c29e]' : 'text-stone-500 hover:text-white'}`}
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg ${viewMode === 'list' ? 'bg-slate-800 text-blue-400' : 'text-slate-500 hover:text-white'}`}
+                className={`p-2 rounded-full cursor-pointer transition-colors ${viewMode === 'list' ? 'bg-[#14151a] text-[#e4c29e]' : 'text-stone-500 hover:text-white'}`}
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -161,92 +162,92 @@ export default function TripsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-slate-900/60 border border-slate-800 rounded-3xl h-72 animate-pulse" />
+              <div key={n} className="bg-[#14151a]/60 border border-white/10 rounded-[32px] h-72 animate-pulse" />
             ))}
           </div>
         ) : trips.length === 0 ? (
-          <div className="text-center py-20 bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
-            <div className="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+          <div className="text-center py-20 bg-[#14151a]/60 border border-white/10 rounded-[32px] p-8 font-sans">
+            <div className="w-16 h-16 rounded-full bg-white/5 text-[#e4c29e] flex items-center justify-center mx-auto mb-4 border border-white/10">
               <MapPin className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">No trip itineraries found</h3>
-            <p className="text-slate-400 text-xs max-w-sm mx-auto mb-6">
-              You haven't created any trips matching this filter yet. Start your next adventure now!
+            <h3 className="font-serif text-xl font-bold text-white mb-1">No itineraries found</h3>
+            <p className="text-stone-400 text-xs max-w-sm mx-auto mb-6">
+              You haven't composed any trips matching this filter yet. Start your next journey now!
             </p>
             <Link
               href="/trips/new"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#c99a6b]/20"
             >
               <Plus className="w-4 h-4" />
-              <span>Create Your First Trip</span>
+              <span>Create Your First Itinerary</span>
             </Link>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             {trips.map((trip) => (
               <Link
                 key={trip.id}
                 href={`/trips/${trip.id}`}
-                className="group bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col"
+                className="group bg-[#14151a]/90 backdrop-blur-xl border border-white/10 hover:border-[#c99a6b]/50 rounded-[32px] overflow-hidden shadow-2xl transition-all duration-300 flex flex-col font-sans"
               >
                 {/* Cover Image Header */}
-                <div className="h-44 relative overflow-hidden">
+                <div className="h-48 relative overflow-hidden">
                   <img
                     src={trip.cover_image_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80'}
                     alt={trip.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-95"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#14151a] via-[#14151a]/30 to-transparent" />
                   
                   {/* Status Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-slate-800">
+                  <div className="absolute top-3.5 left-3.5">
+                    <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[#e4c29e] text-[10px] font-bold uppercase tracking-wider border border-white/20">
                       {trip.status}
                     </span>
                   </div>
 
                   {/* Actions */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                  <div className="absolute top-3.5 right-3.5 flex items-center gap-1.5">
                     <button
                       onClick={(e) => handleShare(trip.share_code, e)}
                       title="Copy Public Share Link"
-                      className="p-2 rounded-full bg-slate-950/80 hover:bg-blue-600 backdrop-blur-md text-slate-300 hover:text-white border border-slate-800 transition-colors"
+                      className="p-2 rounded-full bg-black/60 hover:bg-[#c99a6b] hover:text-[#0c0d10] backdrop-blur-md text-stone-200 border border-white/20 transition-all cursor-pointer"
                     >
                       {copiedCode === trip.share_code ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
                     </button>
                     <button
                       onClick={(e) => handleDeleteTrip(trip.id, e)}
                       title="Delete Trip"
-                      className="p-2 rounded-full bg-slate-950/80 hover:bg-red-600 backdrop-blur-md text-slate-300 hover:text-white border border-slate-800 transition-colors"
+                      className="p-2 rounded-full bg-black/60 hover:bg-red-600 backdrop-blur-md text-stone-200 hover:text-white border border-white/20 transition-all cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
-                  <div className="absolute bottom-3 left-4 right-4">
-                    <h3 className="text-lg font-bold text-white leading-tight group-hover:text-blue-300 transition-colors line-clamp-1">
+                  <div className="absolute bottom-3.5 left-5 right-5">
+                    <h3 className="font-serif text-xl font-bold text-white leading-tight group-hover:text-[#e4c29e] transition-colors line-clamp-1">
                       {trip.title}
                     </h3>
                   </div>
                 </div>
 
                 {/* Details Body */}
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-2 text-slate-400 text-xs">
-                      <Calendar className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3 mb-5 text-xs">
+                    <div className="flex items-center gap-2 text-stone-300">
+                      <Calendar className="w-3.5 h-3.5 text-[#c99a6b] flex-shrink-0" />
                       <span>
                         {new Date(trip.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} &bull;{' '}
                         {new Date(trip.end_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-slate-400 text-xs">
-                      <MapPin className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                    <div className="flex items-center gap-2 text-stone-300">
+                      <MapPin className="w-3.5 h-3.5 text-[#e4c29e] flex-shrink-0" />
                       <span>{trip.total_stops || 0} Destination Stops</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-slate-400 text-xs">
+                    <div className="flex items-center gap-2 text-stone-300">
                       <DollarSign className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span>
                         Budget: <strong className="text-emerald-400">${parseFloat(trip.total_budget || 0).toLocaleString()} {trip.currency}</strong>
@@ -255,10 +256,10 @@ export default function TripsPage() {
                   </div>
 
                   {/* Footer Card Info */}
-                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-500 font-mono">Code: {trip.share_code.substring(0, 14)}...</span>
-                    <span className="text-xs font-semibold text-blue-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                      Open <ExternalLink className="w-3 h-3" />
+                  <div className="pt-3.5 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[11px] text-stone-400 font-mono">Code: {trip.share_code.substring(0, 12)}...</span>
+                    <span className="text-xs font-bold text-[#e4c29e] group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                      Open Atelier <ExternalLink className="w-3 h-3" />
                     </span>
                   </div>
                 </div>
@@ -267,12 +268,12 @@ export default function TripsPage() {
           </div>
         ) : (
           /* List Mode */
-          <div className="space-y-4">
+          <div className="space-y-4 font-sans">
             {trips.map((trip) => (
               <Link
                 key={trip.id}
                 href={`/trips/${trip.id}`}
-                className="group bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-4 sm:p-5 transition-all flex flex-col sm:flex-row items-center justify-between gap-4"
+                className="group bg-[#14151a]/90 backdrop-blur-xl border border-white/10 hover:border-[#c99a6b]/50 rounded-2xl p-5 transition-all flex flex-col sm:flex-row items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-4 w-full sm:w-auto">
                   <img
@@ -281,10 +282,10 @@ export default function TripsPage() {
                     className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                   />
                   <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition-colors">
+                    <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#e4c29e] transition-colors">
                       {trip.title}
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-3">
+                    <p className="text-xs text-stone-400 mt-0.5 flex items-center gap-3">
                       <span>{new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}</span>
                       <span>&bull;</span>
                       <span>{trip.total_stops || 0} Stops</span>
@@ -292,22 +293,22 @@ export default function TripsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-800">
+                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-white/10">
                   <div className="text-left sm:text-right">
-                    <span className="text-[10px] text-slate-500 uppercase font-semibold">Budget</span>
+                    <span className="text-[10px] text-stone-400 uppercase font-semibold">Budget</span>
                     <p className="text-xs font-bold text-emerald-400">${parseFloat(trip.total_budget).toLocaleString()}</p>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => handleShare(trip.share_code, e)}
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white transition-colors"
+                      className="p-2 rounded-xl bg-[#0c0d10] hover:bg-[#c99a6b] hover:text-[#0c0d10] text-stone-300 transition-colors"
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={(e) => handleDeleteTrip(trip.id, e)}
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white transition-colors"
+                      className="p-2 rounded-xl bg-[#0c0d10] hover:bg-red-600 text-stone-300 hover:text-white transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

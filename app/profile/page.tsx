@@ -97,94 +97,94 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center font-sans">
-        <div className="w-12 h-12 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex items-center justify-center font-sans">
+        <div className="w-12 h-12 rounded-full border-2 border-[#c99a6b] border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
         
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950/60 border border-slate-800 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-blue-500/20 flex-shrink-0">
+        <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 mb-10 shadow-2xl flex flex-col sm:flex-row items-center gap-6">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] flex items-center justify-center text-3xl font-serif font-bold text-[#0c0d10] shadow-xl shadow-[#c99a6b]/20 flex-shrink-0">
             {profile?.name ? profile.name[0].toUpperCase() : 'G'}
           </div>
 
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[#e4c29e] text-[10px] font-sans font-bold uppercase tracking-wider mb-2">
               <Shield className="w-3.5 h-3.5" />
-              <span>Verified Traveler Account</span>
+              <span>Verified Traveler Atelier</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">{profile?.name}</h1>
-            <p className="text-slate-400 text-xs mt-0.5">{profile?.email} &bull; Member since {new Date(profile?.created_at).toLocaleDateString()}</p>
+            <h1 className="font-serif text-3xl font-medium text-white">{profile?.name}</h1>
+            <p className="font-sans text-stone-400 text-xs mt-0.5">{profile?.email} &bull; Member since {new Date(profile?.created_at).toLocaleDateString()}</p>
           </div>
         </div>
 
         {/* Travel Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Total Itineraries</span>
-            <p className="text-2xl font-extrabold text-white mt-1">{profile?.stats?.total_trips || 0}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10 font-sans">
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Total Itineraries</span>
+            <p className="font-serif text-3xl font-bold text-white mt-1">{profile?.stats?.total_trips || 0}</p>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Cities Explored</span>
-            <p className="text-2xl font-extrabold text-blue-400 mt-1">{profile?.stats?.total_cities_visited || 0}</p>
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Cities Explored</span>
+            <p className="font-serif text-3xl font-bold text-[#e4c29e] mt-1">{profile?.stats?.total_cities_visited || 0}</p>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Countries Visited</span>
-            <p className="text-2xl font-extrabold text-indigo-400 mt-1">{profile?.stats?.total_countries_visited || 0}</p>
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Countries Visited</span>
+            <p className="font-serif text-3xl font-bold text-stone-200 mt-1">{profile?.stats?.total_countries_visited || 0}</p>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Total Planned Budget</span>
-            <p className="text-2xl font-extrabold text-emerald-400 mt-1">
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Planned Budget</span>
+            <p className="font-serif text-3xl font-bold text-emerald-400 mt-1">
               ${parseFloat(profile?.stats?.total_budget_planned || 0).toLocaleString()}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start font-sans">
           
-          {/* Settings Form (7 Cols) */}
-          <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
-            <h2 className="text-lg font-bold text-white mb-1">Account & Preferences</h2>
-            <p className="text-xs text-slate-400 mb-6">Manage personal profile details and display currency</p>
+          {/* Settings Form */}
+          <div className="lg:col-span-7 bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl">
+            <h2 className="font-serif text-2xl font-medium text-white mb-1">Account &amp; Preferences</h2>
+            <p className="text-xs text-stone-400 mb-6 font-sans">Manage personal atelier details and preferred currency</p>
 
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Full Name</label>
+                <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1.5">Full Name</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"
+                  className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-5 py-3 text-xs text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Email Address</label>
+                <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1.5">Email Address</label>
                 <input
                   type="email"
                   disabled
                   value={profile?.email}
-                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-500 cursor-not-allowed"
+                  className="w-full bg-[#0c0d10]/50 border border-white/10 rounded-full px-5 py-3 text-xs text-stone-500 cursor-not-allowed"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Preferred Currency</label>
+                <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1.5">Preferred Currency</label>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"
+                  className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-5 py-3 text-xs text-white"
                 >
                   <option value="USD">USD ($ - United States Dollar)</option>
                   <option value="EUR">EUR (€ - Euro)</option>
@@ -194,7 +194,7 @@ export default function ProfilePage() {
                 </select>
               </div>
 
-              <div className="pt-4 flex items-center justify-between border-t border-slate-800">
+              <div className="pt-4 flex items-center justify-between border-t border-white/10">
                 {savedSuccess ? (
                   <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
                     <Check className="w-4 h-4" /> Preferences saved!
@@ -204,45 +204,45 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-md shadow-[#c99a6b]/20 cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                  <span>{saving ? 'Saving...' : 'Save Preferences'}</span>
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Wishlist / Saved Destinations (5 Cols) */}
-          <div className="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl">
-            <h3 className="text-sm font-bold text-white mb-1 flex items-center gap-2">
-              <Globe2 className="w-4 h-4 text-blue-400" />
+          {/* Wishlist / Saved Destinations */}
+          <div className="lg:col-span-5 bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 shadow-2xl">
+            <h3 className="font-serif text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Globe2 className="w-4 h-4 text-[#c99a6b]" />
               Saved Destination Wishlist ({savedDestinations.length})
             </h3>
-            <p className="text-xs text-slate-400 mb-4">Cities you're dreaming of visiting next</p>
+            <p className="text-xs text-stone-400 mb-4 font-sans">Cities you're dreaming of exploring next</p>
 
             {savedDestinations.length === 0 ? (
-              <p className="text-xs text-slate-500 py-6 text-center">
+              <p className="text-xs text-stone-500 py-6 text-center font-sans">
                 No saved destinations yet. Explore our catalog and save your dream stops!
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 font-sans">
                 {savedDestinations.map((dest) => (
                   <div
                     key={dest.id}
-                    className="bg-slate-950 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3"
+                    className="bg-[#0c0d10] border border-white/10 p-3 rounded-2xl flex items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3">
                       <img src={dest.image_url} alt={dest.name} className="w-10 h-10 rounded-xl object-cover" />
                       <div>
-                        <p className="text-xs font-bold text-white">{dest.name}</p>
-                        <p className="text-[10px] text-slate-400">{dest.country} &bull; ${dest.avg_daily_cost}/day</p>
+                        <p className="font-serif text-xs font-bold text-white">{dest.name}</p>
+                        <p className="text-[10px] text-stone-400">{dest.country} &bull; ${dest.avg_daily_cost}/day</p>
                       </div>
                     </div>
 
                     <button
                       onClick={() => handleRemoveSaved(dest.id)}
-                      className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"
+                      className="p-1.5 text-stone-500 hover:text-red-400 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

@@ -54,8 +54,8 @@ export default function Navbar() {
   // Role Badge Styling (Strictly based on login authentication)
   const roleBadges: { [key: string]: { label: string; icon: any; color: string } } = {
     admin: { label: 'Admin', icon: Crown, color: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    organizer: { label: 'Organizer', icon: Users, color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
-    traveler: { label: 'Traveler', icon: Compass, color: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+    organizer: { label: 'Organizer', icon: Users, color: 'bg-stone-500/10 text-[#c99a6b] border-[#c99a6b]/30' },
+    traveler: { label: 'Traveler', icon: Compass, color: 'bg-stone-500/10 text-stone-300 border-stone-600/30' },
   };
 
   const currentRoleInfo = roleBadges[currentRole] || roleBadges.traveler;
@@ -88,10 +88,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-sans ${
         isScrolled
-          ? 'bg-slate-950/90 backdrop-blur-2xl border-b border-slate-800/80 shadow-2xl shadow-black/40 py-3'
-          : 'bg-slate-950/70 backdrop-blur-xl border-b border-slate-800/50 py-3.5'
+          ? 'bg-[#0c0d10]/95 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/60 py-3'
+          : 'bg-[#0c0d10]/80 backdrop-blur-xl border-b border-white/5 py-3.5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -101,21 +101,21 @@ export default function Navbar() {
           href={currentRole === 'admin' ? '/admin' : currentRole === 'organizer' ? '/dashboard/organizer' : '/dashboard'} 
           className="flex items-center gap-3 group"
         >
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-black text-xs shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] flex items-center justify-center text-[#0c0d10] font-serif font-bold text-xs shadow-md shadow-[#c99a6b]/20 group-hover:scale-105 transition-transform">
             GT
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-lg tracking-tight text-white flex items-center gap-2">
-              GlobeTrotter
-              <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-sm">
-                v2.0
+            <span className="font-serif text-lg tracking-tight text-white flex items-center gap-2">
+              the <span className="font-bold italic">GLOBETROTTER</span>
+              <span className="text-[9px] font-sans uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/10 text-stone-300 font-medium">
+                Atelier
               </span>
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-full border border-slate-800 backdrop-blur-md">
+        <nav className="hidden md:flex items-center gap-1 bg-[#14151a]/90 p-1.5 rounded-full border border-white/10 backdrop-blur-md">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname?.startsWith(link.href));
@@ -123,10 +123,10 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-[#FAF8F5] text-[#161513] font-bold shadow-md'
+                    : 'text-stone-300 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -139,8 +139,8 @@ export default function Navbar() {
         {/* Right Actions & Authenticated Role Badge */}
         <div className="flex items-center gap-3">
           
-          {/* Static Authenticated Role Badge (No manual switcher) */}
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold ${currentRoleInfo.color}`}>
+          {/* Static Authenticated Role Badge */}
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${currentRoleInfo.color}`}>
             <RoleIcon className="w-3.5 h-3.5" />
             <span className="capitalize">{currentRoleInfo.label}</span>
           </div>
@@ -149,7 +149,7 @@ export default function Navbar() {
           {currentRole === 'admin' ? (
             <Link
               href="/admin"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/20 transition-all"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-[#0c0d10] text-xs font-bold shadow-lg transition-all"
             >
               <Shield className="w-3.5 h-3.5" />
               <span>Admin Center</span>
@@ -157,10 +157,10 @@ export default function Navbar() {
           ) : (
             <Link
               href="/trips/new"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FAF8F5] hover:bg-[#e4c29e] text-[#161513] text-xs font-bold shadow-lg hover:-translate-y-0.5 transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>{currentRole === 'organizer' ? 'New Expedition' : 'Plan Trip'}</span>
+              <span>{currentRole === 'organizer' ? 'New Expedition' : 'Plan a Journey'}</span>
             </Link>
           )}
 
@@ -168,17 +168,17 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Link
               href="/profile"
-              className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-colors"
+              className="flex items-center gap-2 p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-stone-200 transition-colors"
               title="View Profile"
             >
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-black text-white uppercase">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#9A7B56] flex items-center justify-center text-xs font-serif font-bold text-white uppercase">
                 {user?.name ? user.name[0] : 'U'}
               </div>
             </Link>
 
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-red-500/20 border border-slate-800 hover:border-red-500/30 text-slate-400 hover:text-red-400 transition-all"
+              className="p-2 rounded-full bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-stone-400 hover:text-red-400 transition-all cursor-pointer"
               title="Log Out"
             >
               <LogOut className="w-4 h-4" />

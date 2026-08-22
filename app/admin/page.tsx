@@ -11,21 +11,15 @@ import {
   Globe2,
   TrendingUp,
   DollarSign,
-  Layers,
   Sparkles,
-  Calendar,
-  Eye,
   Plus,
   Shield,
   Check,
-  Compass,
   Lock,
   KeyRound,
-  UserCheck,
   UserPlus,
   Trash2,
-  Crown,
-  AlertCircle
+  Crown
 } from 'lucide-react';
 import {
   BarChart,
@@ -41,7 +35,7 @@ import {
 } from 'recharts';
 
 const SUPER_ADMIN_EMAIL = 'joshikaushald1596@gmail.com';
-const COLORS = ['#3B82F6', '#6366F1', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6'];
+const COLORS = ['#c99a6b', '#e4c29e', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6'];
 
 export default function AdminAnalyticsPage() {
   const [metrics, setMetrics] = useState<any>(null);
@@ -83,7 +77,6 @@ export default function AdminAnalyticsPage() {
   });
 
   useEffect(() => {
-    // 1. Check local session
     const storedUser = localStorage.getItem('user');
     const storedAdminPin = sessionStorage.getItem('admin_pin_verified');
 
@@ -232,39 +225,39 @@ export default function AdminAnalyticsPage() {
   // ================= 1. SECURITY GATE (LOCKED) =================
   if (!isAuthorized && !loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+      <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
         <Navbar />
 
-        <main className="flex-1 flex items-center justify-center p-4 pt-24 pb-16">
-          <div className="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl text-center space-y-6">
+        <main className="flex-1 flex items-center justify-center p-4 pt-28 pb-20">
+          <div className="w-full max-w-md bg-[#14151a] border border-white/15 rounded-[32px] p-8 sm:p-10 shadow-2xl backdrop-blur-xl text-center space-y-6">
             
-            <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center shadow-lg shadow-amber-500/10">
-              <Lock className="w-8 h-8" />
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center shadow-lg shadow-amber-500/10">
+              <Lock className="w-7 h-7" />
             </div>
 
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
-                Restricted Admin Access
+              <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#e4c29e] bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                Restricted Admin Center
               </span>
-              <h2 className="text-2xl font-black text-white mt-3">Admin Security Gate</h2>
-              <p className="text-slate-400 text-xs mt-1 leading-relaxed">
-                This dashboard is protected for Super Admin (<span className="text-amber-300 font-mono font-semibold">{SUPER_ADMIN_EMAIL}</span>) or authorized administrators with Master PIN.
+              <h2 className="font-serif text-3xl font-medium text-white mt-3">Admin Security Gate</h2>
+              <p className="font-serif text-stone-400 text-xs mt-1 leading-relaxed">
+                Protected for Super Admin (<span className="text-[#e4c29e] font-mono">{SUPER_ADMIN_EMAIL}</span>) or authorized administrators with master passkey.
               </p>
             </div>
 
             {pinError && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold font-sans">
                 {pinError}
               </div>
             )}
 
-            <form onSubmit={handleVerifyPin} className="space-y-4 text-left">
+            <form onSubmit={handleVerifyPin} className="space-y-4 text-left font-sans">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5 flex items-center justify-between">
-                  <span>Enter Master Admin PIN *</span>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+                  Enter Master Admin Passcode *
                 </label>
                 <div className="relative">
-                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <KeyRound className="w-4 h-4 text-stone-500 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
@@ -272,7 +265,7 @@ export default function AdminAnalyticsPage() {
                     maxLength={6}
                     value={pinInput}
                     onChange={(e) => setPinInput(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all text-center tracking-widest"
+                    className="w-full bg-[#0c0d10] border border-white/15 rounded-full pl-11 pr-4 py-3 text-sm text-white font-mono placeholder-stone-600 focus:outline-none focus:border-amber-400 transition-all text-center tracking-widest"
                   />
                 </div>
               </div>
@@ -280,15 +273,15 @@ export default function AdminAnalyticsPage() {
               <button
                 type="submit"
                 disabled={verifyingPin}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition-all active:scale-98"
+                className="w-full py-3.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-[#0c0d10] font-bold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 transition-all active:scale-98 cursor-pointer"
               >
-                {verifyingPin ? 'Verifying PIN...' : 'Unlock Admin Dashboard 🔓'}
+                {verifyingPin ? 'Verifying Passkey...' : 'Unlock Admin Atelier →'}
               </button>
             </form>
 
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-center gap-2 text-xs text-slate-400">
-              <span>Are you {SUPER_ADMIN_EMAIL}?</span>
-              <Link href="/login" className="text-amber-400 font-bold hover:underline">
+            <div className="pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-stone-400 font-sans">
+              <span>Super Admin?</span>
+              <Link href="/login" className="text-[#e4c29e] font-bold hover:underline">
                 Sign In with Google
               </Link>
             </div>
@@ -314,30 +307,30 @@ export default function AdminAnalyticsPage() {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 space-y-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-10">
         
-        {/* Top Header Banner with Super Admin Badges */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-amber-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        {/* Top Header Banner */}
+        <div className="bg-[#14151a]/95 backdrop-blur-2xl border border-white/10 rounded-[32px] p-8 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold mb-2">
-              <Crown className="w-4 h-4 text-amber-400" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-2 font-sans">
+              <Crown className="w-3.5 h-3.5 text-amber-400" />
               <span>Super Admin Authority &bull; {SUPER_ADMIN_EMAIL}</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-              Platform Analytics &amp; User Control Hub
+            <h1 className="font-serif text-3xl sm:text-4xl font-medium text-white tracking-tight">
+              Platform Analytics &amp; Control Hub
             </h1>
-            <p className="text-slate-400 text-xs sm:text-sm mt-1">
-              Master administration portal for platform metrics, user access management, and global destination controls.
+            <p className="font-serif text-stone-300 text-xs sm:text-sm mt-1">
+              Master administration portal for platform telemetry, user privileges, and global catalog management.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 font-sans">
             <button
               onClick={() => setShowAddAdminModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/20 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
             >
               <UserPlus className="w-4 h-4" />
               <span>+ Add / Promote Admin</span>
@@ -345,7 +338,7 @@ export default function AdminAnalyticsPage() {
 
             <button
               onClick={() => setShowAddDestModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#c99a6b]/20 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add City to Catalog</span>
@@ -354,89 +347,89 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* 6 High-Level KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registered Users</span>
-            <p className="text-2xl font-black text-white mt-1">{metrics?.kpis?.totalUsers || usersList.length || 0}</p>
-            <span className="text-[10px] text-blue-400 font-semibold">Active accounts</span>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 font-sans">
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Registered Users</span>
+            <p className="font-serif text-2xl font-bold text-white mt-1">{metrics?.kpis?.totalUsers || usersList.length || 0}</p>
+            <span className="text-[10px] text-[#e4c29e] font-semibold">Active accounts</span>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trips Created</span>
-            <p className="text-2xl font-black text-white mt-1">{metrics?.kpis?.totalTrips || 0}</p>
-            <span className="text-[10px] text-indigo-400 font-semibold">Multi-city plans</span>
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Trips Created</span>
+            <p className="font-serif text-2xl font-bold text-white mt-1">{metrics?.kpis?.totalTrips || 0}</p>
+            <span className="text-[10px] text-stone-300 font-semibold">Multi-city plans</span>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Stops</span>
-            <p className="text-2xl font-black text-blue-400 mt-1">{metrics?.kpis?.totalStops || 0}</p>
-            <span className="text-[10px] text-slate-400 font-semibold">City destinations</span>
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Total Stops</span>
+            <p className="font-serif text-2xl font-bold text-[#e4c29e] mt-1">{metrics?.kpis?.totalStops || 0}</p>
+            <span className="text-[10px] text-stone-400 font-semibold">City destinations</span>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Experiences</span>
-            <p className="text-2xl font-black text-amber-400 mt-1">{metrics?.kpis?.totalActivitiesScheduled || 0}</p>
-            <span className="text-[10px] text-slate-400 font-semibold">Scheduled items</span>
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Experiences</span>
+            <p className="font-serif text-2xl font-bold text-amber-400 mt-1">{metrics?.kpis?.totalActivitiesScheduled || 0}</p>
+            <span className="text-[10px] text-stone-400 font-semibold">Scheduled items</span>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Budget Volume</span>
-            <p className="text-2xl font-black text-emerald-400 mt-1">
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Budget Volume</span>
+            <p className="font-serif text-2xl font-bold text-emerald-400 mt-1">
               ${(metrics?.kpis?.totalBudgetPlanned || 0).toLocaleString()}
             </p>
             <span className="text-[10px] text-emerald-400/80 font-semibold">Planned volume</span>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Receipt Total</span>
-            <p className="text-2xl font-black text-cyan-400 mt-1">
+          <div className="bg-[#14151a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Receipt Total</span>
+            <p className="font-serif text-2xl font-bold text-cyan-400 mt-1">
               ${(metrics?.kpis?.totalExpensesLogged || 0).toLocaleString()}
             </p>
             <span className="text-[10px] text-cyan-400/80 font-semibold">Logged receipts</span>
           </div>
         </div>
 
-        {/* ================= USER MANAGEMENT & ADMIN CONTROL PANEL ================= */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl">
+        {/* User Management Table */}
+        <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl font-sans">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-amber-400" />
+              <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-[#c99a6b]" />
                 User Accounts &amp; Role Management ({usersList.length})
               </h3>
-              <p className="text-slate-400 text-xs mt-0.5">
+              <p className="text-stone-400 text-xs mt-0.5">
                 Super Admin can grant Admin / Organizer permissions or manage registered users
               </p>
             </div>
 
             <button
               onClick={() => setShowAddAdminModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-xs font-bold transition-all self-start sm:self-auto"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-xs font-bold uppercase tracking-wider transition-all self-start sm:self-auto cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span>Promote / Add New Admin</span>
+              <span>Promote / Add Admin</span>
             </button>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                <tr className="border-b border-white/10 text-stone-400 font-bold uppercase tracking-wider">
                   <th className="py-3 px-4">User</th>
                   <th className="py-3 px-4">Email</th>
                   <th className="py-3 px-4">Active Role</th>
                   <th className="py-3 px-4">Trips Created</th>
                   <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Role Actions</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-white/5">
                 {usersList.map((u) => {
                   const isSuper = u.email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
                   return (
-                    <tr key={u.id} className="hover:bg-slate-800/40 transition-colors">
+                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
                       <td className="py-3.5 px-4 font-bold text-white flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] text-[#0c0d10] font-bold text-xs flex items-center justify-center font-serif">
                           {u.name ? u.name[0].toUpperCase() : 'U'}
                         </div>
                         <div>
@@ -448,18 +441,18 @@ export default function AdminAnalyticsPage() {
                           )}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-300 font-mono">{u.email}</td>
+                      <td className="py-3.5 px-4 text-stone-300 font-mono">{u.email}</td>
                       <td className="py-3.5 px-4">
                         <select
                           disabled={isSuper}
                           value={u.role}
                           onChange={(e) => handleUpdateUserRole(u.id, e.target.value)}
-                          className={`bg-slate-950 border rounded-lg px-2.5 py-1 text-xs font-bold capitalize transition-colors ${
+                          className={`bg-[#0c0d10] border rounded-full px-3 py-1 text-xs font-bold capitalize transition-colors ${
                             u.role === 'admin'
                               ? 'border-amber-500/40 text-amber-400'
                               : u.role === 'organizer'
-                              ? 'border-indigo-500/40 text-indigo-400'
-                              : 'border-slate-700 text-slate-300'
+                              ? 'border-[#c99a6b]/40 text-[#e4c29e]'
+                              : 'border-white/20 text-stone-300'
                           }`}
                         >
                           <option value="traveler">Traveler</option>
@@ -467,7 +460,7 @@ export default function AdminAnalyticsPage() {
                           <option value="admin">Admin</option>
                         </select>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-400 font-semibold">{u.total_trips || 0} trips</td>
+                      <td className="py-3.5 px-4 text-stone-400 font-semibold">{u.total_trips || 0} trips</td>
                       <td className="py-3.5 px-4">
                         <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
                           <Check className="w-3.5 h-3.5" /> Verified
@@ -477,7 +470,7 @@ export default function AdminAnalyticsPage() {
                         {!isSuper && (
                           <button
                             onClick={() => handleDeleteUser(u.id)}
-                            className="p-1 text-slate-500 hover:text-red-400 transition-colors"
+                            className="p-1 text-stone-500 hover:text-red-400 transition-colors cursor-pointer"
                             title="Delete User"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -493,38 +486,38 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 font-sans">
           
           {/* Top Destinations Bar Chart */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+          <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 shadow-2xl flex flex-col justify-between">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-blue-400" />
+              <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#c99a6b]" />
                 Most Popular Destinations Visited
               </h3>
-              <p className="text-slate-400 text-xs mt-0.5">Top cities by number of scheduled multi-day stops</p>
+              <p className="text-stone-400 text-xs mt-0.5">Top cities by number of scheduled multi-day stops</p>
             </div>
 
             <div className="h-64 mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={destinationBarData}>
-                  <XAxis dataKey="name" stroke="#64748B" fontSize={11} />
-                  <YAxis stroke="#64748B" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '12px', fontSize: '12px' }} />
-                  <Bar dataKey="trips" fill="#3B82F6" radius={[6, 6, 0, 0]} />
+                  <XAxis dataKey="name" stroke="#78716c" fontSize={11} />
+                  <YAxis stroke="#78716c" fontSize={11} />
+                  <Tooltip contentStyle={{ backgroundColor: '#14151a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', fontSize: '12px' }} />
+                  <Bar dataKey="trips" fill="#c99a6b" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Activity Categories Distribution */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+          <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 shadow-2xl flex flex-col justify-between">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
+              <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#e4c29e]" />
                 Activity Category Preference Breakdown
               </h3>
-              <p className="text-slate-400 text-xs mt-0.5">Distribution of experiences scheduled across trips</p>
+              <p className="text-stone-400 text-xs mt-0.5">Distribution of experiences scheduled across trips</p>
             </div>
 
             <div className="h-64 mt-4">
@@ -544,7 +537,7 @@ export default function AdminAnalyticsPage() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '12px', fontSize: '12px' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#14151a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', fontSize: '12px' }} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -557,13 +550,13 @@ export default function AdminAnalyticsPage() {
 
       {/* ================= ADD / PROMOTE ADMIN MODAL ================= */}
       {showAddAdminModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-1">
+        <div className="fixed inset-0 z-50 bg-[#0c0d10]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-[#14151a] border border-white/15 rounded-[32px] p-6 sm:p-8 max-w-md w-full shadow-2xl font-sans">
+            <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2 mb-1">
               <Crown className="w-5 h-5 text-amber-400" />
               Add / Promote Admin User
             </h3>
-            <p className="text-xs text-slate-400 mb-6">
+            <p className="text-xs text-stone-400 mb-6">
               Enter user details to grant administrator permissions on GlobeTrotter
             </p>
 
@@ -575,52 +568,52 @@ export default function AdminAnalyticsPage() {
             ) : (
               <form onSubmit={handleAddAdminUser} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">User Full Name</label>
+                  <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">User Full Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sarah Connor"
                     value={newAdminForm.name}
                     onChange={(e) => setNewAdminForm({ ...newAdminForm, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">User Email Address *</label>
+                  <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">User Email Address *</label>
                   <input
                     type="email"
                     required
                     placeholder="admin.user@example.com"
                     value={newAdminForm.email}
                     onChange={(e) => setNewAdminForm({ ...newAdminForm, email: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Assign Role</label>
+                  <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">Assign Role</label>
                   <select
                     value={newAdminForm.role}
                     onChange={(e) => setNewAdminForm({ ...newAdminForm, role: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                   >
                     <option value="admin">Platform Administrator (Full Access)</option>
                     <option value="organizer">Trip Organizer (Group Expeditions)</option>
                   </select>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => setShowAddAdminModal(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-stone-400 hover:text-white"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow-md shadow-amber-500/20"
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-500/20"
                   >
                     Confirm &amp; Add Admin
                   </button>
@@ -633,13 +626,13 @@ export default function AdminAnalyticsPage() {
 
       {/* ================= ADD NEW DESTINATION MODAL ================= */}
       {showAddDestModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-1">
-              <Globe2 className="w-5 h-5 text-blue-400" />
+        <div className="fixed inset-0 z-50 bg-[#0c0d10]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-[#14151a] border border-white/15 rounded-[32px] p-6 sm:p-8 max-w-lg w-full shadow-2xl font-sans">
+            <h3 className="font-serif text-xl font-bold text-white flex items-center gap-2 mb-1">
+              <Globe2 className="w-5 h-5 text-[#c99a6b]" />
               Add City to Catalog
             </h3>
-            <p className="text-xs text-slate-400 mb-6">Expand GlobeTrotter's database of global travel destinations</p>
+            <p className="text-xs text-stone-400 mb-6">Expand GlobeTrotter's database of global travel destinations</p>
 
             {destSuccess ? (
               <div className="py-8 text-center text-emerald-400 font-bold text-sm flex flex-col items-center gap-2">
@@ -650,36 +643,36 @@ export default function AdminAnalyticsPage() {
               <form onSubmit={handleCreateDestination} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1">City Name *</label>
+                    <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">City Name *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Zurich"
                       value={newDest.name}
                       onChange={(e) => setNewDest({ ...newDest, name: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Country *</label>
+                    <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">Country *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Switzerland"
                       value={newDest.country}
                       onChange={(e) => setNewDest({ ...newDest, country: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Continent</label>
+                    <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">Continent</label>
                     <select
                       value={newDest.continent}
                       onChange={(e) => setNewDest({ ...newDest, continent: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                     >
                       <option value="Europe">Europe</option>
                       <option value="Asia">Asia</option>
@@ -689,11 +682,11 @@ export default function AdminAnalyticsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Cost Index</label>
+                    <label className="block text-[11px] font-bold uppercase text-stone-400 mb-1">Cost Index</label>
                     <select
                       value={newDest.costIndex}
                       onChange={(e) => setNewDest({ ...newDest, costIndex: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full bg-[#0c0d10] border border-white/15 rounded-full px-4 py-2.5 text-xs text-white"
                     >
                       <option value="budget">Budget ($)</option>
                       <option value="moderate">Moderate ($$)</option>
@@ -702,17 +695,17 @@ export default function AdminAnalyticsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => setShowAddDestModal(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-stone-400 hover:text-white"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold"
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#c99a6b] to-[#e4c29e] hover:brightness-110 text-[#0c0d10] text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#c99a6b]/20"
                   >
                     Save &amp; Publish
                   </button>

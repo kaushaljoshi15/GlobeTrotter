@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+  variable: "--font-serif",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "GlobeTrotter — Smart Multi-City Travel Planner",
-  description: "GlobeTrotter - Discover, Plan, and Experience the World with AI-guided multi-city itineraries and smart budget tracking.",
+  title: "GlobeTrotter — Travel, Composed. Bespoke Multi-City Travel Planner",
+  description: "GlobeTrotter is an intelligent boutique travel design operating system. Compose multi-city journeys, model scenic stops, and balance daily budgets across the world's most breathtaking landscapes.",
 };
 
 export default function RootLayout({
@@ -24,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-100`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+      <body className="font-sans antialiased bg-[#0c0d10] text-[#f4f2ee] selection:bg-[#c99a6b] selection:text-white min-h-screen">
         <Providers>{children}</Providers>
       </body>
     </html>
