@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
     if (itinerary.stops && Array.isArray(itinerary.stops)) {
       let stopOrder = 1;
       for (const stop of itinerary.stops) {
-        // Find or create the destination in the catalog
         let destination = await prisma.destination.findFirst({
           where: { name: { contains: stop.cityName.split('&')[0].trim(), mode: 'insensitive' } },
         });
@@ -65,7 +64,6 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Calculate stop arrival & departure
         const stopStayDays = stop.daysCount || 2;
         const stopArrival = new Date(startDate.getTime() + (stopOrder - 1) * stopStayDays * 86400000);
         const stopDeparture = new Date(stopArrival.getTime() + (stopStayDays - 1) * 86400000);
@@ -83,7 +81,6 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // Insert Activities for this Stop
         if (stop.days && Array.isArray(stop.days)) {
           for (const day of stop.days) {
             const actDate = new Date(stopArrival.getTime() + (day.dateOffset || 0) * 86400000);

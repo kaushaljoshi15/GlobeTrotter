@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import CityAdaptiveBackground from '@/components/CityAdaptiveBackground';
 import {
   DollarSign,
   PieChart as PieIcon,
@@ -22,7 +23,8 @@ import {
   Plus,
   Trash2,
   Check,
-  Compass
+  Compass,
+  Wallet
 } from 'lucide-react';
 
 const CURRENCIES = [
@@ -84,6 +86,7 @@ export default function SmartBudgetPage() {
   const [days, setDays] = useState(5);
   const [travelers, setTravelers] = useState(1);
   const [selectedStyle, setSelectedStyle] = useState(TRAVEL_STYLES[1]);
+  const [activeCityQuery, setActiveCityQuery] = useState('himalayas');
 
   // Custom Category Percentages
   const [staysPct, setStaysPct] = useState(35);
@@ -132,7 +135,6 @@ export default function SmartBudgetPage() {
   const maxNightlyHotel = useMemo(() => Math.round(stayAmount / Math.max(1, days - 1 || 1)), [stayAmount, days]);
   const dailyMealCap = useMemo(() => Math.round(foodAmount / Math.max(1, days)), [foodAmount, days]);
 
-  // Group split calculations
   const totalGroupExpense = groupExpenses.reduce((acc, curr) => acc + curr.amount, 0);
   const perPersonShare = Math.round(totalGroupExpense / Math.max(1, friendsList.length));
 
@@ -157,10 +159,11 @@ export default function SmartBudgetPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white relative overflow-x-hidden">
+      <CityAdaptiveBackground query={activeCityQuery} showLiveTag={false} />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-12">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-12">
         
         {/* Header Hero */}
         <div className="text-center max-w-3xl mx-auto">
@@ -485,10 +488,11 @@ export default function SmartBudgetPage() {
               return (
                 <div
                   key={idx}
-                  className={`p-4 rounded-2xl border flex flex-col justify-between transition-all ${
+                  onClick={() => setActiveCityQuery(dest.name)}
+                  className={`p-4 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
                     isAffordable
-                      ? 'bg-[#0c0d10] border-emerald-500/30 ring-1 ring-emerald-500/20'
-                      : 'bg-[#0c0d10]/40 border-white/10 opacity-70'
+                      ? 'bg-[#0c0d10] border-emerald-500/30 ring-1 ring-emerald-500/20 hover:border-[#c99a6b]'
+                      : 'bg-[#0c0d10]/40 border-white/10 opacity-70 hover:opacity-100'
                   }`}
                 >
                   <div>

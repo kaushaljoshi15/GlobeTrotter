@@ -18,6 +18,8 @@ import {
   X
 } from 'lucide-react';
 
+import CityAdaptiveBackground from '@/components/CityAdaptiveBackground';
+
 export default function ExplorePage() {
   const [destinations, setDestinations] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
@@ -129,10 +131,11 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white">
+    <div className="min-h-screen bg-[#0c0d10] text-[#f4f2ee] flex flex-col font-sans selection:bg-[#c99a6b] selection:text-white relative overflow-x-hidden">
+      <CityAdaptiveBackground query={search || selectedCity?.name || 'kyoto'} showLiveTag={false} />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
         
         {/* Top Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
