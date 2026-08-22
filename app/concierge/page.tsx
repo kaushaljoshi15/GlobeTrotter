@@ -63,15 +63,28 @@ const CLIMATE_DATABASE = [
   { id: 'c-in-6', city: 'Manali & Solang Valley', region: 'India', flag: '🇮🇳', tempC: 14, tempF: 57, condition: 'Crisp Mountain Breeze', season: 'Mar - Jun & Oct - Feb (Snow)', icon: '🏔️' },
   { id: 'c-in-7', city: 'Kashmir (Srinagar & Gulmarg)', region: 'India', flag: '🇮🇳', tempC: 11, tempF: 52, condition: 'Alpine Fresh / Snow', season: 'Apr - Oct (Tulips) & Dec - Feb (Snow)', icon: '❄️' },
   { id: 'c-in-8', city: 'Varanasi (Ganga Ghats)', region: 'India', flag: '🇮🇳', tempC: 27, tempF: 80, condition: 'Mild Evenings', season: 'Oct - Mar (Ganga Aarti & Boat Safaris)', icon: '🪔' },
+  { id: 'c-in-9', city: 'Mumbai (Coastal Metropolis)', region: 'India', flag: '🇮🇳', tempC: 28, tempF: 82, condition: 'Warm Sea Breeze', season: 'Oct - Mar (Heritage Art Deco & Promenade)', icon: '🌊' },
+  { id: 'c-in-10', city: 'Jodhpur (Blue City)', region: 'India', flag: '🇮🇳', tempC: 27, tempF: 80, condition: 'Sun-drenched Desert Air', season: 'Oct - Mar (Mehrangarh Fort Safaris)', icon: '🏰' },
+  { id: 'c-in-11', city: 'Ladakh (Leh & Pangong)', region: 'India', flag: '🇮🇳', tempC: 12, tempF: 54, condition: 'High Altitude Sun', season: 'May - Sep (Azure Lakes & Passes)', icon: '🦅' },
+  { id: 'c-in-12', city: 'Andaman (Havelock Islands)', region: 'India', flag: '🇮🇳', tempC: 29, tempF: 84, condition: 'Tropical Turquoise Waters', season: 'Oct - May (Scuba & Radhanagar Sunsets)', icon: '🤿' },
+  { id: 'c-in-13', city: 'Amritsar (Golden Temple)', region: 'India', flag: '🇮🇳', tempC: 22, tempF: 72, condition: 'Clear & Crisp', season: 'Oct - Mar (Spiritual Darshan & Langar)', icon: '✨' },
+  { id: 'c-in-14', city: 'Darjeeling (Himalayan Tea)', region: 'India', flag: '🇮🇳', tempC: 15, tempF: 59, condition: 'Mist & Fresh Tea Slopes', season: 'Mar - May & Oct - Dec (Tiger Hill Sunrise)', icon: '☕' },
+  { id: 'c-in-15', city: 'Hampi (Vijayanagara)', region: 'India', flag: '🇮🇳', tempC: 29, tempF: 84, condition: 'Dry & Pleasant', season: 'Oct - Mar (Ancient Stone Architecture)', icon: '🗿' },
+  { id: 'c-in-16', city: 'Pondicherry (French Town)', region: 'India', flag: '🇮🇳', tempC: 28, tempF: 82, condition: 'Gentle Bay of Bengal Breeze', season: 'Oct - Mar (Colonial Quarters & Auroville)', icon: '🏖️' },
 
   // International Hubs
   { id: 'c-jp-1', city: 'Tokyo, Japan', region: 'Asia', flag: '🇯🇵', tempC: 22, tempF: 72, condition: 'Sunny & Crisp', season: 'Mar - May (Sakura) & Oct - Nov', icon: '🌸' },
   { id: 'c-jp-2', city: 'Kyoto, Japan', region: 'Asia', flag: '🇯🇵', tempC: 21, tempF: 70, condition: 'Mild Autumn Foliage', season: 'Oct - Dec & Apr - May (Temples)', icon: '🍁' },
+  { id: 'c-sg-1', city: 'Singapore (Garden City)', region: 'Asia', flag: '🇸🇬', tempC: 30, tempF: 86, condition: 'Tropical Warmth', season: 'All Year (Gardens by the Bay & Dining)', icon: '🏙️' },
+  { id: 'c-id-1', city: 'Bali (Ubud & Seminyak)', region: 'Asia', flag: '🇮🇩', tempC: 28, tempF: 82, condition: 'Balmy Island Breeze', season: 'Apr - Oct (Rice Terraces & Beaches)', icon: '🌴' },
   { id: 'c-ch-1', city: 'Zurich, Switzerland', region: 'Europe', flag: '🇨🇭', tempC: 16, tempF: 61, condition: 'Crisp Alpine Breeze', season: 'May - Sep (Scenic Trains & Lakes)', icon: '⛅' },
   { id: 'c-ch-2', city: 'Zermatt (Matterhorn)', region: 'Europe', flag: '🇨🇭', tempC: 8, tempF: 46, condition: 'Fresh Glacial Air', season: 'Jun - Sep (Hiking) & Dec - Apr (Ski)', icon: '🏔️' },
   { id: 'c-it-1', city: 'Rome & Amalfi, Italy', region: 'Europe', flag: '🇮🇹', tempC: 25, tempF: 77, condition: 'Warm Mediterranean', season: 'Apr - Jun & Sep - Oct (Harvest)', icon: '🍷' },
   { id: 'c-fr-1', city: 'Paris, France', region: 'Europe', flag: '🇫🇷', tempC: 19, tempF: 66, condition: 'Mild & Romantic', season: 'Apr - Jun & Sep - Nov (Museums)', icon: '🥐' },
+  { id: 'c-gb-1', city: 'London, United Kingdom', region: 'Europe', flag: '🇬🇧', tempC: 17, tempF: 63, condition: 'Mild Overcast / Sunny Spells', season: 'May - Sep (Royal Sights & Theatres)', icon: '🎡' },
+  { id: 'c-gr-1', city: 'Santorini, Greece', region: 'Europe', flag: '🇬🇷', tempC: 26, tempF: 79, condition: 'Aegean Sun & Sea Breeze', season: 'May - Oct (Caldera Sunsets)', icon: '⛵' },
   { id: 'c-ae-1', city: 'Dubai, UAE', region: 'Global', flag: '🇦🇪', tempC: 29, tempF: 84, condition: 'Warm Desert Sun', season: 'Nov - Mar (Desert Safaris & Skyline)', icon: '🏙️' },
+  { id: 'c-us-1', city: 'New York City, USA', region: 'Global', flag: '🇺🇸', tempC: 20, tempF: 68, condition: 'Brisk Autumn Sky', season: 'Sep - Nov & Apr - Jun (Central Park)', icon: '🗽' },
   { id: 'c-is-1', city: 'Reykjavik, Iceland', region: 'Global', flag: '🇮🇸', tempC: 5, tempF: 41, condition: 'Aurora Borealis Active', season: 'Sep - Mar (Northern Lights Hunt)', icon: '🌌' },
 ];
 
