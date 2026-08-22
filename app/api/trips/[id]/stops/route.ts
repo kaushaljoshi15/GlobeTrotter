@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { TripService } from '@/lib/services/trip.service';
 import { apiSuccess, apiError } from '@/lib/api-response';
+import { addStopSchema, reorderStopsSchema } from '@/lib/validations';
 
 export async function POST(
   request: NextRequest,
@@ -12,19 +13,20 @@ export async function POST(
     if (isNaN(tripId)) return apiError('Invalid trip ID', 400);
 
     const body = await request.json();
-    const { cityId, arrivalDate, departureDate, stayCostEstimated, transportCostEstimated, notes } = body;
-
-    if (!cityId || !arrivalDate || !departureDate) {
-      return apiError('City, arrival date, and departure date are required', 400);
+    const validation = addStopSchema.safeParse(body);
+    if (!validation.success) {
+      return apiError(validation.error.issues[0].message, 400, validation.error.format());
     }
+
+    const { cityId, arrivalDate, departureDate, stayCostEstimated, transportCostEstimated, notes } = validation.data;
 
     const newStop = await TripService.addStop({
       tripId,
-      cityId: parseInt(cityId),
+      cityId,
       arrivalDate,
       departureDate,
-      stayCostEstimated: stayCostEstimated ? parseFloat(stayCostEstimated) : 0,
-      transportCostEstimated: transportCostEstimated ? parseFloat(transportCostEstimated) : 0,
+      stayCostEstimated,
+      transportCostEstimated,
       notes,
     });
 
@@ -45,13 +47,12 @@ export async function PUT(
     if (isNaN(tripId)) return apiError('Invalid trip ID', 400);
 
     const body = await request.json();
-    const { stopOrders } = body; // Array of { stopId: number, order: number }
-
-    if (!Array.isArray(stopOrders)) {
-      return apiError('stopOrders array is required', 400);
+    const validation = reorderStopsSchema.safeParse(body);
+    if (!validation.success) {
+      return apiError(validation.error.issues[0].message, 400, validation.error.format());
     }
 
-    await TripService.reorderStops(tripId, stopOrders);
+    await TripService.reorderStops(tripId, validation.data.stopOrders);
     return apiSuccess({ tripId }, 'Stops reordered successfully');
   } catch (err: any) {
     console.error('Error reordering stops:', err);

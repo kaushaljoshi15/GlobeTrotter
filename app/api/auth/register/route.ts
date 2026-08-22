@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { query } from '@/lib/db';
+import prisma from '@/lib/prisma';
 
-// Define the Master Admin Email here
-const SUPER_ADMIN_EMAIL = 'joshikaushald1596@gmail.com'; // Change this to your actual email
+// Master Admin Email & Passcode
+const SUPER_ADMIN_EMAIL = 'joshikaushald1596@gmail.com';
+const ADMIN_MASTER_PASSCODE = '1596';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, role } = await request.json();
+    const { name, email, password, role, adminPasscode } = await request.json();
 
     // 1. Validate input
     if (!name || !email || !password || !role) {
@@ -17,90 +18,97 @@ export async function POST(request: Request) {
       );
     }
 
-    // for the password manage
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // Password complexity check
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       return NextResponse.json(
-        { error: 'Password does not meet security requirements.' },
+        { error: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.' },
         { status: 400 }
       );
     }
 
-    // 2. Role Security Check (Super Admin Logic)
+    // 2. Role Security Check
     let assignedRole = role;
 
-    if (email === SUPER_ADMIN_EMAIL) {
-      // Force admin role for the system owner
+    if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+      // Super Admin is always granted admin role
       assignedRole = 'admin';
     } else if (role === 'admin') {
-      // Block anyone else trying to register as an admin
-      return NextResponse.json(
-        { error: 'Unauthorized: Only the system owner can hold this role.' },
-        { status: 403 }
-      );
+      // Other users registering as Admin must provide Master Passcode (1596)
+      if (!adminPasscode || adminPasscode.toString().trim() !== ADMIN_MASTER_PASSCODE) {
+        return NextResponse.json(
+          { error: 'Invalid Admin Passcode. Please enter the master passcode (1596) to register as an Administrator.' },
+          { status: 403 }
+        );
+      }
+      assignedRole = 'admin';
     }
 
     // 3. Check if user already exists
-    const existingUser = await query('SELECT * FROM users WHERE email = $1', [email]);
-    
-    if (existingUser && existingUser.rows && existingUser.rows.length > 0) {
-      const user = existingUser.rows[0];
-      
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
       let errorMessage = 'This email is already registered. Please go to the Login page.';
-      
-      // Give a helpful hint if they previously signed up with Google
-      if (user.google_id && !user.password_hash) {
+      if (existingUser.google_id && !existingUser.password_hash) {
         errorMessage = 'This email was registered using Google. Please click "Continue with Google" on the Login page.';
       }
-
-      return NextResponse.json(
-        { error: errorMessage },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: errorMessage }, { status: 409 });
     }
 
-    // 4. Hash the password (Security)
+    // 4. Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. Insert into Database using the safe 'assignedRole'
-    // Ensure they are inserted as unverified
-    const newUser = await query(
-      `INSERT INTO users (name, email, password_hash, role, is_verified) 
-       VALUES ($1, $2, $3, $4, FALSE) RETURNING id, name, email, role`,
-      [name, email, hashedPassword, assignedRole]
-    );
-
-    let createdUser = null;
-    if (newUser) {
-      if (newUser.rows) {
-        createdUser = newUser.rows[0];
-      }
-    }
+    // 5. Insert into Database via Prisma
+    const createdUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password_hash: hashedPassword,
+        role: assignedRole,
+        is_verified: false,
+        preferred_currency: 'USD',
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
 
     // 6. Generate 6-digit OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
     // 7. Save OTP to verification_codes table
-    await query(`DELETE FROM verification_codes WHERE email = $1`, [email]); // Remove old codes
-    await query(
-      `INSERT INTO verification_codes (email, code, expires_at) VALUES ($1, $2, $3)`,
-      [email, otpCode, expiresAt]
-    );
+    await prisma.verificationCode.deleteMany({ where: { email } });
+    await prisma.verificationCode.create({
+      data: {
+        email,
+        code: otpCode,
+        expires_at: expiresAt,
+      },
+    });
 
     // 8. Send the OTP via Email
-    const { sendOTP } = await import('@/lib/email');
-    await sendOTP(email, otpCode);
+    try {
+      const { sendOTP } = await import('@/lib/email');
+      await sendOTP(email, otpCode);
+    } catch (emailErr) {
+      console.warn('Failed to send email OTP:', emailErr);
+    }
 
     return NextResponse.json(
       { message: 'Registration initiated. Please verify your email.', user: createdUser, requiresVerification: true },
       { status: 201 }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Registration Error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: error?.message || 'Internal Server Error' },
       { status: 500 }
     );
   }

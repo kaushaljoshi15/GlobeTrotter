@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { Compass, Shield, Users, Sparkles, Check, ArrowRight, Globe } from 'lucide-react';
+import { Compass, Shield, Users, Sparkles, Check, ArrowRight, KeyRound } from 'lucide-react';
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
@@ -15,6 +15,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     role: 'traveler', // 'traveler', 'organizer', 'admin'
+    adminPasscode: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,7 +38,7 @@ export default function RegisterPage() {
     {
       id: 'admin',
       title: 'Platform Administrator',
-      desc: 'Manage global destination catalog, monitor platform analytics & user adoption',
+      desc: 'Manage global destination catalog, monitor platform analytics & user access',
       icon: Shield,
       badgeColor: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
     },
@@ -58,8 +59,14 @@ export default function RegisterPage() {
       if (!res.ok) throw new Error(data.error || 'Google login failed');
 
       localStorage.setItem('token', data.token);
-      if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/dashboard');
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.user.role === 'admin') router.push('/admin');
+        else if (data.user.role === 'organizer') router.push('/dashboard/organizer');
+        else router.push('/dashboard/traveler');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -72,6 +79,11 @@ export default function RegisterPage() {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
       setError('Password must be at least 8 characters with uppercase, lowercase, number, and special character.');
+      return;
+    }
+
+    if (formData.role === 'admin' && !formData.adminPasscode) {
+      setError('Admin Master Passcode is required to register as an Administrator.');
       return;
     }
 
@@ -104,8 +116,8 @@ export default function RegisterPage() {
         
         {/* Left Branding Showcase Panel */}
         <div className="hidden lg:flex w-1/2 flex-col justify-between bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-12 relative overflow-hidden border-r border-slate-800/80">
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Logo */}
           <div className="relative z-10">
@@ -124,15 +136,15 @@ export default function RegisterPage() {
           <div className="relative z-10 max-w-lg space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Role-Based Travel Intelligence</span>
+              <span>Dedicated Role Security</span>
             </div>
 
             <h1 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
-              Empower your wanderlust with smart multi-city itineraries.
+              Create your account with role-specific privileges.
             </h1>
 
             <p className="text-slate-400 text-sm leading-relaxed">
-              Whether you're a solo explorer, an organizer curating trips for groups, or an administrator tracking platform analytics, GlobeTrotter gives you ultimate control.
+              Travelers receive automated budgets and checklists. Organizers manage participant rosters. Administrators unlock system-wide destination &amp; user management.
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
@@ -148,7 +160,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="relative z-10 text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} GlobeTrotter. Built for the Odoo Hackathon.
+            &copy; {new Date().getFullYear()} GlobeTrotter &bull; Built for the Odoo Hackathon
           </div>
         </div>
 
@@ -225,6 +237,28 @@ export default function RegisterPage() {
                   })}
                 </div>
               </div>
+
+              {/* Master Admin Passcode Field (Strict & Confidential) */}
+              {formData.role === 'admin' && (
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5" />
+                    <span>Master Admin Security Passcode *</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="adminPasscode"
+                    required
+                    placeholder="Enter confidential administrator passcode"
+                    value={formData.adminPasscode}
+                    onChange={handleChange}
+                    className="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-4 py-2.5 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-amber-400 transition-colors tracking-widest"
+                  />
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Restricted access. Authorized administrator key required to create an Admin account.
+                  </p>
+                </div>
+              )}
 
               {/* Name */}
               <div>

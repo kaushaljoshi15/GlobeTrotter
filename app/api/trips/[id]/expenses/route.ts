@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { ExpenseService } from '@/lib/services/expense.service';
 import { apiSuccess, apiError } from '@/lib/api-response';
+import { createExpenseSchema } from '@/lib/validations';
 
 export async function GET(
   request: NextRequest,
@@ -12,14 +13,12 @@ export async function GET(
     if (isNaN(tripId)) return apiError('Invalid trip ID', 400);
 
     const financials = await ExpenseService.getTripFinancials(tripId);
-    if (!financials) {
-      return apiError('Trip not found or no financial data', 404);
-    }
+    if (!financials) return apiError('Trip not found', 404);
 
-    return apiSuccess(financials, 'Financial metrics calculated successfully');
+    return apiSuccess(financials, 'Financial metrics retrieved');
   } catch (err: any) {
-    console.error('Error fetching trip financials:', err);
-    return apiError('Failed to fetch financial metrics', 500, err);
+    console.error('Error fetching expenses:', err);
+    return apiError('Failed to fetch expenses', 500, err);
   }
 }
 
@@ -33,25 +32,26 @@ export async function POST(
     if (isNaN(tripId)) return apiError('Invalid trip ID', 400);
 
     const body = await request.json();
-    const { tripStopId, category, title, amount, expenseDate, paymentMethod } = body;
-
-    if (!category || !title || amount === undefined || !expenseDate) {
-      return apiError('Category, title, amount, and expense date are required', 400);
+    const validation = createExpenseSchema.safeParse({ ...body, tripId });
+    if (!validation.success) {
+      return apiError(validation.error.issues[0].message, 400, validation.error.format());
     }
+
+    const { category, title, amount, expenseDate, paymentMethod, tripStopId } = validation.data;
 
     const newExpense = await ExpenseService.addExpense({
       tripId,
-      tripStopId: tripStopId ? parseInt(tripStopId) : undefined,
+      tripStopId,
       category,
       title,
-      amount: parseFloat(amount),
+      amount,
       expenseDate,
       paymentMethod,
     });
 
-    return apiSuccess(newExpense, 'Expense recorded successfully', 201);
+    return apiSuccess(newExpense, 'Expense logged successfully', 201);
   } catch (err: any) {
-    console.error('Error adding expense:', err);
-    return apiError('Failed to record expense', 500, err);
+    console.error('Error logging expense:', err);
+    return apiError('Failed to log expense', 500, err);
   }
 }

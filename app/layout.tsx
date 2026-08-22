@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GlobeTrotter",
-  description: "GlobeTrotter - Discover, Plan, and Experience the World",
+  title: "GlobeTrotter — Smart Multi-City Travel Planner",
+  description: "GlobeTrotter - Discover, Plan, and Experience the World with AI-guided multi-city itineraries and smart budget tracking.",
 };
 
 export default function RootLayout({
@@ -24,10 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-100`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

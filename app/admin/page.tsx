@@ -261,15 +261,14 @@ export default function AdminAnalyticsPage() {
             <form onSubmit={handleVerifyPin} className="space-y-4 text-left">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5 flex items-center justify-between">
-                  <span>Enter Master Admin PIN</span>
-                  <span className="text-[10px] text-slate-500 font-mono">(Hint: 1596)</span>
+                  <span>Enter Master Admin PIN *</span>
                 </label>
                 <div className="relative">
                   <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
-                    placeholder="Enter 4-digit PIN..."
+                    placeholder="••••"
                     maxLength={6}
                     value={pinInput}
                     onChange={(e) => setPinInput(e.target.value)}
