@@ -19,7 +19,9 @@ import {
   Heart,
   ChevronDown,
   Settings,
-  Luggage
+  Luggage,
+  MessageSquare,
+  Calculator
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -95,7 +97,7 @@ export default function Navbar() {
         { name: 'Destinations', href: '/explore', icon: Globe2 },
         { name: 'Architecture', href: '/#features', icon: Sparkles },
         { name: 'Live Preview', href: '/#preview', icon: Eye },
-        { name: 'Expeditions', href: '/#roles', icon: Users },
+        { name: 'Expeditions', href: '/expeditions', icon: Users },
       ];
     }
 
@@ -115,10 +117,13 @@ export default function Navbar() {
       ];
     }
 
+    // Traveler Features Navigation -> Clean Standalone Dedicated Pages
     return [
-      { name: 'Dashboard', href: '/dashboard/traveler', icon: Compass },
-      { name: 'My Trips', href: '/trips', icon: MapPin },
-      { name: 'Explore Cities', href: '/explore', icon: Globe2 },
+      { name: 'Itineraries', href: '/trips', icon: Luggage },
+      { name: 'Group Expeditions', href: '/expeditions', icon: Compass },
+      { name: 'Community', href: '/community', icon: MessageSquare },
+      { name: 'Destinations', href: '/explore', icon: Globe2 },
+      { name: 'Concierge', href: '/concierge', icon: Calculator },
     ];
   };
 
@@ -128,8 +133,8 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-[#0c0d10]/60 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/40 py-3.5'
-          : 'bg-transparent border-b border-transparent py-5'
+          ? 'bg-[#0c0d10]/70 backdrop-blur-2xl border-b border-white/10 shadow-2xl shadow-black/40 py-3'
+          : 'bg-transparent border-b border-transparent py-4 sm:py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -137,7 +142,7 @@ export default function Navbar() {
         {/* Brand Logo - Atelier Edition */}
         <Link 
           href={!user ? '/' : currentRole === 'admin' ? '/admin' : currentRole === 'organizer' ? '/dashboard/organizer' : '/dashboard/traveler'} 
-          className="flex items-center gap-3 group"
+          className="flex items-center gap-3 group flex-shrink-0"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] flex items-center justify-center font-serif font-bold text-xs text-[#0c0d10] shadow-md shadow-[#c99a6b]/20 group-hover:scale-105 transition-transform">
             GT
@@ -153,7 +158,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links - Ultra Translucent Pill */}
-        <nav className="hidden md:flex items-center gap-1 bg-black/30 p-1.5 rounded-full border border-white/10 backdrop-blur-xl shadow-lg">
+        <nav className="hidden lg:flex items-center gap-1 bg-black/30 p-1.5 rounded-full border border-white/10 backdrop-blur-xl shadow-lg">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -189,7 +194,7 @@ export default function Navbar() {
               {currentRole === 'admin' ? (
                 <Link
                   href="/admin"
-                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-sans font-bold shadow-lg shadow-[#c99a6b]/20 transition-all"
+                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-sans font-bold shadow-lg shadow-[#c99a6b]/20 transition-all"
                 >
                   <Shield className="w-3.5 h-3.5" />
                   <span>Admin Center</span>
@@ -197,7 +202,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/trips/new"
-                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-sans font-bold shadow-lg shadow-[#c99a6b]/20 hover:shadow-[#c99a6b]/35 hover:-translate-y-0.5 transition-all"
+                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#c99a6b] to-[#d4a373] hover:from-[#dfb182] hover:to-[#e4c29e] text-[#0c0d10] text-xs font-sans font-bold shadow-lg shadow-[#c99a6b]/20 hover:shadow-[#c99a6b]/35 hover:-translate-y-0.5 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{currentRole === 'organizer' ? 'New Expedition' : 'Plan Journey'}</span>
@@ -256,21 +261,39 @@ export default function Navbar() {
                       </Link>
 
                       <Link
-                        href={currentRole === 'admin' ? '/admin' : currentRole === 'organizer' ? '/dashboard/organizer' : '/dashboard/traveler'}
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:text-white hover:bg-white/5 transition-colors"
-                      >
-                        <Compass className="w-4 h-4 text-[#e4c29e]" />
-                        <span>{currentRole === 'admin' ? 'Administrator Hub' : currentRole === 'organizer' ? 'Organizer Operations' : 'Traveler Dashboard'}</span>
-                      </Link>
-
-                      <Link
                         href="/trips"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:text-white hover:bg-white/5 transition-colors"
                       >
-                        <Luggage className="w-4 h-4 text-[#c99a6b]" />
-                        <span>My Itineraries &amp; Trips</span>
+                        <Luggage className="w-4 h-4 text-[#e4c29e]" />
+                        <span>My Custom Itineraries</span>
+                      </Link>
+
+                      <Link
+                        href="/expeditions"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        <Compass className="w-4 h-4 text-[#c99a6b]" />
+                        <span>Curated Group Expeditions</span>
+                      </Link>
+
+                      <Link
+                        href="/community"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        <MessageSquare className="w-4 h-4 text-[#e4c29e]" />
+                        <span>Traveler ↔ Guide Community</span>
+                      </Link>
+
+                      <Link
+                        href="/concierge"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        <Calculator className="w-4 h-4 text-[#c99a6b]" />
+                        <span>Smart Concierge &amp; Utilities</span>
                       </Link>
 
                       <Link

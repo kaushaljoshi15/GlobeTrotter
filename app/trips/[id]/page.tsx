@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import GoogleCalendarTimeline from '@/components/GoogleCalendarTimeline';
 import confetti from 'canvas-confetti';
 import {
   PieChart,
@@ -528,58 +529,18 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         )}
 
-        {/* TAB 2: VISUAL TIMELINE */}
+        {/* TAB 2: GOOGLE-STYLE CALENDAR & TIMELINE */}
         {activeTab === 'timeline' && (
-          <div className="bg-[#14151a]/90 backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl font-sans">
-            <h2 className="font-serif text-2xl font-medium text-white tracking-tight mb-2 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-[#c99a6b]" />
-              Day-by-Day Journey Flow
-            </h2>
-            <p className="text-stone-400 text-xs mb-8">A chronological overview of all destinations, dates, and experiences</p>
-
-            <div className="relative pl-6 sm:pl-8 border-l-2 border-[#c99a6b]/30 space-y-8">
-              {trip.stops?.map((stop: any, idx: number) => (
-                <div key={stop.id} className="relative">
-                  {/* Timeline Dot Marker */}
-                  <div className="absolute -left-[31px] sm:-left-[39px] top-1 w-6 h-6 rounded-full bg-gradient-to-tr from-[#c99a6b] to-[#e4c29e] border-4 border-[#0c0d10] flex items-center justify-center text-[9px] font-bold text-[#0c0d10] shadow-md">
-                    {idx + 1}
-                  </div>
-
-                  <div className="bg-[#0c0d10] border border-white/10 rounded-2xl p-5 shadow-md">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <span className="text-[10px] font-bold text-[#e4c29e] uppercase tracking-wider bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                          Stop {idx + 1} &bull; {stop.country}
-                        </span>
-                        <h3 className="font-serif text-lg font-bold text-white mt-1">{stop.city_name}</h3>
-                      </div>
-                      <span className="text-xs text-stone-400">
-                        {new Date(stop.arrival_date).toLocaleDateString()} &rarr; {new Date(stop.departure_date).toLocaleDateString()}
-                      </span>
-                    </div>
-
-                    {stop.notes && (
-                      <p className="text-xs text-stone-400 bg-[#14151a] p-2.5 rounded-xl mb-3">
-                        📌 {stop.notes}
-                      </p>
-                    )}
-
-                    <div className="space-y-2">
-                      {stop.activities?.map((act: any) => (
-                        <div key={act.id} className="text-xs flex items-center justify-between bg-[#14151a] p-2.5 rounded-xl text-stone-300">
-                          <span className="flex items-center gap-2">
-                            <Clock className="w-3.5 h-3.5 text-[#c99a6b]" />
-                            <strong>{act.start_time}</strong> — {act.custom_title || act.original_activity_name}
-                          </span>
-                          <span className="text-emerald-400 font-bold">${parseFloat(act.cost)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <GoogleCalendarTimeline
+            trip={trip}
+            onAddActivity={(stopId, dateStr) => {
+              const stop = trip.stops?.find((s: any) => s.id === stopId) || trip.stops[0];
+              setSelectedStopForActivity(stop);
+              setNewActivityData((prev) => ({ ...prev, activityDate: dateStr }));
+              setShowAddActivityModal(true);
+            }}
+            onDeleteActivity={(actId) => handleDeleteActivity(actId)}
+          />
         )}
 
         {/* TAB 3: SMART BUDGET ANALYTICS (Recharts) */}
