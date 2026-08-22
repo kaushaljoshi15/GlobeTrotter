@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { 
   Compass, 
   MapPin, 
@@ -18,13 +20,8 @@ import {
   Clock, 
   TrendingUp, 
   Receipt,
-  Mountain,
-  Palmtree,
-  Building2,
-  ChevronRight,
   Flame,
-  ArrowUpRight,
-  Plane
+  Repeat
 } from 'lucide-react';
 import BackgroundCarousel, { SCENIC_SLIDES } from '@/components/BackgroundCarousel';
 
@@ -35,65 +32,17 @@ export default function Home() {
     setSlideIndex(idx);
   };
 
-  const switchToCategory = (category: string) => {
-    const foundIdx = SCENIC_SLIDES.findIndex((s) => s.category === category);
-    if (foundIdx !== -1) {
-      setSlideIndex(foundIdx);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-blue-600 selection:text-white overflow-x-hidden relative font-sans flex flex-col items-center">
       
-      {/* High-Impact Dynamic Scenic & City Background Photo Carousel */}
+      {/* Dynamic Background Photo Carousel */}
       <BackgroundCarousel 
         currentIndex={slideIndex} 
         onSlideChange={(newIdx) => setSlideIndex(newIdx)} 
       />
 
-      {/* Floating Glassmorphic Navbar */}
-      <nav className="fixed top-5 z-50 w-full max-w-5xl px-4 sm:px-6">
-        <div className="mx-auto flex h-14 items-center justify-between rounded-full border border-slate-700/80 bg-slate-950/80 px-6 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.7)]">
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-black text-xs text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
-              GT
-            </div>
-            <span className="font-extrabold tracking-tight text-white flex items-center gap-1.5">
-              GlobeTrotter
-              <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30">
-                PRO
-              </span>
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-5">
-            <Link 
-              href="/explore" 
-              className="text-xs font-semibold text-slate-200 hover:text-white transition-colors hidden sm:block"
-            >
-              Destinations
-            </Link>
-            <Link 
-              href="/admin" 
-              className="text-xs font-semibold text-slate-200 hover:text-white transition-colors hidden sm:block"
-            >
-              Analytics
-            </Link>
-            <Link 
-              href="/login" 
-              className="text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/register" 
-              className="text-xs font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2 rounded-full shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all active:scale-95 duration-200"
-            >
-              Start Planning
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* Global Dynamic Navbar */}
+      <Navbar />
 
       {/* Hero Section */}
       <main className="w-full max-w-6xl px-4 sm:px-6 pt-36 pb-16 flex flex-col items-center text-center relative z-20">
@@ -107,7 +56,7 @@ export default function Home() {
           <span className="text-white font-extrabold">GlobeTrotter v2.0</span> &bull; Scenic World Expeditions &amp; Smart Planning
         </div>
         
-        {/* High-Impact Hero Title with Drop Shadow for Maximum Visual Contrast against Background Photos */}
+        {/* High-Impact Hero Title */}
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter mb-6 leading-[1.08] max-w-4xl text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
           Discover the world. <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-200 to-indigo-300">
@@ -137,7 +86,7 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Featured Scenic Destination Cards Strip (Interactive Advertisement Showcase) */}
+        {/* Featured Scenic Destination Cards Strip */}
         <div className="w-full max-w-5xl mt-2 mb-8">
           <div className="flex items-center justify-between mb-3 px-2">
             <span className="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-2">
@@ -198,7 +147,7 @@ export default function Home() {
       </main>
 
       {/* High-Fidelity App UI Mockup Preview */}
-      <section className="w-full max-w-5xl px-4 sm:px-6 relative z-20 pb-28">
+      <section id="preview" className="w-full max-w-5xl px-4 sm:px-6 relative z-20 pb-28">
         <div className="rounded-3xl border border-slate-800/90 bg-slate-900/95 backdrop-blur-2xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.9)] overflow-hidden relative flex flex-col">
           
           {/* OS Window Header Bar */}
@@ -298,9 +247,61 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Role-Based Workflows Feature Grid */}
-      <section className="w-full max-w-6xl px-4 sm:px-6 py-16 border-t border-slate-800/80">
+      {/* Core Features & Highlights Section */}
+      <section id="features" className="w-full max-w-6xl px-4 sm:px-6 py-16 border-t border-slate-800/80 relative z-20">
         <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-3">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Built for High-Precision Travel</span>
+          </div>
+          <h2 className="text-3xl font-black text-white tracking-tight">
+            Everything You Need to Plan and Manage Trips
+          </h2>
+          <p className="text-slate-400 text-sm mt-2">
+            Powerful multi-city orchestration backed by PostgreSQL relational modeling and automated budget ledgers.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/30 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4">
+              <Layers className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1.5">Multi-City Stop Sequencing</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Order your itinerary across multiple destinations with chronological dates, estimated accommodations, and transport expenses.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/30 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1.5">Live Budget &amp; Daily Burn Rate</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Automatic category breakdown with Recharts visual charts, receipt logger, and instant overbudget threshold alerts.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/30 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+              <Repeat className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-white mb-1.5">1-Click Itinerary Cloner</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Share your custom route publicly. Friends or travelers can copy the full multi-day plan directly into their own account.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Role-Based Workflows Feature Grid */}
+      <section id="roles" className="w-full max-w-6xl px-4 sm:px-6 py-16 border-t border-slate-800/80 relative z-20">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold mb-3">
+            <Users className="w-3.5 h-3.5" />
+            <span>Dedicated User Roles</span>
+          </div>
           <h2 className="text-3xl font-black text-white tracking-tight">
             Engineered for Every Type of Traveler
           </h2>
@@ -317,7 +318,7 @@ export default function Home() {
               <Compass className="w-6 h-6" />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md">
-              For Travelers
+              For Solo &amp; Family
             </span>
             <h3 className="text-lg font-bold text-white mt-2 mb-2">Smart Itinerary Builder</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -331,11 +332,11 @@ export default function Home() {
               <Users className="w-6 h-6" />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md">
-              For Organizers
+              For Tour Guides
             </span>
-            <h3 className="text-lg font-bold text-white mt-2 mb-2">Public Sharable Plans</h3>
+            <h3 className="text-lg font-bold text-white mt-2 mb-2">Group Expeditions &amp; Rosters</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Generate public links with unique share codes. Anyone can view your complete day-by-day plan and clone it directly into their account with one click.
+              Manage participant rosters, publish broadcast advisories, and track public clone metrics for curated group expeditions.
             </p>
           </div>
 
@@ -347,7 +348,7 @@ export default function Home() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
               For Administrators
             </span>
-            <h3 className="text-lg font-bold text-white mt-2 mb-2">Platform Intelligence</h3>
+            <h3 className="text-lg font-bold text-white mt-2 mb-2">Platform Telemetry &amp; Access</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Monitor global adoption trends, top visited destinations, and activity distributions with real-time Recharts analytics and catalog tools.
             </p>
@@ -357,17 +358,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="w-full border-t border-slate-800 bg-slate-950 py-10 px-4 text-center text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center font-black text-[10px] text-white">
-              GT
-            </div>
-            <span className="font-bold text-white">GlobeTrotter</span>
-          </div>
-          <p>&copy; {new Date().getFullYear()} GlobeTrotter &bull; Built for the Odoo Hackathon</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
