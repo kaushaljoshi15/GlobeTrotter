@@ -21,9 +21,16 @@ export async function GET(request: NextRequest) {
         created_at: true,
         trips: {
           include: {
-            stops: { select: { city_id: true } },
+            stops: {
+              include: {
+                destination: {
+                  select: { id: true, name: true, country: true },
+                },
+              },
+            },
             expenses: { select: { amount: true } },
           },
+          orderBy: { created_at: 'desc' },
         },
       },
     });
@@ -31,16 +38,35 @@ export async function GET(request: NextRequest) {
     if (!userData) return apiError('User not found', 404);
 
     const totalTrips = userData.trips.length;
-    const citiesSet = new Set<number>();
+    const citiesSet = new Set<string>();
+    const countriesSet = new Set<string>();
     let totalBudget = 0;
     let totalSpent = 0;
 
     for (const t of userData.trips) {
-      t.stops.forEach((s) => citiesSet.add(s.city_id));
-      t.expenses.forEach((e) => (totalSpent += Number(e.amount)));
+      totalBudget += Number(t.total_budget || 0);
+      t.stops.forEach((s) => {
+        if (s.destination) {
+          citiesSet.add(s.destination.name);
+          countriesSet.add(s.destination.country);
+        }
+      });
+      t.expenses.forEach((e) => (totalSpent += Number(e.amount || 0)));
     }
 
     const { trips, ...safeUser } = userData;
+
+    // Recent trips preview
+    const recentTrips = trips.slice(0, 3).map((t) => ({
+      id: t.id,
+      title: t.title,
+      startDate: t.start_date,
+      endDate: t.end_date,
+      totalBudget: Number(t.total_budget),
+      currency: t.currency,
+      stopsCount: t.stops.length,
+      status: t.status,
+    }));
 
     return apiSuccess(
       {
@@ -48,10 +74,11 @@ export async function GET(request: NextRequest) {
         stats: {
           total_trips: totalTrips,
           total_cities_visited: citiesSet.size,
-          total_countries_visited: Math.min(citiesSet.size, 5),
+          total_countries_visited: countriesSet.size,
           total_budget_planned: totalBudget,
           total_spent: totalSpent,
         },
+        recentTrips,
       },
       'User profile retrieved'
     );

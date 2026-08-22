@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -15,7 +15,12 @@ import {
   Globe2,
   Layers,
   Eye,
-  ArrowRight
+  ArrowRight,
+  User,
+  Heart,
+  ChevronDown,
+  Settings,
+  Luggage
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -24,6 +29,8 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -50,11 +57,23 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleMouseEnter = () => {
+    if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    setDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setDropdownOpen(false);
+    }, 200);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     sessionStorage.removeItem('admin_pin_verified');
     setUser(null);
+    setDropdownOpen(false);
     router.push('/login');
   };
 
@@ -162,9 +181,10 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           {mounted && user ? (
             // ================= LOGGED IN USER ACTIONS =================
-            <>
+            <div className="flex items-center gap-3">
+              
               {/* Verified Role Badge */}
-              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold ${currentRoleInfo.color}`}>
+              <div className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold ${currentRoleInfo.color}`}>
                 <RoleIcon className="w-3.5 h-3.5" />
                 <span className="capitalize">{currentRoleInfo.label}</span>
               </div>
@@ -173,7 +193,7 @@ export default function Navbar() {
               {currentRole === 'admin' ? (
                 <Link
                   href="/admin"
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/20 transition-all"
+                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/20 transition-all"
                 >
                   <Shield className="w-3.5 h-3.5" />
                   <span>Admin Center</span>
@@ -181,34 +201,119 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/trips/new"
-                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
+                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{currentRole === 'organizer' ? 'New Expedition' : 'Plan Trip'}</span>
                 </Link>
               )}
 
-              {/* Profile & Logout */}
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-colors"
-                  title="View Profile"
+              {/* ================= PROFILE DROPDOWN CONTAINER ================= */}
+              <div 
+                className="relative"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                {/* Avatar Button Trigger */}
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 transition-all hover:scale-105 shadow-md group"
                 >
-                  <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-black text-white uppercase">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-xs font-black text-white uppercase shadow-inner">
                     {user?.name ? user.name[0] : 'U'}
                   </div>
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="p-2 rounded-xl bg-slate-900 hover:bg-red-500/20 border border-slate-800 hover:border-red-500/30 text-slate-400 hover:text-red-400 transition-all"
-                  title="Log Out"
-                >
-                  <LogOut className="w-4 h-4" />
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-transform duration-200 mr-1 ${dropdownOpen ? 'rotate-180 text-blue-400' : ''}`} />
                 </button>
+
+                {/* Dropdown Menu Modal */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-72 rounded-3xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    
+                    {/* User Identity Card */}
+                    <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-sm font-black text-white uppercase shadow-md">
+                          {user?.name ? user.name[0] : 'U'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-black text-white truncate">{user?.name || 'Traveler'}</p>
+                          <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${currentRoleInfo.color}`}>
+                          <RoleIcon className="w-3 h-3" />
+                          <span className="capitalize">{currentRoleInfo.label} Account</span>
+                        </span>
+                        <span className="text-[10px] text-emerald-400 font-semibold">● Active</span>
+                      </div>
+                    </div>
+
+                    {/* Quick Menu Links */}
+                    <div className="space-y-1">
+                      <Link
+                        href="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      >
+                        <User className="w-4 h-4 text-blue-400" />
+                        <span>Traveler Profile &amp; Passport</span>
+                      </Link>
+
+                      <Link
+                        href={currentRole === 'admin' ? '/admin' : currentRole === 'organizer' ? '/dashboard/organizer' : '/dashboard/traveler'}
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      >
+                        <Compass className="w-4 h-4 text-indigo-400" />
+                        <span>{currentRole === 'admin' ? 'Administrator Hub' : currentRole === 'organizer' ? 'Organizer Operations' : 'Traveler Dashboard'}</span>
+                      </Link>
+
+                      <Link
+                        href="/trips"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      >
+                        <Luggage className="w-4 h-4 text-emerald-400" />
+                        <span>My Itineraries &amp; Trips</span>
+                      </Link>
+
+                      <Link
+                        href="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      >
+                        <Heart className="w-4 h-4 text-rose-400" />
+                        <span>Saved Destination Wishlist</span>
+                      </Link>
+
+                      <Link
+                        href="/explore"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      >
+                        <Globe2 className="w-4 h-4 text-cyan-400" />
+                        <span>Explore Global Catalog</span>
+                      </Link>
+                    </div>
+
+                    {/* Sign Out Button */}
+                    <div className="mt-2 pt-2 border-t border-slate-800/80">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out Account</span>
+                      </button>
+                    </div>
+
+                  </div>
+                )}
               </div>
-            </>
+
+            </div>
           ) : (
             // ================= ANONYMOUS GUEST ACTIONS =================
             <>
