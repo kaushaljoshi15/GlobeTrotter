@@ -289,6 +289,15 @@ export default function Navbar() {
                       </Link>
 
                       <Link
+                        href="/settings"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-amber-400" />
+                        <span>Account &amp; Security Settings</span>
+                      </Link>
+
+                      <Link
                         href="/explore"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
