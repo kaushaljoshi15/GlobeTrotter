@@ -602,10 +602,10 @@ function TravelerDashboardContent() {
             </div>
             <div>
               <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#e4c29e] transition-colors">
-                Smart Concierge
+                Smart Travel Tools &amp; Concierge
               </h3>
               <p className="text-xs text-stone-400 mt-1">
-                Live currency conversions, packing tools, and airport VIP lounge tips.
+                Live ₹ INR / Forex converter, packing checklists, and 24/7 tourist emergency helplines.
               </p>
             </div>
           </Link>

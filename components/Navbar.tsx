@@ -123,7 +123,7 @@ export default function Navbar() {
       { name: 'Group Expeditions', href: '/expeditions', icon: Compass },
       { name: 'Community', href: '/community', icon: MessageSquare },
       { name: 'Destinations', href: '/explore', icon: Globe2 },
-      { name: 'Concierge', href: '/concierge', icon: Calculator },
+      { name: 'Travel Tools', href: '/concierge', icon: Calculator },
     ];
   };
 
